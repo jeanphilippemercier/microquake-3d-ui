@@ -17,10 +17,18 @@
     <% } %>
   </head>
   <body>
-    <div id="root-container"></div>
+    <button
+      class="resetCamera"
+      style="z-index: 10; position: absolute; top: 10px; right: 10px;"
+    >Reset camera</button>
     <script type="text/javascript">
-      const container = document.querySelector('#root-container');
-      const viewer = ParaViewQuake.createViewer(container);
+      function updateViewer(viewer) {
+        viewer.updateEvents();
+
+        document.querySelector('.resetCamera').addEventListener('click', viewer.resetCamera);
+      }
+
+      ParaViewQuake.createViewer().then(updateViewer);
     </script>
   </body>
 </html>

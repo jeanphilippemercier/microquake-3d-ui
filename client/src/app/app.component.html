@@ -1,0 +1,101 @@
+<div class="fullscreen-wrapper">
+  <mat-card
+    class="card-container hover"
+  >
+    <div class="card-header">
+      <button class="card-menu-icon" mat-icon-button (click)="toggleExpanded()">
+        <mat-icon aria-label="Show/hide menu">menu</mat-icon>
+      </button>
+      <div class="card-header-actions" *ngIf="expanded">
+        <button class="card-menu-icon" mat-icon-button (click)="togglePicking()">
+          <mat-icon aria-label="Toggle event picking">help_outline</mat-icon>
+        </button>
+        <button class="card-menu-icon" mat-icon-button (click)="orientCamera()">
+          <mat-icon aria-label="Orient camera">near_me</mat-icon>
+        </button>
+        <button class="card-menu-icon" mat-icon-button (click)="resetCamera()">
+          <mat-icon aria-label="Show/hide menu">center_focus_strong</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-card-content class="card-content" *ngIf="expanded">
+      <div class="card-divider">
+        <mat-divider></mat-divider>
+      </div>
+      <section class="card-form-group">
+        <div class="card-form-title">Historical Period</div>
+        <div class="card-form-contents">
+          <mat-radio-group class="radio-group" [(ngModel)]="historicalPeriod">
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="12"
+            >1 Year</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="6"
+            >6 Months</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="3"
+            >3 Months</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </section>
+      <section class="card-form-group">
+        <div class="card-form-title">Focus Period</div>
+        <div class="card-form-contents">
+          <mat-radio-group class="radio-group" [(ngModel)]="focusPeriod">
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              value="3mon"
+            >3 Months</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              value="1mon"
+            >1 Month</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              value="1wk"
+            >3 Weeks</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              value="1day"
+            >1 Day</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </section>
+      <app-collapsible-list [list]="events">
+        <span header>Events</span>
+        <ng-template #item let-item>
+          <mat-checkbox
+            class="input-checkbox"
+            [(ngModel)]="item.checked"
+            color="primary"
+          >
+            {{ item.name }}
+          </mat-checkbox>
+        </ng-template>
+      </app-collapsible-list>
+      <app-collapsible-list [list]="pieces">
+        <span header>Mine</span>
+        <ng-template #item let-item>
+          <mat-checkbox
+            class="input-checkbox"
+            [(ngModel)]="item.checked"
+            color="primary"
+          >
+            {{ item.name }}
+          </mat-checkbox>
+        </ng-template>
+      </app-collapsible-list>
+    </mat-card-content>
+  </mat-card>
+  <app-vtk-view></app-vtk-view>
+</div>
