@@ -31,17 +31,15 @@ const NAME_MAPPING = {
   styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
+  liveMonitoring = false;
   expanded = true;
   picking = false;
   historicalPeriod = 8760; // in hours
   focusPeriod = 168; // in hours
   pieces = [
-    { name: "Piece 1", checked: false },
-    { name: "Piece 2", checked: false },
-    { name: "Piece 3", checked: false },
-    { name: "Piece 4", checked: false },
-    { name: "Piece 5", checked: false },
-    { name: "Piece 6", checked: false }
+    { name: "Aerial picture", checked: false },
+    { name: "Underground tunnels", checked: false },
+    { name: "Vents", checked: false },
   ];
   events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
@@ -76,6 +74,10 @@ export class AppComponent implements OnInit {
     });
     console.log('visibilityChange', JSON.stringify(visibilityMap));
     QuakeManager.updateVisibility(visibilityMap);
+  }
+
+  toggleLive() {
+    this.liveMonitoring = !this.liveMonitoring;
   }
 
   ngOnInit() {

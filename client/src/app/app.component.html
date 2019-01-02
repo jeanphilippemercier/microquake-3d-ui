@@ -7,7 +7,20 @@
         <mat-icon aria-label="Show/hide menu">menu</mat-icon>
       </button>
       <div class="card-header-actions" *ngIf="expanded">
-        <button class="card-menu-icon" mat-icon-button (click)="togglePicking()">
+        <button
+          class="card-menu-icon"
+          mat-icon-button
+          (click)="toggleLive()"
+          [color]="liveMonitoring ? 'warn' : ''"
+        >
+          <mat-icon aria-label="Toggle live monitoring">rss_feed</mat-icon>
+        </button>
+        <button
+          class="card-menu-icon"
+          mat-icon-button
+          (click)="togglePicking()"
+          [color]="picking ? 'primary' : ''"
+        >
           <mat-icon aria-label="Toggle event picking">help_outline</mat-icon>
         </button>
         <button class="card-menu-icon" mat-icon-button (click)="orientCamera()">
