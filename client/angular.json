@@ -16,7 +16,7 @@
             "customWebpackConfig": {
               "path": "./app-webpack.config.js"
             },
-            "outputPath": "dist/seismic-viz",
+            "outputPath": "../www",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
