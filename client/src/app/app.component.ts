@@ -1,15 +1,34 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import QuakeManager from '../QuakeManager';
+
+function pad(number) {
+  if (number < 10) {
+    return `0${number}`;
+  }
+  return `${number}`;
+}
+
+function getDateFromNow(nbHours = 0) {
+  const timeStamp = new Date(Date.now() - (nbHours * 3600000));
+  const year = timeStamp.getFullYear();
+  const month = pad(timeStamp.getMonth() + 1);
+  const day = pad(timeStamp.getDate());
+  const hours = pad(timeStamp.getHours());
+  const minutes = pad(timeStamp.getMinutes());
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:00.0`;
+}
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   expanded = true;
   picking = false;
-  historicalPeriod = 12; // in months
-  focusPeriod = '3mon';
+  historicalPeriod = 8760; // in hours
+  focusPeriod = 168; // in hours
   pieces = [
     { name: 'Piece 1', checked: false },
     { name: 'Piece 2', checked: false },
@@ -19,8 +38,8 @@ export class AppComponent {
     { name: 'Piece 6', checked: false },
   ];
   events = [
-    { name: 'Earthquake', checked: false },
-    { name: 'Blastquake', checked: false },
+    { name: 'Earthquake', checked: true },
+    { name: 'Blastquake', checked: true },
   ]
 
   toggleExpanded() {
@@ -32,10 +51,25 @@ export class AppComponent {
   }
 
   orientCamera() {
-    console.log('orientCamera');
+    QuakeManager.snapCamera();
   }
 
   resetCamera() {
-    console.log('resetCamera');
+    QuakeManager.resetCamera();
+  }
+
+  periodChange() {
+    const now = getDateFromNow();
+    const historicalTime = getDateFromNow(this.historicalPeriod);
+    const focusTime = getDateFromNow(this.focusPeriod);
+    console.log('updateEvents (FIXME)', now, focusTime, historicalTime);
+    // QuakeManager.updateEvents(now, focusTime, historicalTime);
+  }
+
+  ngOnInit() {
+    // FIXME
+    QuakeManager.connect({ sessionURL: 'ws://localhost:1234/ws' }).then(() => {
+      this.periodChange();
+    });
   }
 }

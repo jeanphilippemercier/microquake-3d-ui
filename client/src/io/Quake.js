@@ -3,7 +3,10 @@ export default function createMethods(session) {
   return {
     // 3D View ----------------------------------------------------------------
     resetCamera: () => session.call('paraview.quake.camera.reset', []),
+    snapCamera: () => session.call('paraview.quake.camera.snap', []),
+    render: () => session.call('paraview.quake.render', []),
     // Quake events -----------------------------------------------------------
+    updateEvents: (now, focusTime, historicalTime) => session.call('paraview.quake.data.update', [now, focusTime, historicalTime]),
     getEvents: (
       startTime = '2018-11-08T10:21:00.0',
       endTime = '2018-11-09T10:21:00.0'

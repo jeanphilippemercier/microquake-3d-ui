@@ -7,18 +7,7 @@ import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
 import { AttributeTypes } from 'vtk.js/Sources/Common/DataModel/DataSetAttributes/Constants';
 import { FieldDataTypes } from 'vtk.js/Sources/Common/DataModel/DataSet/Constants';
 
-function createPipeline() {
-  const pipeline = {
-    source: vtkConeSource.newInstance({ height: 1 }),
-    actor: vtkActor.newInstance(),
-    mapper: vtkMapper.newInstance(),
-  };
-
-  pipeline.mapper.setInputConnection(pipeline.source.getOutputPort());
-  pipeline.actor.setMapper(pipeline.mapper);
-
-  return pipeline;
-}
+import QuakeManager from '../../QuakeManager';
 
 @Component({
   selector: 'app-vtk-view',
@@ -40,15 +29,14 @@ export class VtkViewComponent implements OnInit {
       rootContainer: this.el.nativeElement,
       container: this.vtkContainer,
       containerStyle: {},
+      background: [0, 0, 0, 0],
     });
-
-    this.pipeline = createPipeline();
 
     const renderer = this.fullscreenWindow.getRenderer();
     const renWindow = this.fullscreenWindow.getRenderWindow();
-    renderer.addActor(this.pipeline.actor);
-    renderer.resetCamera();
-    renWindow.render();
+    const glRenderWindow = this.fullscreenWindow.getOpenGLRenderWindow();
+
+    QuakeManager.bindRendering(renderer, renWindow, glRenderWindow);
   }
 
 }

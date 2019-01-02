@@ -65,13 +65,13 @@ Although this step is only required to build it. If already built, this can be s
 ```
 $ cd client
 $ npm install
-$ npm run build:release
+$ npm run build
 ```
 
 For development purpose you can run the following command:
 
 ```
-$ npm run build -- --watch
+$ npm run build
 ```
 
 ## Running the ParaViewWeb application
@@ -83,7 +83,14 @@ $ export SPP_COMMON="$SPP_HOME/common"
 
 $ export PV_HOME=/Applications/ParaView-5.6.0.app/Contents
 
-$ $PV_HOME/bin/pvpython ./server/pvw-quake.py --content ./www --port 8080 --virtual-env ../py-env/
+$ $PV_HOME/bin/pvpython ./server/pvw-quake.py --port 1234 --virtual-env ../py-env/
+```
 
-$ open http://localhost:8080/
+In another terminal
+
+```
+$ cd client
+$ npm start
+
+$ open http://localhost:4200/
 ```
