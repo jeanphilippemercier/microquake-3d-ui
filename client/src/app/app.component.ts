@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import QuakeManager from '../QuakeManager';
+import { Component, OnInit } from "@angular/core";
+import QuakeManager from "../QuakeManager";
 
 function pad(number) {
   if (number < 10) {
@@ -9,7 +9,7 @@ function pad(number) {
 }
 
 function getDateFromNow(nbHours = 0) {
-  const timeStamp = new Date(Date.now() - (nbHours * 3600000));
+  const timeStamp = new Date(Date.now() - nbHours * 3600000);
   const year = timeStamp.getFullYear();
   const month = pad(timeStamp.getMonth() + 1);
   const day = pad(timeStamp.getDate());
@@ -19,10 +19,16 @@ function getDateFromNow(nbHours = 0) {
   return `${year}-${month}-${day}T${hours}:${minutes}:00.0`;
 }
 
+const NAME_MAPPING = {
+  Earthquake: "quake",
+  Blastquake: "blast",
+  Historical: "historical"
+};
+
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
   expanded = true;
@@ -30,17 +36,14 @@ export class AppComponent implements OnInit {
   historicalPeriod = 8760; // in hours
   focusPeriod = 168; // in hours
   pieces = [
-    { name: 'Piece 1', checked: false },
-    { name: 'Piece 2', checked: false },
-    { name: 'Piece 3', checked: false },
-    { name: 'Piece 4', checked: false },
-    { name: 'Piece 5', checked: false },
-    { name: 'Piece 6', checked: false },
+    { name: "Piece 1", checked: false },
+    { name: "Piece 2", checked: false },
+    { name: "Piece 3", checked: false },
+    { name: "Piece 4", checked: false },
+    { name: "Piece 5", checked: false },
+    { name: "Piece 6", checked: false }
   ];
-  events = [
-    { name: 'Earthquake', checked: true },
-    { name: 'Blastquake', checked: true },
-  ]
+  events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
   toggleExpanded() {
     this.expanded = !this.expanded;
@@ -62,13 +65,22 @@ export class AppComponent implements OnInit {
     const now = getDateFromNow();
     const historicalTime = getDateFromNow(this.historicalPeriod);
     const focusTime = getDateFromNow(this.focusPeriod);
-    console.log('updateEvents (FIXME)', now, focusTime, historicalTime);
+    console.log("updateEvents (FIXME)", now, focusTime, historicalTime);
     // QuakeManager.updateEvents(now, focusTime, historicalTime);
+  }
+
+  visibilityChange() {
+    const visibilityMap = {};
+    this.events.forEach((e) => {
+      visibilityMap[NAME_MAPPING[e.name]] = e.checked;
+    });
+    console.log('visibilityChange', JSON.stringify(visibilityMap));
+    QuakeManager.updateVisibility(visibilityMap);
   }
 
   ngOnInit() {
     // FIXME
-    QuakeManager.connect({ sessionURL: 'ws://localhost:1234/ws' }).then(() => {
+    QuakeManager.connect({ sessionURL: "ws://localhost:1234/ws" }).then(() => {
       this.periodChange();
     });
   }

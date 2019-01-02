@@ -49,27 +49,36 @@ export function isConnected() {
 }
 
 export function resetCamera() {
-  client.remote.Quake.resetCamera().then(args => {
+  return client.remote.Quake.resetCamera().then(args => {
     camera.set(args);
+    return args;
   });
 }
 
 export function snapCamera() {
-  client.remote.Quake.snapCamera().then(args => {
+  return client.remote.Quake.snapCamera().then(args => {
     camera.set(args);
+    return args;
   });
 }
 
 export function render() {
-  client.remote.Quake.render().then(args => {
+  return client.remote.Quake.render().then(args => {
     camera.set(args);
+    return args;
   });
 }
 
 export function updateEvents(now, focusTime, historicalTime) {
-  client.remote.Quake.updateEvents(now, focusTime, historicalTime).then(events => {
-    resetCamera();
-  });
+  return client.remote.Quake.updateEvents(now, focusTime, historicalTime).then(
+    events => {
+      return resetCamera();
+    }
+  );
+}
+
+export function updateVisibility(visibilityMap) {
+  return client.remote.Quake.updateVisibility(visibilityMap);
 }
 
 export default {
@@ -79,5 +88,6 @@ export default {
   render,
   resetCamera,
   snapCamera,
-  updateEvents
+  updateEvents,
+  updateVisibility
 };

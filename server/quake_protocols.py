@@ -128,6 +128,15 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         return self.getEventsForClient(events_in_focus)
 
 
+    @exportRpc("paraview.quake.visibility.update")
+    def updateVisibility(self, visibilityMap):
+        self.focusQuakeRepresentation.Visibility = 1 if 'quake' in visibilityMap and visibilityMap['quake'] else 0
+        self.focusBlastRepresentation.Visibility = 1 if 'blast' in visibilityMap and visibilityMap['blast'] else 0
+        self.historicalRepresentation.Visibility = 1 if 'historical' in visibilityMap and visibilityMap['historical'] else 0
+
+        self.getApplication().InvokeEvent('UpdateEvent')
+
+
     @exportRpc("paraview.quake.camera.reset")
     def resetCamera(self):
         simple.ResetCamera(self.view)

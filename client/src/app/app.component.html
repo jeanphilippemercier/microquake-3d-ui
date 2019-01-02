@@ -85,6 +85,8 @@
           <mat-checkbox
             class="input-checkbox"
             [(ngModel)]="item.checked"
+
+            (ngModelChange)="visibilityChange()"
             color="primary"
           >
             {{ item.name }}
