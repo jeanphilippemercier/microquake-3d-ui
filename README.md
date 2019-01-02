@@ -77,7 +77,7 @@ $ npm run build -- --watch
 ## Running the ParaViewWeb application
 
 ```
-$ export SPP_HOME=/.../seismic-processing-platform
+$ export SPP_HOME=$PWD/../seismic-processing-platform
 $ export SPP_CONFIG="$SPP_HOME/config"
 $ export SPP_COMMON="$SPP_HOME/common"
 

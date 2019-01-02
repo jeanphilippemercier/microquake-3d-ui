@@ -99,8 +99,8 @@ class _Server(pv_wslink.PVServerProtocol):
         view = simple.GetRenderView()
         view.EnableRenderOnInteraction = 0
         view.Background = [0.4470588235294118, 0.4470588235294118, 0.4470588235294118]
-        view.Background2 = [0.2235294117647059, 0.2235294117647059, 0.2235294117647059]
-        view.UseGradientBackground = 1
+        # view.Background2 = [0.2235294117647059, 0.2235294117647059, 0.2235294117647059]
+        # view.UseGradientBackground = 1
         view.OrientationAxesVisibility = 0
 
         # ProxyManager helper
