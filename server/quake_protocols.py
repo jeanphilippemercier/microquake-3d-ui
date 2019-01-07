@@ -61,9 +61,25 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.historicalRepresentation = simple.Show(self.historicalProxy)
         self.view = simple.Render()
 
+        # Green for earthquake and red for blast
+        self.focusQuakeRepresentation.DiffuseColor = [0.0, 1.0, 0.0]
+        self.focusBlastRepresentation.DiffuseColor = [1.0, 0.0, 0.0]
+
+        # Earthquake representation
+        self.focusQuakeRepresentation.SetRepresentationType('Point Gaussian')
+        simple.ColorBy(self.focusQuakeRepresentation, ('POINTS', 'magnitude'))
+        self.focusQuakeRepresentation.SetScalarBarVisibility(self.view , True)
+        self.focusQuakeRepresentation.ScaleByArray = 1
+
+        # Explosion representation
+        self.focusBlastRepresentation.SetRepresentationType('Point Gaussian')
+        simple.ColorBy(self.focusBlastRepresentation, ('POINTS', 'magnitude'))
+        self.focusBlastRepresentation.SetScalarBarVisibility(self.view , True)
+        self.focusBlastRepresentation.ScaleByArray = 1
+
         # Add cone in view
-        simple.Cone()
-        simple.Show()
+        # simple.Cone()
+        # simple.Show()
 
         # Load some initial data
         # self.getEvents()
@@ -75,8 +91,20 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
 
     def updateEventsPolyData(self, event_list, proxy, filterType = 0):
-        polydata = proxy.GetClientSideObject().GetOutput()
-        size = len(event_list) # FIXME based on filtering
+        polydata = proxy.GetClientSideObject().GetOutputDataObject(0)
+        filteredList = event_list if filterType == 0 else []
+        size = len(filteredList)
+
+        if len(filteredList) == 0:
+            targetType = 'earthquake' if filterType == 1 else 'explosion'
+            for event in event_list:
+                if event.event_type == targetType:
+                    filteredList.append(event)
+            size = len(filteredList)
+
+        # Debug output
+        print('updateEventsPolyData', filterType, len(filteredList), len(event_list))
+
         mag = polydata.GetPointData().GetArray('magnitude')
         if not mag:
             mag = vtkFloatArray()
@@ -93,10 +121,10 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         mag.SetNumberOfTuples(size)
 
         for i in range(size):
-            event = event_list[i]
+            event = filteredList[i]
             points.SetPoint(i, event.x, event.y, event.z)
             verts.SetValue(i + 1, i)
-            mag.SetValue(i, abs(event.magnitude))
+            mag.SetValue(i, 3 + event.magnitude) # Shift scale
 
         polydata.Modified()
         proxy.MarkModified(proxy)
@@ -120,10 +148,20 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     def updateData(self, now, focusTime, historicalTime):
         events_in_focus = seismic_client.get_events_catalog(API_URL, focusTime, now)
         historic_events = seismic_client.get_events_catalog(API_URL, historicalTime, focusTime)
+        print('focus', focusTime, now)
+        print('historical', historicalTime, focusTime)
 
         self.updateEventsPolyData(events_in_focus, self.focusQuakeProxy, 1)
         self.updateEventsPolyData(events_in_focus, self.focusBlastProxy, 2)
         self.updateEventsPolyData(historic_events, self.historicalProxy)
+
+        maxMagnitude = 3
+        self.focusQuakeRepresentation.ScaleTransferFunction.RescaleTransferFunction(-maxMagnitude, maxMagnitude)
+        self.focusBlastRepresentation.ScaleTransferFunction.RescaleTransferFunction(-maxMagnitude, maxMagnitude)
+        self.focusQuakeRepresentation.GaussianRadius = 20
+        self.focusBlastRepresentation.GaussianRadius = 20
+        lut = simple.GetColorTransferFunction('magnitude')
+        lut.RescaleTransferFunction(0.0, maxMagnitude)
 
         return self.getEventsForClient(events_in_focus)
 
