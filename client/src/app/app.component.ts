@@ -34,8 +34,8 @@ export class AppComponent implements OnInit {
   liveMonitoring = false;
   expanded = true;
   picking = false;
-  historicalPeriod = 8760; // in hours
-  focusPeriod = 168; // in hours
+  historicalPeriod = 2190; // in hours (3 months)
+  focusPeriod = 2190; // in hours (3 months)
   pieces = [
     { name: "Aerial picture", checked: false },
     { name: "Underground tunnels", checked: false },
@@ -64,7 +64,7 @@ export class AppComponent implements OnInit {
     const historicalTime = getDateFromNow(this.historicalPeriod);
     const focusTime = getDateFromNow(this.focusPeriod);
     console.log("updateEvents (FIXME)", now, focusTime, historicalTime);
-    // QuakeManager.updateEvents(now, focusTime, historicalTime);
+    QuakeManager.updateEvents(now, focusTime, historicalTime);
   }
 
   visibilityChange() {
