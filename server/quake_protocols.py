@@ -18,6 +18,24 @@ from spp.utils import seismic_client
 
 API_URL = 'http://api.microquake.org/api/v1/'
 
+BLAST_SHADER = """
+// This custom shader code define a gaussian blur
+// Please take a look into vtkSMPointGaussianRepresentation.cxx
+// for other custom shader examples
+
+//VTK::Color::Impl
+
+float distSq = dot(offsetVCVSOutput.xy, offsetVCVSOutput.xy);
+float angle = atan(offsetVCVSOutput.y, offsetVCVSOutput.x);
+
+float starFn = 1.0f - abs(sin(4 * angle));
+
+float scaledMask = mix(0.0, 0.05, starFn);
+if (distSq > starFn) {
+    discard;
+}
+"""
+
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
@@ -76,6 +94,13 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         simple.ColorBy(self.focusBlastRepresentation, ('POINTS', 'magnitude'))
         self.focusBlastRepresentation.SetScalarBarVisibility(self.view , True)
         self.focusBlastRepresentation.ScaleByArray = 1
+        # self.focusBlastRepresentation.GaussianRadius = 0.05
+        self.focusBlastRepresentation.ShaderPreset = 'Custom'
+        self.focusBlastRepresentation.CustomShader = BLAST_SHADER
+
+        # Hide scalar bar
+        self.focusQuakeRepresentation.SetScalarBarVisibility(self.view, False)
+        self.focusBlastRepresentation.SetScalarBarVisibility(self.view, False)
 
         # Add cone in view
         # simple.Cone()
@@ -159,7 +184,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.focusQuakeRepresentation.ScaleTransferFunction.RescaleTransferFunction(-maxMagnitude, maxMagnitude)
         self.focusBlastRepresentation.ScaleTransferFunction.RescaleTransferFunction(-maxMagnitude, maxMagnitude)
         self.focusQuakeRepresentation.GaussianRadius = 20
-        self.focusBlastRepresentation.GaussianRadius = 20
+        self.focusBlastRepresentation.GaussianRadius = 25
         lut = simple.GetColorTransferFunction('magnitude')
         lut.RescaleTransferFunction(0.0, maxMagnitude)
 
