@@ -23,7 +23,7 @@ sudo apt-get dist-upgrade
 sudo apt-get install nvidia-384
 ```
 
-Note: a newer version that `nvidia-384` can be used.
+__Note:__ a newer version than `nvidia-384` can be used.
 
 If you plan to add a webserver as frontend, you can run the following command. Apache can be used for the following set of reasons.
   1. Expose your service over HTTPS instead of the plain HTTP that the docker image will provide.
