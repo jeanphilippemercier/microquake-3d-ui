@@ -1,0 +1,64 @@
+{
+  "label": "Oyu Tolgoi",
+  "pieces": [
+    {
+      "label": "Aerial picture",
+      "file": "OyuTolgoi.jpg",
+      "type": "picture",
+      "visibility": 1,
+      "origin": [648875.676295577, 4766016.90904555, 1170],
+      "point1": [653675.676295577, 4766016.90904555, 1170],
+      "point2": [648875.676295577, 4768814.10904555, 1170]
+    },{
+      "label": "Aerial picture with stations",
+      "file": "OyuTolgoi_with_stations.jpg",
+      "type": "picture",
+      "visibility": 0,
+      "origin": [648875.676295577, 4766016.90904555, 1170],
+      "point1": [653675.676295577, 4766016.90904555, 1170],
+      "point2": [648875.676295577, 4768814.10904555, 1170]
+    },{
+      "label": "Haulage wall",
+      "file": "Mineplan_haulage_wall.vtp",
+      "type": "lines",
+      "visibility": 1
+    },{
+      "label": "Milestone",
+      "file": "Mineplan_milestone3.vtp",
+      "type": "lines",
+      "visibility": 1
+    },{
+      "label": "Plan 2012",
+      "file": "Mineplan_plan_2012.vtp",
+      "type": "lines",
+      "visibility": 1
+    },{
+      "label": "Plan as-built x014",
+      "file": "Mineplan_x014_plan_asbuilt.vtp",
+      "type": "lines",
+      "visibility": 1
+    },{
+      "label": "Walls x300",
+      "file": "Mineplan_x300_wall.vtp",
+      "type": "lines",
+      "visibility": 1
+    },{
+      "label": "Walls x380",
+      "file": "Mineplan_x380_wall.vtp",
+      "type": "lines",
+      "visibility": 1
+    },{
+      "label": "Surface sensors",
+      "file": "sensors_surface.vtp",
+      "type": "sensors",
+      "visibility": 1,
+      "color": [1, 0, 0]
+    },{
+      "label": "Underground sensors",
+      "file": "sensors_underground.vtp",
+      "type": "sensors",
+      "visibility": 1,
+      "color": [0, 1, 0]
+    }
+  ]
+}

@@ -125,7 +125,7 @@ def createLinePipeline(basePath, config):
     representation.Visibility = config['visibility']
 
     # No color, wider width and looks like tubes
-    simple.ColorBy(representation, None)
+    # simple.ColorBy(representation, None)
     representation.LineWidth = 2.0
     representation.RenderLinesAsTubes = 1
 
