@@ -14,6 +14,10 @@ export default function createMethods(session) {
       ]),
     updateVisibility: visibilityMap =>
       session.call("paraview.quake.visibility.update", [visibilityMap]),
+    // Mine -------------------------------------------------------------------
+    getMineDescription: () => session.call("paraview.quake.mine.get", []),
+    updateMineVisibility: visibilityMap =>
+      session.call("paraview.quake.mine.visibility.update", [visibilityMap]),
     // deprecated -------------------------------------------------------------
     getEvents: (
       startTime = "2018-11-08T10:21:00.0",

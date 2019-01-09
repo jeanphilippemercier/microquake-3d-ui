@@ -83,7 +83,8 @@ $ export SPP_COMMON="$SPP_HOME/common"
 
 $ export PV_HOME=/Applications/ParaView-5.6.0.app/Contents
 
-$ $PV_HOME/bin/pvpython ./server/pvw-quake.py --port 1234 --virtual-env ../py-env/
+$ $PV_HOME/bin/pvpython ./server/pvw-quake.py --port 1234 --virtual-env ../py-env/ --mine $PWD/mines/OyuTolgoi
+
 ```
 
 In another terminal

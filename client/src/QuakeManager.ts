@@ -72,13 +72,21 @@ export function render() {
 export function updateEvents(now, focusTime, historicalTime) {
   return client.remote.Quake.updateEvents(now, focusTime, historicalTime).then(
     events => {
-      return resetCamera();
+      return render();
     }
   );
 }
 
 export function updateVisibility(visibilityMap) {
   return client.remote.Quake.updateVisibility(visibilityMap);
+}
+
+export function updateMineVisibility(visibilityMap) {
+  return client.remote.Quake.updateMineVisibility(visibilityMap);
+}
+
+export function getMineDescription() {
+  return client.remote.Quake.getMineDescription();
 }
 
 export default {
@@ -89,5 +97,7 @@ export default {
   resetCamera,
   snapCamera,
   updateEvents,
-  updateVisibility
+  updateVisibility,
+  updateMineVisibility,
+  getMineDescription
 };

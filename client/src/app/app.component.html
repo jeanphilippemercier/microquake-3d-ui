@@ -106,12 +106,13 @@
           </mat-checkbox>
         </ng-template>
       </app-collapsible-list>
-      <app-collapsible-list [list]="pieces">
-        <span header>Mine</span>
+      <app-collapsible-list [list]="pieces" *ngIf="mineLabel && mineLabel.length">
+        <span header>{{ mineLabel }}</span>
         <ng-template #item let-item>
           <mat-checkbox
             class="input-checkbox"
             [(ngModel)]="item.checked"
+            (ngModelChange)="mineVisibilityChange()"
             color="primary"
           >
             {{ item.name }}

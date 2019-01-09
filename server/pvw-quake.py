@@ -56,10 +56,11 @@ class _Server(pv_wslink.PVServerProtocol):
     authKey = "wslink-secret"
     groupRegex = "[0-9]+\\.[0-9]+\\.|[0-9]+\\."
     excludeRegex = "^\\.|~$|^\\$"
-    viewportScale=1.0
-    viewportMaxWidth=2560
-    viewportMaxHeight=1440
+    viewportScale = 1.0
+    viewportMaxWidth = 2560
+    viewportMaxHeight = 1440
     settingsLODThreshold = 102400
+    mineBasePath = ''
 
 
     @staticmethod
@@ -69,6 +70,7 @@ class _Server(pv_wslink.PVServerProtocol):
         parser.add_argument("--viewport-max-width", default=2560, type=int, help="Viewport maximum size in width", dest="viewportMaxWidth")
         parser.add_argument("--viewport-max-height", default=1440, type=int, help="Viewport maximum size in height", dest="viewportMaxHeight")
         parser.add_argument("--settings-lod-threshold", default=102400, type=int, help="LOD Threshold in Megabytes", dest="settingsLODThreshold")
+        parser.add_argument("--mine", default=None, help="Path to mine base directory", dest="mine")
 
 
     @staticmethod
@@ -78,6 +80,7 @@ class _Server(pv_wslink.PVServerProtocol):
         _Server.viewportMaxWidth     = args.viewportMaxWidth
         _Server.viewportMaxHeight    = args.viewportMaxHeight
         _Server.settingsLODThreshold = args.settingsLODThreshold
+        _Server.mineBasePath         = args.mine
 
 
     def initialize(self):
@@ -87,7 +90,7 @@ class _Server(pv_wslink.PVServerProtocol):
         self.registerVtkWebProtocol(pv_protocols.ParaViewWebPublishImageDelivery(decode=False))
 
         # Bring used components from ParaView Lite
-        self.registerVtkWebProtocol(local_protocols.ParaViewQuake())
+        self.registerVtkWebProtocol(local_protocols.ParaViewQuake(mineBasePath = _Server.mineBasePath))
 
         # Update authentication key to use
         self.updateSecret(_Server.authKey)

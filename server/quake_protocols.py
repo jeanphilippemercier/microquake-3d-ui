@@ -1,5 +1,5 @@
 # Main python libs
-import os, time
+import os, time, json, math
 
 # ParaViewWeb
 from wslink import register as exportRpc
@@ -8,6 +8,9 @@ from paraview.web import protocols as pv_protocols
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray
 from vtkmodules.vtkCommonCore import vtkPoints, vtkFloatArray
+
+# Debug stuff
+from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 # Quake stuff
 from spp.utils import seismic_client
@@ -35,6 +38,31 @@ if (distSq > starFn) {
     discard;
 }
 """
+
+
+BLAST_SHADER_BG = """
+// This custom shader code define a gaussian blur
+// Please take a look into vtkSMPointGaussianRepresentation.cxx
+// for other custom shader examples
+
+//VTK::Color::Impl
+
+float distSq = dot(offsetVCVSOutput.xy, offsetVCVSOutput.xy);
+float angle = atan(offsetVCVSOutput.y, offsetVCVSOutput.x);
+
+float starFn = 1.0f - abs(sin(4 * angle));
+
+if (distSq > 1.0f) {
+    discard;
+} else if (distSq > starFn) {
+    ambientColor = vec3(0.0, 0.0, 0.0);
+    diffuseColor = vec3(0.0, 0.0, 0.0);
+}
+"""
+
+SHIFT = 2
+MAX_MAGNITUDE = 2
+GAUSSIAN_RADIUS = 10
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -67,8 +95,76 @@ def createTrivialProducer():
 
 # -----------------------------------------------------------------------------
 
+def createPicturePipeline(basePath, config):
+    source = simple.Plane()
+    source.Origin = config['origin']
+    source.Point1 = config['point1']
+    source.Point2 = config['point2']
+
+    texture = servermanager._getPyProxy(servermanager.CreateProxy('textures', 'ImageTexture'))
+    texture.FileName = os.path.join(basePath, config['file'])
+    servermanager.Register(texture)
+
+    representation = simple.GetRepresentation(source)
+    representation.Texture = texture
+    representation.Visibility = config['visibility']
+
+    return {
+        'label': config['label'],
+        'source': source,
+        'representation': representation,
+        'texture': texture,
+    }
+
+
+# -----------------------------------------------------------------------------
+
+def createLinePipeline(basePath, config):
+    source = simple.OpenDataFile(os.path.join(basePath, config['file']))
+    representation = simple.GetRepresentation(source)
+    representation.Visibility = config['visibility']
+
+    # No color, wider width and looks like tubes
+    simple.ColorBy(representation, None)
+    representation.LineWidth = 2.0
+    representation.RenderLinesAsTubes = 1
+
+    return {
+        'label': config['label'],
+        'source': source,
+        'representation': representation
+    }
+
+# -----------------------------------------------------------------------------
+
+def createSensorPipeline(basePath, config):
+    source = simple.OpenDataFile(os.path.join(basePath, config['file']))
+    representation = simple.GetRepresentation(source)
+    representation.Visibility = config['visibility']
+
+    # No color, wider width and looks like tubes
+    representation.LineWidth = 2.0
+    representation.RenderLinesAsTubes = 1
+    representation.DiffuseColor = config['color']
+
+    return {
+        'label': config['label'],
+        'source': source,
+        'representation': representation
+    }
+
+# -----------------------------------------------------------------------------
+
+MINE_PIECES = {
+    'picture': createPicturePipeline,
+    'lines': createLinePipeline,
+    'sensors': createSensorPipeline,
+}
+
+# -----------------------------------------------------------------------------
+
 class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
-    def __init__(self, **kwargs):
+    def __init__(self, mineBasePath = None, **kwargs):
         super(pv_protocols.ParaViewWebProtocol, self).__init__()
         self.focusQuakeProxy = createTrivialProducer()
         self.focusBlastProxy = createTrivialProducer()
@@ -82,37 +178,39 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # Green for earthquake and red for blast
         self.focusQuakeRepresentation.DiffuseColor = [0.0, 1.0, 0.0]
         self.focusBlastRepresentation.DiffuseColor = [1.0, 0.0, 0.0]
+        self.historicalRepresentation.PointSize = 3
 
         # Earthquake representation
         self.focusQuakeRepresentation.SetRepresentationType('Point Gaussian')
+        # simple.ColorBy(self.focusQuakeRepresentation, None)
         simple.ColorBy(self.focusQuakeRepresentation, ('POINTS', 'magnitude'))
-        self.focusQuakeRepresentation.SetScalarBarVisibility(self.view , True)
         self.focusQuakeRepresentation.ScaleByArray = 1
+        self.focusQuakeRepresentation.UseScaleFunction = 0
 
         # Explosion representation
         self.focusBlastRepresentation.SetRepresentationType('Point Gaussian')
         simple.ColorBy(self.focusBlastRepresentation, ('POINTS', 'magnitude'))
-        self.focusBlastRepresentation.SetScalarBarVisibility(self.view , True)
+        # simple.ColorBy(self.focusBlastRepresentation, None)
         self.focusBlastRepresentation.ScaleByArray = 1
+        self.focusBlastRepresentation.UseScaleFunction = 0
         # self.focusBlastRepresentation.GaussianRadius = 0.05
         self.focusBlastRepresentation.ShaderPreset = 'Custom'
-        self.focusBlastRepresentation.CustomShader = BLAST_SHADER
+        self.focusBlastRepresentation.CustomShader = BLAST_SHADER_BG
 
         # Hide scalar bar
-        self.focusQuakeRepresentation.SetScalarBarVisibility(self.view, False)
-        self.focusBlastRepresentation.SetScalarBarVisibility(self.view, False)
+        # self.focusQuakeRepresentation.SetScalarBarVisibility(self.view, False)
+        # self.focusBlastRepresentation.SetScalarBarVisibility(self.view, False)
 
-        # Add cone in view
-        # simple.Cone()
-        # simple.Show()
-
-        # Load some initial data
-        # self.getEvents()
-
-        # simple.ColorBy(self.eventsRepresentation, ('POINTS', 'magnitude'))
-        # self.eventsRepresentation.SetRepresentationType('Point Gaussian')
-        # self.eventsRepresentation.GaussianRadius = 10
-        # self.eventsRepresentation.ScaleByArray = 1
+        # Load mine definition
+        self.mineLabel = None
+        self.minePieces = []
+        if mineBasePath:
+            filepath = os.path.join(mineBasePath, 'index.json')
+            with open(filepath, 'r') as mineFileMeta:
+                mine = json.load(mineFileMeta)
+                self.mineLabel = mine['label']
+                for piece in mine['pieces']:
+                    self.minePieces.append(MINE_PIECES[piece['type']](mineBasePath, piece))
 
 
     def updateEventsPolyData(self, event_list, proxy, filterType = 0):
@@ -149,10 +247,18 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             event = filteredList[i]
             points.SetPoint(i, event.x, event.y, event.z)
             verts.SetValue(i + 1, i)
-            mag.SetValue(i, 3 + event.magnitude) # Shift scale
+            mag.SetValue(i, SHIFT + event.magnitude) # Shift scale
 
         polydata.Modified()
         proxy.MarkModified(proxy)
+
+        if filterType == 1:
+            writer = vtkXMLPolyDataWriter()
+            writer.SetDataModeToAppended()
+            writer.SetCompressorTypeToZLib()
+            writer.SetInputData(polydata)
+            writer.SetFileName('/Users/seb/Desktop/events.vtp')
+            writer.Update()
 
     def getEventsForClient(self, event_list):
         return {
@@ -180,13 +286,13 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.updateEventsPolyData(events_in_focus, self.focusBlastProxy, 2)
         self.updateEventsPolyData(historic_events, self.historicalProxy)
 
-        maxMagnitude = 3
-        self.focusQuakeRepresentation.ScaleTransferFunction.RescaleTransferFunction(-maxMagnitude, maxMagnitude)
-        self.focusBlastRepresentation.ScaleTransferFunction.RescaleTransferFunction(-maxMagnitude, maxMagnitude)
-        self.focusQuakeRepresentation.GaussianRadius = 20
-        self.focusBlastRepresentation.GaussianRadius = 25
+        self.focusQuakeRepresentation.GaussianRadius = GAUSSIAN_RADIUS
+        self.focusBlastRepresentation.GaussianRadius = GAUSSIAN_RADIUS
         lut = simple.GetColorTransferFunction('magnitude')
-        lut.RescaleTransferFunction(0.0, maxMagnitude)
+        lut.RescaleTransferFunction(0.0, SHIFT + MAX_MAGNITUDE)
+        # lut.RescaleTransferFunctionToDataRange(False, True)
+
+        self.getApplication().InvokeEvent('UpdateEvent')
 
         return self.getEventsForClient(events_in_focus)
 
@@ -198,6 +304,28 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.historicalRepresentation.Visibility = 1 if 'historical' in visibilityMap and visibilityMap['historical'] else 0
 
         self.getApplication().InvokeEvent('UpdateEvent')
+
+
+    @exportRpc("paraview.quake.mine.visibility.update")
+    def updateMineVisibility(self, visibilityMap):
+        for piece in self.minePieces:
+            piece['representation'].Visibility = 1 if visibilityMap[piece['label']] else 0
+
+        self.getApplication().InvokeEvent('UpdateEvent')
+
+
+    @exportRpc("paraview.quake.mine.get")
+    def getMineDescription(self):
+        pieces = []
+        for piece in self.minePieces:
+            name = piece['label']
+            checked = True if piece['representation'].Visibility == 1 else False
+            pieces.append({ 'name': name, 'checked': checked })
+
+        return {
+            'label': self.mineLabel,
+            'pieces': pieces
+        }
 
 
     @exportRpc("paraview.quake.camera.reset")

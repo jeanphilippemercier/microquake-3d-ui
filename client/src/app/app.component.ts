@@ -36,11 +36,8 @@ export class AppComponent implements OnInit {
   picking = false;
   historicalPeriod = 2190; // in hours (3 months)
   focusPeriod = 2190; // in hours (3 months)
-  pieces = [
-    { name: "Aerial picture", checked: false },
-    { name: "Underground tunnels", checked: false },
-    { name: "Vents", checked: false },
-  ];
+  mineLabel: '';
+  pieces = [];
   events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
   toggleExpanded() {
@@ -76,14 +73,32 @@ export class AppComponent implements OnInit {
     QuakeManager.updateVisibility(visibilityMap);
   }
 
+  mineVisibilityChange() {
+    const visibilityMap = {};
+    this.pieces.forEach((e) => {
+      visibilityMap[e.name] = e.checked;
+    });
+    console.log('mineVisibilityChange', JSON.stringify(visibilityMap));
+    QuakeManager.updateMineVisibility(visibilityMap);
+  }
+
   toggleLive() {
     this.liveMonitoring = !this.liveMonitoring;
   }
 
   ngOnInit() {
-    // FIXME
     QuakeManager.connect({ sessionURL: "ws://localhost:1234/ws" }).then(() => {
-      this.periodChange();
+      // Update mine info
+      QuakeManager.getMineDescription().then((mine) => {
+        this.mineLabel = mine.label;
+        this.pieces = mine.pieces;
+
+        // Put mine in center
+        QuakeManager.resetCamera();
+
+        // Trigger event fetching
+        this.periodChange();
+      });
     });
   }
 }
