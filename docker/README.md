@@ -159,7 +159,6 @@ ${EXTERNAL}/
     microquake/
     microquake-3d-ui/
   apps/
-    env.sh
     py-env/
     quake/
       server/
@@ -207,6 +206,13 @@ pip install -e .
 cd ${EXTERNAL}/repos/microquake
 pip install -e .
 ```
+
+Then patch it to replace the host absolute paths into docker absolute path.
+
+```
+cd ${EXTERNAL}/repo/microquake-3d-ui/docker
+./patch-virtual-env.sh 
+``` 
 
 ### Create Docker image
 
