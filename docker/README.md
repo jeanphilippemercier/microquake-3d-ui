@@ -201,10 +201,10 @@ virtualenv py-env
 source py-env/bin/activate
 pip install ipython
 
-cd ../repos/seismic-processing-platform
+cd ${EXTERNAL}/repos/seismic-processing-platform
 pip install -e .
 
-cd ../repos/microquake
+cd ${EXTERNAL}/repos/microquake
 pip install -e .
 ```
 
