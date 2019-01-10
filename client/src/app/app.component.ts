@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
   picking = false;
   historicalPeriod = 2190; // in hours (3 months)
   focusPeriod = 2190; // in hours (3 months)
-  mineLabel: '';
+  mineLabel: "";
   pieces = [];
   events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
@@ -60,25 +60,22 @@ export class AppComponent implements OnInit {
     const now = getDateFromNow();
     const historicalTime = getDateFromNow(this.historicalPeriod);
     const focusTime = getDateFromNow(this.focusPeriod);
-    console.log("updateEvents (FIXME)", now, focusTime, historicalTime);
     QuakeManager.updateEvents(now, focusTime, historicalTime);
   }
 
   visibilityChange() {
     const visibilityMap = {};
-    this.events.forEach((e) => {
+    this.events.forEach(e => {
       visibilityMap[NAME_MAPPING[e.name]] = e.checked;
     });
-    console.log('visibilityChange', JSON.stringify(visibilityMap));
     QuakeManager.updateVisibility(visibilityMap);
   }
 
   mineVisibilityChange() {
     const visibilityMap = {};
-    this.pieces.forEach((e) => {
+    this.pieces.forEach(e => {
       visibilityMap[e.name] = e.checked;
     });
-    console.log('mineVisibilityChange', JSON.stringify(visibilityMap));
     QuakeManager.updateMineVisibility(visibilityMap);
   }
 
@@ -87,9 +84,14 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    QuakeManager.connect({ sessionURL: "ws://localhost:1234/ws" }).then(() => {
+    const config =
+      window.location.hostname === "localhost" &&
+      window.location.port === "4200"
+        ? { sessionURL: "ws://localhost:1234/ws" }
+        : { application: "quake" };
+    QuakeManager.connect(config).then(() => {
       // Update mine info
-      QuakeManager.getMineDescription().then((mine) => {
+      QuakeManager.getMineDescription().then(mine => {
         this.mineLabel = mine.label;
         this.pieces = mine.pieces;
 

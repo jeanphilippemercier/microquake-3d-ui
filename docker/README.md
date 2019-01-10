@@ -291,9 +291,9 @@ Also if you just want to run it locally to demo it as a process, that you can ki
 ```
 sudo docker run --runtime=nvidia \
     -p 0.0.0.0:9000:80            \
-    -v ~:/external                 \
+    -v ${EXTERNAL}:/external       \
     -ti pvw-micro-quake-v5.6.0      \
     "ws://localhost:9000/"
 ```
 
-And you can access it by pointing your browser to `http://localhost:9000`
+And you can access it by pointing your browser to `http://localhost:9000/quake`
