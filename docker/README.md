@@ -213,15 +213,20 @@ pip install -e .
 Create the file `${EXTERNAL}/apps/env.sh` with the content below.
 
 ```
-export SPP_HOME=/${EXTERNAL}/repos/seismic-processing-platform
+export SPP_HOME=${EXTERNAL}/repos/seismic-processing-platform
 export SPP_CONFIG="$SPP_HOME/config"
 export SPP_COMMON="$SPP_HOME/common"
+```
+
+Then allow that file to be executed
+
+```
+chmod +x ${EXTERNAL}/apps/env.sh
 ```
 
 ### Create Docker image
 
 ```
-mkdir repos
 cd ${EXTERNAL}/repos/microquake-3d-ui/docker
 sudo docker build -t pvw-micro-quake-v5.6.0 .
 ```
