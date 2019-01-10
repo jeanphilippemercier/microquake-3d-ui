@@ -13,5 +13,10 @@ RUN ["/opt/paraviewweb/scripts/addEndpoints.sh", \
   "quake", "/external/apps/quake/www" \
 ]
 
+# Setup env
+ENV SPP_HOME=/external/repos/seismic-processing-platform
+ENV SPP_CONFIG="$SPP_HOME/config"
+ENV SPP_COMMON="$SPP_HOME/common"
+
 # Start the container
 ENTRYPOINT ["/opt/paraviewweb/scripts/start.sh"]

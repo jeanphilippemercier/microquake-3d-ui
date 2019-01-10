@@ -208,22 +208,6 @@ cd ${EXTERNAL}/repos/microquake
 pip install -e .
 ```
 
-### Create setup script
-
-Create the file `${EXTERNAL}/apps/env.sh` with the content below.
-
-```
-export SPP_HOME=${EXTERNAL}/repos/seismic-processing-platform
-export SPP_CONFIG="$SPP_HOME/config"
-export SPP_COMMON="$SPP_HOME/common"
-```
-
-Then allow that file to be executed
-
-```
-chmod +x ${EXTERNAL}/apps/env.sh
-```
-
 ### Create Docker image
 
 ```
