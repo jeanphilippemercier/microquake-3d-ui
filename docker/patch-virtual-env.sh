@@ -53,3 +53,6 @@ sed -i "s:$ORIGINAL_PATH:/external:g" lib/python2.7/site-packages/easy-install.p
 sed -i "s:$ORIGINAL_PATH:/external:g" lib/python2.7/site-packages/easy-install.pth
 sed -i "s:$ORIGINAL_PATH:/external:g" lib/python2.7/site-packages/spp.egg-link
 sed -i "s:$ORIGINAL_PATH:/external:g" lib/python2.7/site-packages/microquake.egg-link
+
+# Replace file with proper encoding
+cp $ORIGINAL_PATH/repos/microquake-3d-ui/docker/patches/flinnengdahl.py $ORIGINAL_PATH/apps/py-env/lib/python2.7/site-packages/obspy/geodetics/flinnengdahl.py
