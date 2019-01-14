@@ -1,0 +1,10 @@
+:host {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.vtk-view-container {
+  position: relative;
+  height: 100%;
+}

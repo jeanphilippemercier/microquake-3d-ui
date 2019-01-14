@@ -1,0 +1,15 @@
+.collapsible-list-group {
+  padding: 8px 0;
+}
+
+.collapsible-list-title {
+  font-weight: bold;
+  user-select: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.collapsible-list-contents {
+  padding-left: 16px;
+}

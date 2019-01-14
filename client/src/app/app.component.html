@@ -1,0 +1,125 @@
+<div class="fullscreen-wrapper">
+  <mat-card
+    class="card-container hover"
+  >
+    <div class="card-header">
+      <button class="card-menu-icon" mat-icon-button (click)="toggleExpanded()">
+        <mat-icon aria-label="Show/hide menu">menu</mat-icon>
+      </button>
+      <div class="card-header-actions" *ngIf="expanded">
+        <button
+          class="card-menu-icon"
+          mat-icon-button
+          (click)="toggleLive()"
+          [color]="liveMonitoring ? 'warn' : ''"
+        >
+          <mat-icon aria-label="Toggle live monitoring">rss_feed</mat-icon>
+        </button>
+        <button
+          class="card-menu-icon"
+          mat-icon-button
+          (click)="togglePicking()"
+          [color]="picking ? 'primary' : ''"
+        >
+          <mat-icon aria-label="Toggle event picking">help_outline</mat-icon>
+        </button>
+        <button class="card-menu-icon" mat-icon-button (click)="orientCamera()">
+          <mat-icon aria-label="Orient camera">near_me</mat-icon>
+        </button>
+        <button class="card-menu-icon" mat-icon-button (click)="resetCamera()">
+          <mat-icon aria-label="Show/hide menu">center_focus_strong</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-card-content class="card-content" *ngIf="expanded">
+      <div class="card-divider">
+        <mat-divider></mat-divider>
+      </div>
+      <section class="card-form-group">
+        <div class="card-form-title">Historical Period</div>
+        <div class="card-form-contents">
+          <mat-radio-group
+            class="radio-group"
+            [(ngModel)]="historicalPeriod"
+            (ngModelChange)="periodChange()"
+          >
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="8760"
+            >1 Year</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="4380"
+            >6 Months</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="2190"
+            >3 Months</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </section>
+      <section class="card-form-group">
+        <div class="card-form-title">Focus Period</div>
+        <div class="card-form-contents">
+          <mat-radio-group
+            class="radio-group"
+            [(ngModel)]="focusPeriod"
+            (ngModelChange)="periodChange()"
+          >
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="2190"
+            >3 Months</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="730"
+            >1 Month</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="168"
+            >1 Week</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="24"
+            >1 Day</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </section>
+      <app-collapsible-list [list]="events">
+        <span header>Events</span>
+        <ng-template #item let-item>
+          <mat-checkbox
+            class="input-checkbox"
+            [(ngModel)]="item.checked"
+
+            (ngModelChange)="visibilityChange()"
+            color="primary"
+          >
+            {{ item.name }}
+          </mat-checkbox>
+        </ng-template>
+      </app-collapsible-list>
+      <app-collapsible-list [list]="pieces" *ngIf="mineLabel && mineLabel.length">
+        <span header>{{ mineLabel }}</span>
+        <ng-template #item let-item>
+          <mat-checkbox
+            class="input-checkbox"
+            [(ngModel)]="item.checked"
+            (ngModelChange)="mineVisibilityChange()"
+            color="primary"
+          >
+            {{ item.name }}
+          </mat-checkbox>
+        </ng-template>
+      </app-collapsible-list>
+    </mat-card-content>
+  </mat-card>
+  <app-vtk-view></app-vtk-view>
+</div>
