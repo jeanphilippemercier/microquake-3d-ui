@@ -36,8 +36,7 @@ export class AppComponent implements OnInit {
   picking = false;
   historicalPeriod = 2190; // in hours (3 months)
   focusPeriod = 2190; // in hours (3 months)
-  mineLabel: "";
-  pieces = [];
+  mineCategories = [];
   events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
   toggleExpanded() {
@@ -73,9 +72,12 @@ export class AppComponent implements OnInit {
 
   mineVisibilityChange() {
     const visibilityMap = {};
-    this.pieces.forEach(e => {
-      visibilityMap[e.name] = e.checked;
-    });
+    for (let i = 0; i < this.mineCategories.length; i++) {
+      for (let j = 0; j < this.mineCategories[i].pieces.length; j++) {
+        const piece = this.mineCategories[i].pieces[j];
+        visibilityMap[piece.name] = piece.checked;
+      }
+    }
     QuakeManager.updateMineVisibility(visibilityMap);
   }
 
@@ -92,8 +94,7 @@ export class AppComponent implements OnInit {
     QuakeManager.connect(config).then(() => {
       // Update mine info
       QuakeManager.getMineDescription().then(mine => {
-        this.mineLabel = mine.label;
-        this.pieces = mine.pieces;
+        this.mineCategories = mine;
 
         // Put mine in center
         QuakeManager.resetCamera();

@@ -202,28 +202,48 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # self.focusBlastRepresentation.SetScalarBarVisibility(self.view, False)
 
         # Load mine definition
-        self.mineLabel = None
+        self.mineBounds = [-1, 1, -1, 1, -1, 1]
+        self.mineCategories = []
         self.minePieces = []
+        self.minePiecesByCategory = {}
         if mineBasePath:
             filepath = os.path.join(mineBasePath, 'index.json')
             with open(filepath, 'r') as mineFileMeta:
                 mine = json.load(mineFileMeta)
-                self.mineLabel = mine['label']
+                self.mineBounds = mine['boundaries']
+                self.mineCategories = mine['categories']
                 for piece in mine['pieces']:
-                    self.minePieces.append(MINE_PIECES[piece['type']](mineBasePath, piece))
+                    category = piece['category']
+                    if category not in self.minePiecesByCategory:
+                        self.minePiecesByCategory[category] = []
+                    pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece)
 
+                    self.minePiecesByCategory[category].append(pipelineItem)
+                    self.minePieces.append(pipelineItem)
+
+    def keepEvent(self, event, filterType = 0):
+        if event.x < self.mineBounds[0] or event.x > self.mineBounds[1]:
+            return False
+        if event.y < self.mineBounds[2] or event.y > self.mineBounds[3]:
+            return False
+        if event.z < self.mineBounds[4] or event.z > self.mineBounds[5]:
+            return False
+
+        if filterType == 1:
+            return event.event_type == 'earthquake'
+
+        if filterType == 2:
+            return event.event_type == 'explosion'
+
+        return True
 
     def updateEventsPolyData(self, event_list, proxy, filterType = 0):
         polydata = proxy.GetClientSideObject().GetOutputDataObject(0)
-        filteredList = event_list if filterType == 0 else []
+        filteredList = []
+        for event in event_list:
+            if self.keepEvent(event, filterType):
+                filteredList.append(event)
         size = len(filteredList)
-
-        if len(filteredList) == 0:
-            targetType = 'earthquake' if filterType == 1 else 'explosion'
-            for event in event_list:
-                if event.event_type == targetType:
-                    filteredList.append(event)
-            size = len(filteredList)
 
         # Debug output
         print('updateEventsPolyData', filterType, len(filteredList), len(event_list))
@@ -316,16 +336,17 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
     @exportRpc("paraview.quake.mine.get")
     def getMineDescription(self):
-        pieces = []
-        for piece in self.minePieces:
-            name = piece['label']
-            checked = True if piece['representation'].Visibility == 1 else False
-            pieces.append({ 'name': name, 'checked': checked })
+        response = []
+        for category in self.mineCategories:
+            pieces = []
+            entry = { 'name': category['label'], 'pieces': pieces }
+            response.append(entry)
+            for piece in self.minePiecesByCategory[category['name']]:
+                name = piece['label']
+                checked = True if piece['representation'].Visibility == 1 else False
+                pieces.append({ 'name': name, 'checked': checked })
 
-        return {
-            'label': self.mineLabel,
-            'pieces': pieces
-        }
+        return response
 
 
     @exportRpc("paraview.quake.camera.reset")

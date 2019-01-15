@@ -1,7 +1,17 @@
 {
-  "label": "Oyu Tolgoi",
+  "boundaries": [
+    650200, 652700,
+    4766170, 4768695,
+    -500, 1200
+  ],
+  "categories": [
+    { "name": "mine", "label": "Oyu Tolgoi" },
+    { "name": "plan", "label": "Plan" },
+    { "name": "sensors", "label": "Sensors" }
+  ],
   "pieces": [
     {
+      "category": "mine",
       "label": "Aerial picture",
       "file": "OyuTolgoi.jpg",
       "type": "picture",
@@ -10,6 +20,7 @@
       "point1": [653675.676295577, 4766016.90904555, 1170],
       "point2": [648875.676295577, 4768814.10904555, 1170]
     },{
+      "category": "mine",
       "label": "Aerial picture with stations",
       "file": "OyuTolgoi_with_stations.jpg",
       "type": "picture",
@@ -18,42 +29,50 @@
       "point1": [653675.676295577, 4766016.90904555, 1170],
       "point2": [648875.676295577, 4768814.10904555, 1170]
     },{
+      "category": "plan",
       "label": "Haulage wall",
       "file": "Mineplan_haulage_wall.vtp",
       "type": "lines",
       "visibility": 1
     },{
+      "category": "plan",
       "label": "Milestone",
       "file": "Mineplan_milestone3.vtp",
       "type": "lines",
       "visibility": 1
     },{
+      "category": "plan",
       "label": "Plan 2012",
       "file": "Mineplan_plan_2012.vtp",
       "type": "lines",
       "visibility": 1
     },{
+      "category": "plan",
       "label": "Plan as-built x014",
       "file": "Mineplan_x014_plan_asbuilt.vtp",
       "type": "lines",
       "visibility": 1
     },{
+      "category": "plan",
       "label": "Walls x300",
       "file": "Mineplan_x300_wall.vtp",
       "type": "lines",
       "visibility": 1
     },{
+      "category": "plan",
       "label": "Walls x380",
       "file": "Mineplan_x380_wall.vtp",
       "type": "lines",
       "visibility": 1
     },{
+      "category": "sensors",
       "label": "Surface sensors",
       "file": "sensors_surface.vtp",
       "type": "sensors",
       "visibility": 1,
       "color": [1, 0, 0]
     },{
+      "category": "sensors",
       "label": "Underground sensors",
       "file": "sensors_underground.vtp",
       "type": "sensors",

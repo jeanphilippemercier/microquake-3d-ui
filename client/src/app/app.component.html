@@ -106,8 +106,12 @@
           </mat-checkbox>
         </ng-template>
       </app-collapsible-list>
-      <app-collapsible-list [list]="pieces" *ngIf="mineLabel && mineLabel.length">
-        <span header>{{ mineLabel }}</span>
+
+      <app-collapsible-list
+        *ngFor="let category of mineCategories"
+        [list]="category.pieces"
+      >
+        <span header>{{ category.name }}</span>
         <ng-template #item let-item>
           <mat-checkbox
             class="input-checkbox"
@@ -119,6 +123,7 @@
           </mat-checkbox>
         </ng-template>
       </app-collapsible-list>
+
     </mat-card-content>
   </mat-card>
   <app-vtk-view></app-vtk-view>
