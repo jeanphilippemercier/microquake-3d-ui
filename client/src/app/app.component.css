@@ -52,6 +52,12 @@
   align-items: center;
 }
 
+.card-form-title.space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .card-form-contents {
   padding-left: 16px;
 }

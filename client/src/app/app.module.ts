@@ -12,6 +12,9 @@ import {
   MatCheckboxModule,
 } from '@angular/material';
 
+import { MatSliderModule } from '@angular/material/slider';
+import { MatGridListModule } from '@angular/material/grid-list';
+
 import { AppComponent } from './app.component';
 import { VtkViewComponent } from './vtk-view/vtk-view.component';
 import { CollapsibleListComponent } from './collapsible-list/collapsible-list.component';
@@ -23,15 +26,17 @@ import { CollapsibleListComponent } from './collapsible-list/collapsible-list.co
     CollapsibleListComponent
   ],
   imports: [
-    BrowserModule,
     BrowserAnimationsModule,
+    BrowserModule,
     FormsModule,
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,
     MatDividerModule,
+    MatGridListModule,
     MatIconModule,
     MatRadioModule,
+    MatSliderModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,6 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import QuakeManager from "../QuakeManager";
 
+const TIME_UNITS = [
+  { label: 'm', base: 730 },
+  { label: 'w', base: 168 },
+  { label: 'd', base: 24 },
+];
+
 function pad(number) {
   if (number < 10) {
     return `0${number}`;
@@ -31,11 +37,16 @@ const NAME_MAPPING = {
   styleUrls: ["./app.component.css"]
 })
 export class AppComponent implements OnInit {
-  liveMonitoring = false;
+  advanceMode = false;
   expanded = true;
   picking = false;
   historicalPeriod = 2190; // in hours (3 months)
   focusPeriod = 2190; // in hours (3 months)
+  minMagnitude = -3;
+  maxMagnitude = 3;
+  minSize = 0.1;
+  maxSize = 1;
+  focusTimeString = '';
   mineCategories = [];
   events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
@@ -57,9 +68,23 @@ export class AppComponent implements OnInit {
 
   periodChange() {
     const now = getDateFromNow();
-    const historicalTime = getDateFromNow(this.historicalPeriod);
-    const focusTime = getDateFromNow(this.focusPeriod);
-    QuakeManager.updateEvents(now, focusTime, historicalTime);
+    const historicalTime = getDateFromNow(Math.max(this.focusPeriod, this.historicalPeriod));
+    this.focusTimeString = getDateFromNow(this.focusPeriod);
+    QuakeManager.updateEvents(now, this.focusTimeString, historicalTime);
+  }
+
+  getShortTimeLabel(value) {
+    let remain = value || this.focusPeriod;
+    const strBuffer = [];
+    for (let i = 0; i < TIME_UNITS.length; i++) {
+      const { label, base } = TIME_UNITS[i];
+      if (remain >= base) {
+        strBuffer.push(Math.floor(remain / base));
+        strBuffer.push(label);
+        remain %= base;
+      }
+    }
+    return strBuffer.join('');
   }
 
   visibilityChange() {
@@ -81,8 +106,12 @@ export class AppComponent implements OnInit {
     QuakeManager.updateMineVisibility(visibilityMap);
   }
 
-  toggleLive() {
-    this.liveMonitoring = !this.liveMonitoring;
+  scalingChange() {
+    QuakeManager.updateScaleFunction([this.minMagnitude, this.maxMagnitude], [this.minSize, this.maxSize]);
+  }
+
+  toggleAdvanceMode() {
+    this.advanceMode = !this.advanceMode;
   }
 
   ngOnInit() {
@@ -101,6 +130,7 @@ export class AppComponent implements OnInit {
 
         // Trigger event fetching
         this.periodChange();
+        this.scalingChange();
       });
     });
   }

@@ -14,6 +14,10 @@ export default function createMethods(session) {
       ]),
     updateVisibility: visibilityMap =>
       session.call("paraview.quake.visibility.update", [visibilityMap]),
+
+    updateScaleFunction: (dataRange, sizeRange) =>
+      session.call("paraview.quake.scale.range", [dataRange, sizeRange]),
+
     // Mine -------------------------------------------------------------------
     getMineDescription: () => session.call("paraview.quake.mine.get", []),
     updateMineVisibility: visibilityMap =>

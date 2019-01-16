@@ -10,10 +10,10 @@
         <button
           class="card-menu-icon"
           mat-icon-button
-          (click)="toggleLive()"
-          [color]="liveMonitoring ? 'warn' : ''"
+          (click)="toggleAdvanceMode()"
+          [color]="advanceMode ? 'primary' : ''"
         >
-          <mat-icon aria-label="Toggle live monitoring">rss_feed</mat-icon>
+          <mat-icon aria-label="Advanced settings">tune</mat-icon>
         </button>
         <button
           class="card-menu-icon"
@@ -24,14 +24,14 @@
           <mat-icon aria-label="Toggle event picking">help_outline</mat-icon>
         </button>
         <button class="card-menu-icon" mat-icon-button (click)="orientCamera()">
-          <mat-icon aria-label="Orient camera">near_me</mat-icon>
+          <mat-icon aria-label="Orient camera">explore</mat-icon>
         </button>
         <button class="card-menu-icon" mat-icon-button (click)="resetCamera()">
           <mat-icon aria-label="Show/hide menu">center_focus_strong</mat-icon>
         </button>
       </div>
     </div>
-    <mat-card-content class="card-content" *ngIf="expanded">
+    <mat-card-content class="card-content" *ngIf="expanded && !advanceMode">
       <div class="card-divider">
         <mat-divider></mat-divider>
       </div>
@@ -58,38 +58,31 @@
               class="input-radio"
               [value]="2190"
             >3 Months</mat-radio-button>
+            <mat-radio-button
+              color="primary"
+              class="input-radio"
+              [value]="0"
+            >None</mat-radio-button>
           </mat-radio-group>
         </div>
       </section>
       <section class="card-form-group">
-        <div class="card-form-title">Focus Period</div>
+        <div class="card-form-title space-between">
+          <div>Focus Period ({{ getShortTimeLabel() }})</div>
+          <div>{{ focusTimeString }}</div>
+        </div>
         <div class="card-form-contents">
-          <mat-radio-group
-            class="radio-group"
+          <mat-slider
+            invert
+            style="width: 100%;"
+            min="24"
+            max="2190"
+            step="1"
+            [displayWith]="updateFocusTimeString"
             [(ngModel)]="focusPeriod"
             (ngModelChange)="periodChange()"
-          >
-            <mat-radio-button
-              color="primary"
-              class="input-radio"
-              [value]="2190"
-            >3 Months</mat-radio-button>
-            <mat-radio-button
-              color="primary"
-              class="input-radio"
-              [value]="730"
-            >1 Month</mat-radio-button>
-            <mat-radio-button
-              color="primary"
-              class="input-radio"
-              [value]="168"
-            >1 Week</mat-radio-button>
-            <mat-radio-button
-              color="primary"
-              class="input-radio"
-              [value]="24"
-            >1 Day</mat-radio-button>
-          </mat-radio-group>
+            color="primary"
+          ></mat-slider>
         </div>
       </section>
       <app-collapsible-list [list]="events">
@@ -123,7 +116,53 @@
           </mat-checkbox>
         </ng-template>
       </app-collapsible-list>
-
+    </mat-card-content>
+    <mat-card-content class="card-content" *ngIf="expanded && advanceMode">
+      <div class="card-divider">
+        <mat-divider></mat-divider>
+      </div>
+      <section class="card-form-group">
+        <mat-grid-list cols="3" gutterSize="2" rowHeight="20">
+          <mat-grid-tile><b>Magnitude range</b></mat-grid-tile>
+          <mat-grid-tile>
+            <input
+              matInput
+              placeholder="Minimun Magnitude"
+              [(ngModel)]="minMagnitude"
+              (ngModelChange)="scalingChange()"
+              type="number"
+            >
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <input
+              matInput
+              placeholder="Maximum Magnitude"
+              [(ngModel)]="maxMagnitude"
+              (ngModelChange)="scalingChange()"
+              type="number"
+            >
+          </mat-grid-tile>
+          <mat-grid-tile><b>Size range</b></mat-grid-tile>
+          <mat-grid-tile>
+            <input
+              matInput
+              placeholder="Minimun Size"
+              [(ngModel)]="minSize"
+              (ngModelChange)="scalingChange()"
+              type="number"
+            >
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <input
+              matInput
+              placeholder="Maximum Size"
+              [(ngModel)]="maxSize"
+              (ngModelChange)="scalingChange()"
+              type="number"
+            >
+          </mat-grid-tile>
+        </mat-grid-list>
+      </section>
     </mat-card-content>
   </mat-card>
   <app-vtk-view></app-vtk-view>

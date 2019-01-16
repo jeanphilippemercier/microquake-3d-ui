@@ -7,7 +7,7 @@ from paraview import simple, servermanager
 from paraview.web import protocols as pv_protocols
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray
-from vtkmodules.vtkCommonCore import vtkPoints, vtkFloatArray
+from vtkmodules.vtkCommonCore import vtkPoints, vtkFloatArray, vtkIntArray, vtkUnsignedIntArray
 
 # Debug stuff
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
@@ -92,6 +92,14 @@ def createTrivialProducer():
     trivialProducer.GetClientSideObject().SetOutput(polyData)
 
     return trivialProducer
+
+# -----------------------------------------------------------------------------
+
+def addPiecewisePoint(fn, scalar, size):
+    fn.append(scalar)
+    fn.append(size)
+    fn.append(0.5)
+    fn.append(0.0)
 
 # -----------------------------------------------------------------------------
 
@@ -183,19 +191,32 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # Earthquake representation
         self.focusQuakeRepresentation.SetRepresentationType('Point Gaussian')
         # simple.ColorBy(self.focusQuakeRepresentation, None)
-        simple.ColorBy(self.focusQuakeRepresentation, ('POINTS', 'magnitude'))
+        simple.ColorBy(self.focusQuakeRepresentation, ('POINTS', 'time'))
+        self.focusQuakeRepresentation.SetScaleArray = ['POINTS', 'magnitude']
         self.focusQuakeRepresentation.ScaleByArray = 1
+        self.focusQuakeRepresentation.GaussianRadius = 1
         self.focusQuakeRepresentation.UseScaleFunction = 0
+        self.focusQuakeRepresentation.ScaleTransferFunction.Points = [
+            -3, 0.1, 0.5, 0,
+            4, 1, 0.5, 0
+        ]
+        self.focusQuakeRepresentation.UseScaleFunction = 1
 
         # Explosion representation
         self.focusBlastRepresentation.SetRepresentationType('Point Gaussian')
-        simple.ColorBy(self.focusBlastRepresentation, ('POINTS', 'magnitude'))
+        simple.ColorBy(self.focusBlastRepresentation, ('POINTS', 'time'))
         # simple.ColorBy(self.focusBlastRepresentation, None)
+        self.focusBlastRepresentation.SetScaleArray = ['POINTS', 'magnitude']
         self.focusBlastRepresentation.ScaleByArray = 1
-        self.focusBlastRepresentation.UseScaleFunction = 0
-        # self.focusBlastRepresentation.GaussianRadius = 0.05
+        self.focusBlastRepresentation.GaussianRadius = 1
         self.focusBlastRepresentation.ShaderPreset = 'Custom'
         self.focusBlastRepresentation.CustomShader = BLAST_SHADER_BG
+        self.focusBlastRepresentation.UseScaleFunction = 0
+        self.focusBlastRepresentation.ScaleTransferFunction.Points = [
+            -3, 0.1, 0.5, 0,
+            4, 1, 0.5, 0
+        ]
+        self.focusBlastRepresentation.UseScaleFunction = 1
 
         # Hide scalar bar
         # self.focusQuakeRepresentation.SetScalarBarVisibility(self.view, False)
@@ -254,6 +275,12 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             mag.SetName('magnitude')
             polydata.GetPointData().AddArray(mag)
 
+        timeArray = polydata.GetPointData().GetArray('time')
+        if not timeArray:
+            timeArray = vtkUnsignedIntArray()
+            timeArray.SetName('time')
+            polydata.GetPointData().AddArray(timeArray)
+
         points = polydata.GetPoints()
         points.SetNumberOfPoints(size)
 
@@ -262,12 +289,20 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         verts.SetValue(0, size)
 
         mag.SetNumberOfTuples(size)
+        timeArray.SetNumberOfTuples(size)
 
         for i in range(size):
             event = filteredList[i]
+            # for arg in dir(event):
+            #     print(arg)
+            #     if arg[0] != '_':
+            #         print('  %s' % getattr(event, arg))
+            #     else:
+            #         print('  skip')
             points.SetPoint(i, event.x, event.y, event.z)
             verts.SetValue(i + 1, i)
-            mag.SetValue(i, SHIFT + event.magnitude) # Shift scale
+            mag.SetValue(i, event.magnitude)
+            timeArray.SetValue(i, int(100 * (SHIFT + event.magnitude))) # FIXME
 
         polydata.Modified()
         proxy.MarkModified(proxy)
@@ -295,6 +330,25 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     #     self.updateEventsPolyData(event_list, self.eventsProxy)
     #     return self.getEventsForClient(event_list)
 
+    @exportRpc("paraview.quake.scale.range")
+    def updateScaleFunction(self, linearRange, sizeRange):
+        # Create new function
+        fnPoints = []
+        addPiecewisePoint(fnPoints, -100, sizeRange[0])
+        addPiecewisePoint(fnPoints, linearRange[0], sizeRange[0])
+        addPiecewisePoint(fnPoints, linearRange[1], sizeRange[1])
+        addPiecewisePoint(fnPoints, 100, sizeRange[1])
+
+        self.focusQuakeRepresentation.UseScaleFunction = 0
+        self.focusBlastRepresentation.UseScaleFunction = 0
+        self.focusQuakeRepresentation.ScaleTransferFunction.Points = fnPoints
+        self.focusBlastRepresentation.ScaleTransferFunction.Points = fnPoints
+        self.focusQuakeRepresentation.UseScaleFunction = 1
+        self.focusBlastRepresentation.UseScaleFunction = 1
+
+        self.getApplication().InvokeEvent('UpdateEvent')
+
+
     @exportRpc("paraview.quake.data.update")
     def updateData(self, now, focusTime, historicalTime):
         events_in_focus = seismic_client.get_events_catalog(API_URL, focusTime, now)
@@ -308,9 +362,12 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         self.focusQuakeRepresentation.GaussianRadius = GAUSSIAN_RADIUS
         self.focusBlastRepresentation.GaussianRadius = GAUSSIAN_RADIUS
-        lut = simple.GetColorTransferFunction('magnitude')
-        lut.RescaleTransferFunction(0.0, SHIFT + MAX_MAGNITUDE)
-        # lut.RescaleTransferFunctionToDataRange(False, True)
+        lut = simple.GetColorTransferFunction('time')
+        lut.RescaleTransferFunction(0.0, 500)
+        # lut.RescaleTransferFunctionToDataRange(True, True)
+
+        # Hard code scaling
+        # self.updateScaleFunction([-2, 3], [0.1, 1])
 
         self.getApplication().InvokeEvent('UpdateEvent')
 

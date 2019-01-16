@@ -89,6 +89,11 @@ export function getMineDescription() {
   return client.remote.Quake.getMineDescription();
 }
 
+export function updateScaleFunction(dataRange, scaleRange) {
+  return client.remote.Quake.updateScaleFunction(dataRange, scaleRange);
+}
+
+
 export default {
   bindRendering,
   connect,
@@ -97,7 +102,8 @@ export default {
   resetCamera,
   snapCamera,
   updateEvents,
-  updateVisibility,
   updateMineVisibility,
+  updateScaleFunction,
+  updateVisibility,
   getMineDescription
 };
