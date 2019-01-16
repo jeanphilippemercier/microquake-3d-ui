@@ -79,8 +79,6 @@ export class AppComponent implements OnInit {
     const historicalTime = getDateFromNow(Math.max(this.focusPeriod, this.historicalPeriod));
     this.focusTimeString = getDateFromNow(this.focusPeriod);
     QuakeManager.updateEvents(this.nowTimeString, this.focusTimeString, historicalTime);
-
-    this.updateShortFocus();
   }
 
   updateScalarBar(name) {
