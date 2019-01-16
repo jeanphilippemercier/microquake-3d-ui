@@ -52,7 +52,7 @@
   align-items: center;
 }
 
-.card-form-title.space-between {
+.space-between {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -75,4 +75,27 @@
 
 .input-checkbox {
   display: block;
+}
+
+.preset {
+  position: relative;
+  width: calc(100% - 10px);
+  height: 20px;
+  margin: 3px 5px;
+  border: solid 1px white;
+  box-sizing: border-box;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.active {
+  border: solid 2px black;
+  border-radius: 5px;
+}
+
+.active:after {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: black;
 }

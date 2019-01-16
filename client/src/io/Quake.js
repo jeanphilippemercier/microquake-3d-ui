@@ -14,14 +14,18 @@ export default function createMethods(session) {
       ]),
     updateVisibility: visibilityMap =>
       session.call("paraview.quake.visibility.update", [visibilityMap]),
-
     updateScaleFunction: (dataRange, sizeRange) =>
       session.call("paraview.quake.scale.range", [dataRange, sizeRange]),
-
+    updatePreset: (presetName) =>
+      session.call("paraview.quake.color.preset", [presetName]),
     // Mine -------------------------------------------------------------------
     getMineDescription: () => session.call("paraview.quake.mine.get", []),
     updateMineVisibility: visibilityMap =>
       session.call("paraview.quake.mine.visibility.update", [visibilityMap]),
+    // Selection --------------------------------------------------------------
+    setSelectionMode: (mode=true) => session.call("paraview.quake.view.interaction.mode", [mode ? 'Selection' : '3D']),
+    pickPoint: (x, y) => session.call("paraview.quake.view.pick.point", [x, y]),
+    getEventId: (idx) => session.call("paraview.quake.event.id", [idx]),
     // deprecated -------------------------------------------------------------
     getEvents: (
       startTime = "2018-11-08T10:21:00.0",

@@ -1,1 +1,16 @@
-<div class="vtk-view-container"></div>
+<div class="vtk-view-container">
+  <div class="pick-overlay"
+    *ngIf="pickedData"
+    [ngStyle]="{ left: pickedData.x + 'px', 'top': pickedData.y + 'px' }"
+  >
+    <table>
+      <tr>
+        <td colspan="2" class="center">{{ formatTime(pickedData.data.time) }}</td>
+      </tr>
+      <tr>
+        <td>Magnitude</td>
+        <td class="right">{{ formatMagnitude(pickedData.data.magnitude) }}</td>
+      </tr>
+    </table>
+  </div>
+</div>

@@ -93,17 +93,45 @@ export function updateScaleFunction(dataRange, scaleRange) {
   return client.remote.Quake.updateScaleFunction(dataRange, scaleRange);
 }
 
+// export function setSelectionMode(selection = true) {
+//   return client.remote.Quake.setSelectionMode(selection);
+// }
+
+export function pickPoint(x, y) {
+  if (client && client.remote && client.remote.Quake) {
+    return client.remote.Quake.pickPoint(x, y);
+  }
+  return Promise.resolve(null);
+}
+
+export function getEventId(idx) {
+  return client.remote.Quake.getEventId(idx);
+}
+
+export function openWaveform(id) {
+  const win = window.open(`https://FIXME/?event=${encodeURI(id)}`,'_blank');
+  win.focus();
+}
+
+export function updatePreset(name) {
+  return client.remote.Quake.updatePreset(name);
+}
 
 export default {
+  // setSelectionMode,
   bindRendering,
   connect,
+  getEventId,
+  getMineDescription,
   isConnected,
+  openWaveform,
+  pickPoint,
   render,
   resetCamera,
   snapCamera,
   updateEvents,
   updateMineVisibility,
+  updatePreset,
   updateScaleFunction,
   updateVisibility,
-  getMineDescription
 };

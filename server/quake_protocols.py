@@ -1,5 +1,5 @@
 # Main python libs
-import os, time, json, math
+import os, time, json, math, calendar, time
 
 # ParaViewWeb
 from wslink import register as exportRpc
@@ -7,7 +7,11 @@ from paraview import simple, servermanager
 from paraview.web import protocols as pv_protocols
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray
-from vtkmodules.vtkCommonCore import vtkPoints, vtkFloatArray, vtkIntArray, vtkUnsignedIntArray
+from vtkmodules.vtkCommonCore import vtkPoints, vtkFloatArray, vtkUnsignedIntArray, vtkUnsignedLongArray
+
+# Picking
+from vtkmodules.vtkCommonCore import vtkCollection
+from vtkmodules.vtkPVClientServerCoreRendering import vtkPVRenderView
 
 # Debug stuff
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
@@ -242,6 +246,10 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                     self.minePiecesByCategory[category].append(pipelineItem)
                     self.minePieces.append(pipelineItem)
 
+        # Selection part
+        self.selection = simple.ExtractSelection()
+        self.extractSelection = simple.MergeBlocks(Input=self.selection)
+
     def keepEvent(self, event, filterType = 0):
         if event.x < self.mineBounds[0] or event.x > self.mineBounds[1]:
             return False
@@ -277,9 +285,15 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         timeArray = polydata.GetPointData().GetArray('time')
         if not timeArray:
-            timeArray = vtkUnsignedIntArray()
+            timeArray = vtkUnsignedLongArray()
             timeArray.SetName('time')
             polydata.GetPointData().AddArray(timeArray)
+
+        idArray = polydata.GetPointData().GetArray('id')
+        if not idArray:
+            idArray = vtkUnsignedIntArray()
+            idArray.SetName('id')
+            polydata.GetPointData().AddArray(idArray)
 
         points = polydata.GetPoints()
         points.SetNumberOfPoints(size)
@@ -290,6 +304,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         mag.SetNumberOfTuples(size)
         timeArray.SetNumberOfTuples(size)
+        idArray.SetNumberOfTuples(size)
 
         for i in range(size):
             event = filteredList[i]
@@ -302,18 +317,22 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             points.SetPoint(i, event.x, event.y, event.z)
             verts.SetValue(i + 1, i)
             mag.SetValue(i, event.magnitude)
-            timeArray.SetValue(i, int(100 * (SHIFT + event.magnitude))) # FIXME
+            timeArray.SetValue(i, event.time_epoch)
+            idArray.SetValue(i, len(self.idList))
+            self.idList.append(event.event_resource_id)
 
         polydata.Modified()
         proxy.MarkModified(proxy)
 
-        if filterType == 1:
-            writer = vtkXMLPolyDataWriter()
-            writer.SetDataModeToAppended()
-            writer.SetCompressorTypeToZLib()
-            writer.SetInputData(polydata)
-            writer.SetFileName('/Users/seb/Desktop/events.vtp')
-            writer.Update()
+        print('Time range:', timeArray.GetRange())
+
+        # if filterType == 1:
+        #     writer = vtkXMLPolyDataWriter()
+        #     writer.SetDataModeToAppended()
+        #     writer.SetCompressorTypeToZLib()
+        #     writer.SetInputData(polydata)
+        #     writer.SetFileName('/Users/seb/Desktop/events.vtp')
+        #     writer.Update()
 
     def getEventsForClient(self, event_list):
         return {
@@ -356,6 +375,12 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         print('focus', focusTime, now)
         print('historical', historicalTime, focusTime)
 
+        # epoch range 2018-12-01T00:00:00.0
+        realNowEpoch = calendar.timegm(time.gmtime())
+        nowEpoch = calendar.timegm(time.strptime(now, '%Y-%m-%dT%H:%M:%S.0'))
+        startEpoch = calendar.timegm(time.strptime(focusTime, '%Y-%m-%dT%H:%M:%S.0'))
+
+        self.idList = []
         self.updateEventsPolyData(events_in_focus, self.focusQuakeProxy, 1)
         self.updateEventsPolyData(events_in_focus, self.focusBlastProxy, 2)
         self.updateEventsPolyData(historic_events, self.historicalProxy)
@@ -363,11 +388,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.focusQuakeRepresentation.GaussianRadius = GAUSSIAN_RADIUS
         self.focusBlastRepresentation.GaussianRadius = GAUSSIAN_RADIUS
         lut = simple.GetColorTransferFunction('time')
-        lut.RescaleTransferFunction(0.0, 500)
-        # lut.RescaleTransferFunctionToDataRange(True, True)
-
-        # Hard code scaling
-        # self.updateScaleFunction([-2, 3], [0.1, 1])
+        lut.RescaleTransferFunction(startEpoch * 1000000000, nowEpoch * 1000000000)
 
         self.getApplication().InvokeEvent('UpdateEvent')
 
@@ -450,3 +471,55 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.getApplication().InvokeEvent('UpdateEvent')
 
         return extractCamera(self.view)
+
+
+    @exportRpc("paraview.quake.view.interaction.mode")
+    def updateInteraction(self, mode):
+      # INTERACTION_MODE_UNINTIALIZED = -1,
+      # INTERACTION_MODE_3D = 0,
+      # INTERACTION_MODE_2D, // not implemented yet.
+      # INTERACTION_MODE_SELECTION,
+      # INTERACTION_MODE_ZOOM,
+      # INTERACTION_MODE_POLYGON
+      self.view.InteractionMode = vtkPVRenderView.INTERACTION_MODE_SELECTION if mode == 'Selection' else vtkPVRenderView.INTERACTION_MODE_3D
+
+
+    @exportRpc("paraview.quake.view.pick.point")
+    def pickPoint(self, x, y):
+      output = {}
+      selectedRepresentations = vtkCollection()
+      selectionSources = vtkCollection()
+
+      found = self.view.SelectSurfacePoints([x, y, x, y], selectedRepresentations, selectionSources)
+      if selectedRepresentations.GetNumberOfItems() == selectionSources.GetNumberOfItems() and selectionSources.GetNumberOfItems() == 1:
+        # We are good for selection
+        representation = servermanager._getPyProxy(selectedRepresentations.GetItemAsObject(0))
+        selection = servermanager._getPyProxy(selectionSources.GetItemAsObject(0))
+        self.selection.Input = representation.Input
+        self.selection.Selection = selection
+        self.extractSelection.UpdatePipeline()
+        selectedDataSet = self.extractSelection.GetClientSideObject().GetOutput()
+        selectedData = selectedDataSet.GetPointData()
+        nbArrays = selectedData.GetNumberOfArrays()
+        for i in range(nbArrays):
+          array = selectedData.GetAbstractArray(i)
+          output[array.GetName()] = array.GetValue(0)
+
+        # Add picked point world coordinates
+        output['worldPosition'] = selectedDataSet.GetPoints().GetPoint(0)
+
+        return output
+
+      # No selection found
+      return None
+
+
+    @exportRpc("paraview.quake.event.id")
+    def getEventId(self, idx):
+        return self.idList[idx]
+
+    @exportRpc("paraview.quake.color.preset")
+    def updatePreset(self, presetName):
+        lutProxy = simple.GetColorTransferFunction('time')
+        lutProxy.ApplyPreset(presetName, True)
+        self.getApplication().InvokeEvent('UpdateEvent')

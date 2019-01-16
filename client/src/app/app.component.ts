@@ -1,10 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import QuakeManager from "../QuakeManager";
+import PRESETS from "./presets";
 
 const TIME_UNITS = [
-  { label: 'm', base: 730 },
-  { label: 'w', base: 168 },
-  { label: 'd', base: 24 },
+  { label: 'month', labelPlurial: 'months', base: 730 },
+  { label: 'week', labelPlurial: 'weeks', base: 168 },
+  { label: 'day', labelPlurial: 'days', base: 24 },
 ];
 
 function pad(number) {
@@ -39,24 +40,31 @@ const NAME_MAPPING = {
 export class AppComponent implements OnInit {
   advanceMode = false;
   expanded = true;
-  picking = false;
-  historicalPeriod = 2190; // in hours (3 months)
+  // picking = false;
+  historicalPeriod = 0; // in hours (3 months)
   focusPeriod = 2190; // in hours (3 months)
   minMagnitude = -3;
   maxMagnitude = 3;
   minSize = 0.1;
   maxSize = 1;
+  nowTimeString = '';
   focusTimeString = '';
+  shortFocus = '';
   mineCategories = [];
+  presets = PRESETS;
+  presetNames = Object.keys(PRESETS);
+  activePreset = 'coolwarm';
+  scalarBar = `data:image/png;base64,${PRESETS.coolwarm}`;
   events = Object.keys(NAME_MAPPING).map(name => ({ name, checked: true }));
 
   toggleExpanded() {
     this.expanded = !this.expanded;
   }
 
-  togglePicking() {
-    this.picking = !this.picking;
-  }
+  // togglePicking() {
+  //   this.picking = !this.picking;
+  //   // QuakeManager.setSelectionMode(this.picking);
+  // }
 
   orientCamera() {
     QuakeManager.snapCamera();
@@ -67,24 +75,37 @@ export class AppComponent implements OnInit {
   }
 
   periodChange() {
-    const now = getDateFromNow();
+    this.nowTimeString = getDateFromNow();
     const historicalTime = getDateFromNow(Math.max(this.focusPeriod, this.historicalPeriod));
     this.focusTimeString = getDateFromNow(this.focusPeriod);
-    QuakeManager.updateEvents(now, this.focusTimeString, historicalTime);
+    QuakeManager.updateEvents(this.nowTimeString, this.focusTimeString, historicalTime);
+
+    this.updateShortFocus();
+  }
+
+  updateScalarBar(name) {
+    this.activePreset = name;
+    this.scalarBar = `data:image/png;base64,${PRESETS[name]}`;
+    QuakeManager.updatePreset(name);
   }
 
   getShortTimeLabel(value) {
     let remain = value || this.focusPeriod;
     const strBuffer = [];
     for (let i = 0; i < TIME_UNITS.length; i++) {
-      const { label, base } = TIME_UNITS[i];
+      const { label, labelPlurial, base } = TIME_UNITS[i];
       if (remain >= base) {
         strBuffer.push(Math.floor(remain / base));
-        strBuffer.push(label);
+        strBuffer.push(remain / base >= 2 ? labelPlurial : label);
         remain %= base;
       }
     }
-    return strBuffer.join('');
+    return strBuffer.join(' ');
+  }
+
+  updateShortFocus(event) {
+    this.shortFocus = this.getShortTimeLabel(event && event.value);
+    this.focusTimeString = getDateFromNow(event && event.value);
   }
 
   visibilityChange() {
@@ -107,7 +128,10 @@ export class AppComponent implements OnInit {
   }
 
   scalingChange() {
-    QuakeManager.updateScaleFunction([this.minMagnitude, this.maxMagnitude], [this.minSize, this.maxSize]);
+    QuakeManager.updateScaleFunction(
+      [Number(this.minMagnitude), Number(this.maxMagnitude)],
+      [Number(this.minSize), Number(this.maxSize)]
+    );
   }
 
   toggleAdvanceMode() {

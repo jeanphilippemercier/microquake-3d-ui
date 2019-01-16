@@ -8,3 +8,20 @@
   position: relative;
   height: 100%;
 }
+
+.pick-overlay {
+  position: absolute;
+  padding: 10px;
+  margin-left: 20px;
+  margin-top: -30px;
+  background: white;
+  border-radius: 5px;
+}
+
+.right {
+  text-align: right;
+}
+
+.center {
+  text-align: center;
+}
