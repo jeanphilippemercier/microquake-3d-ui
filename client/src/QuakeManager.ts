@@ -23,10 +23,16 @@ export function bindRendering(r = null, rw = null, glRW = null) {
     glRenderWindow.setViewStream(viewStream);
     viewStream.setCamera(camera);
 
+    // Configure interactive settings
+    const pixelRatio = window.devicePixelRatio || 1;
+    viewStream.setInteractiveQuality(pixelRatio > 1 ? 60 : 80);
+    viewStream.setInteractiveRatio((1 / pixelRatio));
+
     renderWindow.getInteractor().onStartAnimation(viewStream.startInteraction);
     renderWindow.getInteractor().onEndAnimation(viewStream.endInteraction);
 
     viewStream.render();
+
     return true;
   }
   return false;

@@ -66,9 +66,10 @@ export class VtkViewComponent implements OnInit {
       if (!inAnim && !this.waitNextPicking && QuakeManager) {
         const { x, y } = e;
         this.waitNextPicking = !!QuakeManager.pickPoint;
+        const devicePixelRatio = window.devicePixelRatio || 1;
         const vtkCoord = [
-          x - this.viewBounds.x,
-          this.viewBounds.height - (y - this.viewBounds.y),
+          devicePixelRatio * (x - this.viewBounds.x),
+          devicePixelRatio * (this.viewBounds.height - (y - this.viewBounds.y)),
         ];
         if (QuakeManager.pickPoint) {
           QuakeManager.pickPoint(Math.round(vtkCoord[0]), Math.round(vtkCoord[1])).then((data) => {
