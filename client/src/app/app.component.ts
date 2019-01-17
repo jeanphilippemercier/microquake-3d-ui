@@ -27,8 +27,8 @@ function getDateFromNow(nbHours = 0) {
 }
 
 const NAME_MAPPING = {
-  Earthquake: "quake",
-  Blastquake: "blast",
+  'Seismic event': "quake",
+  Blast: "blast",
   Historical: "historical"
 };
 
@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
   advanceMode = false;
   expanded = true;
   // picking = false;
-  historicalPeriod = 0; // in hours (3 months)
+  historicalPeriod = 0;
   focusPeriod = 2190; // in hours (3 months)
   minMagnitude = -3;
   maxMagnitude = 3;
