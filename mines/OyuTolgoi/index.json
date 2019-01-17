@@ -30,38 +30,68 @@
       "point2": [648875.676295577, 4768814.10904555, 1170]
     },{
       "category": "plan",
-      "label": "Haulage wall",
-      "file": "Mineplan_haulage_wall.vtp",
+      "label": "Level 1146",
       "type": "lines",
-      "visibility": 1
+      "visibility": 1,
+      "file": "lev1146.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1163",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1163.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1202",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1202.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1265",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1265.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1285",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1285.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1300",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1300.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1320",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1320.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1344",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1344.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1365",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1365.vtp"
+    },{
+      "category": "plan",
+      "label": "Level 1385",
+      "type": "lines",
+      "visibility": 1,
+      "file": "lev1385.vtp"
     },{
       "category": "plan",
       "label": "Milestone",
       "file": "Mineplan_milestone3.vtp",
-      "type": "lines",
-      "visibility": 1
-    },{
-      "category": "plan",
-      "label": "Plan 2012",
-      "file": "Mineplan_plan_2012.vtp",
-      "type": "lines",
-      "visibility": 1
-    },{
-      "category": "plan",
-      "label": "Plan as-built x014",
-      "file": "Mineplan_x014_plan_asbuilt.vtp",
-      "type": "lines",
-      "visibility": 1
-    },{
-      "category": "plan",
-      "label": "Walls x300",
-      "file": "Mineplan_x300_wall.vtp",
-      "type": "lines",
-      "visibility": 1
-    },{
-      "category": "plan",
-      "label": "Walls x380",
-      "file": "Mineplan_x380_wall.vtp",
       "type": "lines",
       "visibility": 1
     },{
