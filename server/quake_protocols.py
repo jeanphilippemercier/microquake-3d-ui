@@ -301,6 +301,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         verts = polydata.GetVerts().GetData()
         verts.SetNumberOfTuples(size + 1)
         verts.SetValue(0, size)
+        polydata.GetVerts().SetNumberOfCells(1 if size else 0);
 
         mag.SetNumberOfTuples(size)
         timeArray.SetNumberOfTuples(size)
@@ -324,7 +325,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         polydata.Modified()
         proxy.MarkModified(proxy)
 
-        print('Time range:', timeArray.GetRange())
+        # print('Time range:', timeArray.GetRange())
 
         # if filterType == 1:
         #     writer = vtkXMLPolyDataWriter()
