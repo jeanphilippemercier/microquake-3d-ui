@@ -1,0 +1,54 @@
+{
+  "private": true,
+  "name": "paraview-quake",
+  "version": "0.0.0-semantically-release",
+  "description": "ParaViewWeb based application for Quake visualization",
+  "keywords": [
+    "3d",
+    "visualization",
+    "quake"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://git.microquake.org/rio-tinto/microquake-3d-ui.git"
+  },
+  "bugs": {
+    "url": "https://git.microquake.org/rio-tinto/microquake-3d-ui/issues"
+  },
+  "homepage": "https://git.microquake.org/rio-tinto/microquake-3d-ui",
+  "scripts": {
+    "validate": "prettier --config ./prettier.config.js --list-different \"src/**/*.js\"",
+    "reformat": "prettier --config ./prettier.config.js --write \"src/**/*.js\"",
+    "build": "webpack --config build/webpack.dev.config.js",
+    "build:release": "webpack --config build/webpack.prod.config.js -p",
+    "version": "node ./build/writeVersion.js",
+    "dev": "webpack --config build/webpack.dev.config.js --watch",
+    "bundle": "inline-source --compress false --root ./dist ./dist/index.html ./dist/ParaViewQuake.html",
+    "commit": "git cz",
+    "semantic-release": "semantic-release",
+    "prepublishOnly": "npm run version && npm run bundle"
+  },
+  "author": "Kitware",
+  "dependencies": {
+    "material-design-icons-iconfont": "4.0.4",
+    "mousetrap": "1.6.2",
+    "typeface-roboto": "0.0.54",
+    "vtk.js": "8.3.3",
+    "vue": "2.5.22",
+    "vuetify": "1.4.2",
+    "vuex": "3.1.0",
+    "wslink": "0.1.8"
+  },
+  "devDependencies": {
+    "eslint-plugin-vue": "5.1.0",
+    "kw-web-suite": "8.0.0",
+    "vue-loader": "15.5.1",
+    "vue-style-loader": "4.1.2",
+    "vue-template-compiler": "2.5.22"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

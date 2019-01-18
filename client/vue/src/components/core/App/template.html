@@ -1,0 +1,85 @@
+<v-app :dark="darkMode">
+  <v-navigation-drawer
+    v-model="menuVisible"
+    clipped
+    overflow
+    fixed
+
+    height="calc(100% - 48px)"
+    style="top: 48px;"
+  >
+    <controls-drawer />
+  </v-navigation-drawer>
+
+  <v-navigation-drawer
+    v-model="advanceMenuVisible"
+    clipped
+    overflow
+    fixed
+    right
+
+    height="calc(100% - 48px)"
+    style="top: 48px;"
+  >
+    <global-settings />
+  </v-navigation-drawer>
+
+  <v-toolbar clipped-left app absolute dense :class="$style.toolbarOverride">
+    <v-btn icon @click.stop="menuVisible = !menuVisible">
+      <v-icon>graphic_eq</v-icon>
+    </v-btn>
+
+    <v-toolbar-title class="ml-0">Micro Quake 3D</v-toolbar-title>
+
+    <v-spacer />
+
+    <v-btn-toggle
+      v-model="componentsVisibility"
+      multiple
+      class="mx-3"
+    >
+      <v-tooltip bottom>
+        <span>Mine</span>
+        <v-btn flat slot="activator">
+          <v-icon>location_city</v-icon>
+        </v-btn>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <span>Seismic events</span>
+        <v-btn flat slot="activator">
+          <v-icon>bubble_chart</v-icon>
+        </v-btn>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <span>Blast</span>
+        <v-btn flat slot="activator">
+          <v-icon>offline_bolt</v-icon>
+        </v-btn>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <span>Historical events</span>
+        <v-btn flat slot="activator">
+          <v-icon>update</v-icon>
+        </v-btn>
+      </v-tooltip>
+    </v-btn-toggle>
+
+    <v-divider vertical />
+
+    <v-tooltip bottom>
+      <span>Toggle Settings</span>
+      <v-btn
+        slot="activator"
+        flat
+        icon
+        @click.stop="advanceMenuVisible = !advanceMenuVisible"
+        class="mx-2"
+      >
+        <v-icon>settings</v-icon>
+      </v-btn>
+    </v-tooltip>
+  </v-toolbar>
+  <v-content style="background: darkgray;">
+    <vtk-view v-if="client"/>
+  </v-content>
+</v-app>

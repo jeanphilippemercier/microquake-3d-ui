@@ -1,0 +1,15 @@
+.noSelect {
+  user-select: none;
+}
+
+.noSelectChildren * {
+  user-select: none;
+}
+
+.relative {
+  position: relative;
+}
+
+.toolbarOverride :global(.v-toolbar__content) {
+  padding-right: 0;
+}

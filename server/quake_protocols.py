@@ -73,18 +73,24 @@ GAUSSIAN_RADIUS = 10
 # -----------------------------------------------------------------------------
 
 def extractCamera(view):
+  bounds = [-1, 1, -1, 1, -1, 1]
   if view:
+    if view.GetClientSideView().GetClassName() == 'vtkPVRenderView':
+      rr = view.GetClientSideView().GetRenderer()
+      bounds = rr.ComputeVisiblePropBounds()
     return {
       'centerOfRotation': tuple(view.CameraFocalPoint),
       'focalPoint': tuple(view.CameraFocalPoint),
       'position': tuple(view.CameraPosition),
       'viewUp': tuple(view.CameraViewUp),
+      'bounds': bounds,
     }
   return {
     'centerOfRotation': (0, 0, 0),
     'focalPoint': (0, 0, 0),
     'position': (0, 0, 1),
     'viewUp': (0, 1, 0),
+    'bounds': bounds,
   }
 
 def createTrivialProducer():
@@ -439,6 +445,11 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.getApplication().InvalidateCache(self.view.SMProxy)
         self.getApplication().InvokeEvent('UpdateEvent')
 
+        return extractCamera(self.view)
+
+
+    @exportRpc("paraview.quake.camera.get")
+    def getCamera(self):
         return extractCamera(self.view)
 
 
