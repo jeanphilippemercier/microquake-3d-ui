@@ -414,7 +414,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     @exportRpc("paraview.quake.mine.visibility.update")
     def updateMineVisibility(self, visibilityMap):
         for piece in self.minePieces:
-            piece['representation'].Visibility = 1 if visibilityMap[piece['label']] else 0
+            piece['representation'].Visibility = 1 if piece['label'] in visibilityMap and visibilityMap[piece['label']] else 0
 
         self.getApplication().InvokeEvent('UpdateEvent')
 

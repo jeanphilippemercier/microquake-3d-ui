@@ -1,5 +1,5 @@
 import Client from 'paraview-quake/src/io/Client';
-import { Mutations } from 'paraview-quake/src/stores/TYPES';
+import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
 
 export default {
   state: {
@@ -23,7 +23,7 @@ export default {
     },
   },
   actions: {
-    NETWORK_CONNECT({ commit, state }) {
+    NETWORK_CONNECT({ commit, state, dispatch }) {
       const { config, client } = state;
       if (client && client.isConnected()) {
         client.disconnect();
@@ -48,6 +48,7 @@ export default {
         .connect(config)
         .then((validClient) => {
           commit(Mutations.NETWORK_CLIENT_SET, validClient);
+          dispatch(Actions.QUAKE_FETCH_MINE);
           clientToConnect.updateBusy(-1);
         })
         .catch((error) => {

@@ -24,6 +24,7 @@ export const Getters = objEnum([
 
   // quake
   'QUAKE_MINE',
+  'QUAKE_MINE_VISIBILITY',
   'QUAKE_SCALING_RANGE',
   'QUAKE_MAGNITUDE_RANGE',
 
@@ -57,6 +58,7 @@ export const Mutations = objEnum([
 
   // quake
   'QUAKE_MINE_SET',
+  'QUAKE_MINE_VISIBILITY_SET',
   'QUAKE_SCALING_RANGE_SET',
   'QUAKE_MAGNITUDE_RANGE_SET',
 
@@ -84,6 +86,10 @@ export const Actions = objEnum([
 
   // network
   'NETWORK_CONNECT',
+
+  // quake
+  'QUAKE_FETCH_MINE',
+  'QUAKE_UPDATE_MINE_VISIBILITY',
 
   // view
   'VIEW_UPDATE_CAMERA',
