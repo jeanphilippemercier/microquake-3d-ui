@@ -1,0 +1,23 @@
+<v-expansion-panel expand :style="style">
+  <v-expansion-panel-content>
+    <v-container slot="header"
+      fluid
+      grid-list-md
+      class="pa-0"
+    >
+      <v-layout row align-center>
+        <v-flex xs2>
+          <v-icon>{{ icon }}</v-icon>
+        </v-flex>
+        <v-flex xs10>
+          <div class="body-2">{{ title }}</div>
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <v-card>
+      <v-divider />
+      <slot />
+      <v-divider />
+    </v-card>
+  </v-expansion-panel-content>
+</v-expansion-panel>

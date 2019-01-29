@@ -4,6 +4,7 @@
     clipped
     overflow
     fixed
+    width="380"
 
     height="calc(100% - 48px)"
     style="top: 48px;"
@@ -80,6 +81,7 @@
     </v-tooltip>
   </v-toolbar>
   <v-content style="background: darkgray;">
+    <progress-bar :progress="busyProgress" />
     <vtk-view v-if="client"/>
   </v-content>
 </v-app>

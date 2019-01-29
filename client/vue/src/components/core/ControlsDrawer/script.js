@@ -1,27 +1,26 @@
-import { Actions } from 'paraview-quake/src/stores/TYPES';
+import MineVisibility from 'paraview-quake/src/components/core/MineVisibility';
+import FocusPeriod from 'paraview-quake/src/components/core/FocusPeriod';
+import HistoricalPeriod from 'paraview-quake/src/components/core/HistoricalPeriod';
+
+import ExpensionSection from 'paraview-quake/src/components/widgets/ExpensionSection';
 
 export default {
   name: 'ControlsDrawer',
   data() {
-    return {
-      focusPeriod: [0, 2000],
-      historicalPeriod: 0,
-    };
+    return {};
+  },
+  components: {
+    ExpensionSection,
+    MineVisibility,
+    FocusPeriod,
+    HistoricalPeriod,
   },
   computed: {
     darkMode() {
       return this.$store.getters.APP_DARK_THEME;
     },
-    mine() {
-      return this.$store.getters.QUAKE_MINE;
-    },
-    mineVisibility: {
-      get() {
-        return this.$store.getters.QUAKE_MINE_VISIBILITY;
-      },
-      set(value) {
-        this.$store.dispatch(Actions.QUAKE_UPDATE_MINE_VISIBILITY, value);
-      },
+    componentsVisibility() {
+      return this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
     },
   },
 };

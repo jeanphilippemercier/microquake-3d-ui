@@ -1,110 +1,13 @@
 <div :class="$style.noSelectChildren">
-  <!-- Mine -->
-  <v-expansion-panel expand>
-    <v-expansion-panel-content>
-      <v-container slot="header" fluid grid-list-md class="pa-0">
-        <v-layout row align-center>
-          <v-flex xs2>
-            <v-icon>location_city</v-icon>
-          </v-flex>
-          <v-flex xs10>
-            <div class="body-2">Mine</div>
-          </v-flex>
-        </v-layout>
-      </v-container>
-      <v-card>
-        <v-divider />
-        <v-container fluid grid-list-md class="py-0 px-1">
-          <v-layout>
-            <v-flex>
-              <v-treeview
-                v-model="mineVisibility"
-                :items="mine"
-                :selected-color="darkMode ? 'grey lighten-4' : 'grey darken-1'"
-                open-on-click
-                selectable
-                expand-icon="arrow_drop_down"
-                on-icon="bookmark"
-                off-icon="bookmark_border"
-                indeterminate-icon="bookmarks"
-              />
-            </v-flex>
-          </v-layout>
-        </v-container>
-        <v-divider />
-      </v-card>
-    </v-expansion-panel-content>
-  </v-expansion-panel>
+  <expension-section id="mine" title="Mine" icon="location_city">
+    <mine-visibility />
+  </expension-section>
 
-  <!-- Focus period -->
-  <v-expansion-panel expand>
-    <v-expansion-panel-content>
-      <v-container slot="header" fluid grid-list-md class="pa-0">
-        <v-layout row align-center>
-          <v-flex xs2>
-            <v-icon>bubble_chart</v-icon>
-          </v-flex>
-          <v-flex xs10>
-            <div class="body-2">Focus period</div>
-          </v-flex>
-        </v-layout>
-      </v-container>
-      <v-card>
-        <v-divider />
-        <v-container fluid grid-list-md class="pt-0">
-          <v-layout row wrap align-center>
-            <v-flex xs12>
-              <v-range-slider
-                class="pa-0"
-                hide-details
-                v-model="focusPeriod"
-                :min="0"
-                :max="2000"
-                :step="24"
-              />
-            </v-flex>
-          </v-layout>
-        </v-container>
-        <v-divider />
-      </v-card>
-    </v-expansion-panel-content>
-  </v-expansion-panel>
+  <expension-section id="seismicEvents,blast" title="Focus period" icon="bubble_chart">
+    <focus-period />
+  </expension-section>
 
-  <!-- Historical period -->
-  <v-expansion-panel expand>
-    <v-expansion-panel-content>
-      <v-container slot="header" fluid grid-list-md class="pa-0">
-        <v-layout row align-center>
-          <v-flex xs2>
-            <v-icon>update</v-icon>
-          </v-flex>
-          <v-flex xs10>
-            <div class="body-2">Historical period</div>
-          </v-flex>
-        </v-layout>
-      </v-container>
-      <v-card>
-        <v-divider />
-        <v-radio-group v-model="historicalPeriod">
-          <v-container fluid grid-list-md class="py-0">
-            <v-layout row wrap align-center>
-              <v-flex xs6>
-                <v-radio label="1 Year" :value="8760" />
-              </v-flex>
-              <v-flex xs6>
-                <v-radio label="6 Months" :value="4380" />
-              </v-flex>
-              <v-flex xs6>
-                <v-radio label="3 Months" :value="2190" />
-              </v-flex>
-              <v-flex xs6>
-                <v-radio label="None" :value="0" />
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-radio-group>
-        <v-divider />
-      </v-card>
-    </v-expansion-panel-content>
-  </v-expansion-panel>
+  <expension-section id="historicEvents" title="Historical period" icon="update">
+    <historical-period />
+  </expension-section>
 </div>

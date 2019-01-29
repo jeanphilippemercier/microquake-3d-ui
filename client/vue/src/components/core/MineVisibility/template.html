@@ -1,0 +1,18 @@
+<v-container fluid grid-list-md class="py-0 px-1">
+  <v-layout>
+    <v-flex>
+      <v-treeview
+        v-model="mineVisibility"
+        :items="mine"
+        :selected-color="darkMode ? 'grey lighten-4' : 'grey darken-1'"
+        :open="allIds"
+        open-on-click
+        selectable
+        expand-icon="arrow_drop_down"
+        on-icon="bookmark"
+        off-icon="bookmark_border"
+        indeterminate-icon="bookmarks"
+      />
+    </v-flex>
+  </v-layout>
+</v-container>

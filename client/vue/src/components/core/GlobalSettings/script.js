@@ -123,6 +123,14 @@ export default {
       });
     },
   },
+  watch: {
+    scalingRange() {
+      this.$store.dispatch(Actions.QUAKE_UPDATE_SCALING);
+    },
+    magnitudeRange() {
+      this.$store.dispatch(Actions.QUAKE_UPDATE_SCALING);
+    },
+  },
   computed: {
     hasChanges() {
       let changeDetected = false;

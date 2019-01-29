@@ -1,0 +1,10 @@
+<div :class="$style.container">
+  <img
+    v-for="name in Object.keys(presets)"
+    :key="name"
+    :class="active == name ? $style.activeImage : inactiveImage"
+    :src="'data:image/png;base64,' + presets[name]"
+    :data-name="name"
+    v-on:click="activatePreset"
+  />
+</div>
