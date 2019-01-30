@@ -6,12 +6,17 @@
 }
 
 .tooltip {
+  color: #333;
+  font-weight: bold;
   position: absolute;
-  background: rgba(128, 128, 128, 0.85);
+  background: rgba(180, 180, 180, 0.85);
   border-radius: 5px;
-  border: solid 1px darkgray;
+  border: solid 1px #222;
   z-index: 10;
   width: 250px;
+  -webkit-box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
+  -moz-box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
+  box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
 }
 
 .center {
