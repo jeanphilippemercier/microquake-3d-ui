@@ -21,10 +21,16 @@
            {{ dateHelper.formatEpochTime(pickedData.time) }}
         </v-flex>
         <v-flex xs2 :class="$style.center">
-          <v-icon>import_export</v-icon>
+          <v-icon>vertical_align_top</v-icon>
         </v-flex>
         <v-flex xs4>
           {{ pickedData.worldPosition[2].toFixed(2) }} m
+        </v-flex>
+        <v-flex xs2 :class="$style.center" v-show="pickedData.uncertainty > -1">
+          <v-icon>vertical_align_center</v-icon>
+        </v-flex>
+        <v-flex xs4 v-show="pickedData.uncertainty > -1">
+          {{ pickedData.uncertainty.toFixed(2) }}
         </v-flex>
       </v-layout>
     </v-container>

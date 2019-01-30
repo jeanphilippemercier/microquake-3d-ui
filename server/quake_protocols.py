@@ -23,6 +23,8 @@ from spp.utils import seismic_client
 # User configuration
 # -----------------------------------------------------------------------------
 
+PRINT_EVENT_STRUCTURE = False
+
 API_URL = 'http://api.microquake.org/api/v1/'
 
 BLAST_SHADER = """
@@ -71,6 +73,13 @@ GAUSSIAN_RADIUS = 10
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
+
+def printEventFields(event):
+    print('-' * 80)
+    for arg in dir(event):
+        if arg[0] != '_':
+            print('%s: %s' % (arg, getattr(event, arg)))
+    print('-' * 80)
 
 def extractCamera(view):
   bounds = [-1, 1, -1, 1, -1, 1]
@@ -283,23 +292,39 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # Debug output
         print('updateEventsPolyData', filterType, len(filteredList), len(event_list))
 
+        # ---------------------------------------------------------------------
+        # Fields available on polydata / picking
+        # ---------------------------------------------------------------------
+
         mag = polydata.GetPointData().GetArray('magnitude')
         if not mag:
             mag = vtkFloatArray()
             mag.SetName('magnitude')
             polydata.GetPointData().AddArray(mag)
+        mag.SetNumberOfTuples(size)
 
         timeArray = polydata.GetPointData().GetArray('time')
         if not timeArray:
             timeArray = vtkUnsignedLongArray()
             timeArray.SetName('time')
             polydata.GetPointData().AddArray(timeArray)
+        timeArray.SetNumberOfTuples(size)
 
         idArray = polydata.GetPointData().GetArray('id')
         if not idArray:
             idArray = vtkUnsignedIntArray()
             idArray.SetName('id')
             polydata.GetPointData().AddArray(idArray)
+        idArray.SetNumberOfTuples(size)
+
+        uncertaintyArray = polydata.GetPointData().GetArray('uncertainty')
+        if not uncertaintyArray:
+            uncertaintyArray = vtkFloatArray()
+            uncertaintyArray.SetName('uncertainty')
+            polydata.GetPointData().AddArray(uncertaintyArray)
+        uncertaintyArray.SetNumberOfTuples(size)
+
+        # ---------------------------------------------------------------------
 
         points = polydata.GetPoints()
         points.SetNumberOfPoints(size)
@@ -309,23 +334,25 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         verts.SetValue(0, size)
         polydata.GetVerts().SetNumberOfCells(1 if size else 0);
 
-        mag.SetNumberOfTuples(size)
-        timeArray.SetNumberOfTuples(size)
-        idArray.SetNumberOfTuples(size)
+        # DEBUG show event fields + values
+        if PRINT_EVENT_STRUCTURE and len(filteredList):
+            printEventFields(filteredList[0])
 
         for i in range(size):
             event = filteredList[i]
-            # for arg in dir(event):
-            #     print(arg)
-            #     if arg[0] != '_':
-            #         print('  %s' % getattr(event, arg))
-            #     else:
-            #         print('  skip')
             points.SetPoint(i, event.x, event.y, event.z)
             verts.SetValue(i + 1, i)
             mag.SetValue(i, event.magnitude)
             timeArray.SetValue(i, event.time_epoch)
             idArray.SetValue(i, len(self.idList))
+
+            # Not all events have the uncertainty
+            uncertaintyArray.SetValue(i, -1000.0)
+            if 'uncertainty' in dir(event) and event.uncertainty:
+                value = float(event.uncertainty)
+                uncertaintyArray.SetValue(i, value)
+
+
             self.idList.append(event.event_resource_id)
 
         polydata.Modified()

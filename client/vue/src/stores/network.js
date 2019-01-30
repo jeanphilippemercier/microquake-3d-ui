@@ -49,6 +49,7 @@ export default {
         .then((validClient) => {
           commit(Mutations.NETWORK_CLIENT_SET, validClient);
           dispatch(Actions.QUAKE_FETCH_MINE);
+          dispatch(Actions.QUAKE_UPDATE_EVENTS);
           clientToConnect.updateBusy(-1);
         })
         .catch((error) => {
