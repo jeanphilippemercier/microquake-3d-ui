@@ -80,8 +80,10 @@
       </v-btn>
     </v-tooltip>
   </v-toolbar>
-  <v-content style="background: darkgray;">
+  <v-content style="background: darkgray; position: relative;">
     <progress-bar :progress="busyProgress" />
-    <vtk-view v-if="client"/>
+    <picking-tooltip>
+      <vtk-view v-if="client"/>
+    </picking-tooltip>
   </v-content>
 </v-app>

@@ -39,7 +39,27 @@ function getShortTimeLabel(value) {
   return strBuffer.join(' ');
 }
 
+function getHoursFromNow(strDate) {
+  const deltaHours = Math.round(
+    (Date.now() - new Date(`${strDate}T00:00:00.0`)) / 3600000
+  );
+  return deltaHours;
+}
+
+function formatEpochTime(epoch) {
+  const isoStr = new Date(epoch / 1000000).toISOString().split('T');
+  return `${isoStr[1].split('.')[0]}`;
+}
+
+function formatEpochDate(epoch) {
+  const isoStr = new Date(epoch / 1000000).toISOString().split('T');
+  return `${isoStr[0].replace(/-/g, '/')}`;
+}
+
 export default {
   getDateFromNow,
   getShortTimeLabel,
+  formatEpochTime,
+  formatEpochDate,
+  getHoursFromNow,
 };

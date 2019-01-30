@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 import { Mutations } from 'paraview-quake/src/stores/TYPES';
+
 import DateHelper from 'paraview-quake/src/util/DateHelper';
+import URLHelper from 'paraview-quake/src/util/URLHelper';
+
 import PRESETS from 'paraview-quake/src/presets';
 
 function convertMineItem(node, visibilityList) {
@@ -39,8 +42,13 @@ export default {
     presets: PRESETS,
     historicalTime: 0,
     focusPeriod: [0, 2190],
+    // tooltip
+    pickingPosition: [0, 0],
+    pickedData: null,
+    // Internal semaphores
     busyUpdateEvents: 0,
     busyUpdateScaleFunction: 0,
+    busyEventPicking: 0,
   },
   getters: {
     QUAKE_MINE(state) {
@@ -70,6 +78,12 @@ export default {
     QUAKE_FOCUS_PERIOD(state) {
       return state.focusPeriod;
     },
+    QUAKE_PICKING_POSITION(state) {
+      return state.pickingPosition;
+    },
+    QUAKE_PICKED_DATA(state) {
+      return state.pickedData;
+    },
   },
   mutations: {
     QUAKE_MINE_SET(state, value) {
@@ -95,6 +109,12 @@ export default {
     },
     QUAKE_FOCUS_PERIOD_SET(state, value) {
       state.focusPeriod = value;
+    },
+    QUAKE_PICKING_POSITION_SET(state, value) {
+      state.pickingPosition = value;
+    },
+    QUAKE_PICKED_DATA_SET(state, value) {
+      state.pickedData = value;
     },
   },
   actions: {
@@ -183,6 +203,36 @@ export default {
             }
           );
         }
+      }
+    },
+    QUAKE_EVENT_PICKING({ rootState, state, dispatch, commit }, [x, y]) {
+      commit('QUAKE_PICKING_POSITION_SET', [x, y]);
+      const client = rootState.network.client;
+      if (client) {
+        state.busyEventPicking++;
+        if (state.busyEventPicking === 1) {
+          client.remote.Quake.pickPoint(x, y).then((data) => {
+            commit(
+              'QUAKE_PICKED_DATA_SET',
+              data && data.magnitude ? data : null
+            );
+            state.busyEventPicking--;
+            if (state.busyEventPicking) {
+              state.busyEventPicking = 0;
+              dispatch('QUAKE_EVENT_PICKING', state.pickingPosition);
+            }
+          });
+        }
+      }
+    },
+    QUAKE_OPEN_EVENT({ rootState, state }) {
+      const client = rootState.network.client;
+      if (client && state.pickedData) {
+        client.remote.Quake.getEventId(state.pickedData.id).then((id) => {
+          const url = URLHelper.getWaveformURLForEvent(id);
+          const win = window.open(url, '_blank');
+          win.focus();
+        });
       }
     },
   },

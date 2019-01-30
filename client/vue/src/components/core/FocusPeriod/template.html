@@ -10,7 +10,7 @@
         hide-details
         v-model="focusPeriod"
         :min="0"
-        :max="2190"
+        :max="sliderMax"
         :step="24"
         @end="updateFocusPeriod"
       />
@@ -24,7 +24,31 @@
     </v-flex>
   </v-layout>
   <v-layout row align-center justify-space-between>
-    <div class="pt-1">{{ focusDateLabels[0] }}</div>
-    <div class="pt-1">{{ focusDateLabels[1] }}</div>
+    <v-menu
+      ref="menu"
+      v-model="minDateMenu"
+      :close-on-content-click="false"
+      lazy
+      transition="scale-transition"
+      offset-y
+      full-width
+      min-width="290px"
+    >
+      <div slot="activator" class="pt-1">{{ focusDateLabels[0] }}</div>
+      <v-date-picker v-model="minDate" no-title scrollable @input="minDateMenu = false" />
+    </v-menu>
+    <v-menu
+      ref="menu"
+      v-model="maxDateMenu"
+      :close-on-content-click="false"
+      lazy
+      transition="scale-transition"
+      offset-y
+      full-width
+      min-width="290px"
+    >
+      <div slot="activator" class="pt-1">{{ focusDateLabels[1] }}</div>
+      <v-date-picker v-model="maxDate" no-title scrollable @input="maxDateMenu = false" />
+    </v-menu>
   </v-layout>
 </v-container>
