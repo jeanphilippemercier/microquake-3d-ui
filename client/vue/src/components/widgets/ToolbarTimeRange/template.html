@@ -1,0 +1,16 @@
+<v-container class="pa-0" :class="$style.container">
+  <v-layout row align-center>
+    <v-flex xs3 style="text-align: right;">
+      <div :class="$style.label">{{ focusDateLabels[0] }}</div>
+    </v-flex>
+    <v-flex xs6 class="pa-0">
+      <img
+        :class="$style.image"
+        :src="'data:image/png;base64,' + presets[activePreset]"
+      />
+    </v-flex>
+    <v-flex xs3 style="text-align: left;">
+      <div :class="$style.label">{{ focusDateLabels[1] }}</div>
+    </v-flex>
+  </v-layout>
+</v-container>

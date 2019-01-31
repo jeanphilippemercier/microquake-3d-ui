@@ -23,7 +23,9 @@ export default {
   },
   computed: {
     tooltipClass() {
-      return this.pickedData ? this.$style.visible : this.$style.hidden;
+      return this.pickedData && !this.disablePicking
+        ? this.$style.visible
+        : this.$style.hidden;
     },
     pickedData() {
       return this.$store.getters.QUAKE_PICKED_DATA;

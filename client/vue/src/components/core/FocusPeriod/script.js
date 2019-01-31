@@ -12,7 +12,6 @@ export default {
   data() {
     return {
       hideSlider: false,
-      sliderMax: DEFAULT_MAX_RANGE,
       minDateMenu: false,
       maxDateMenu: false,
     };
@@ -26,6 +25,14 @@ export default {
     },
     presets() {
       return this.$store.getters.QUAKE_COLOR_PRESETS;
+    },
+    sliderMax: {
+      get() {
+        return this.$store.getters.QUAKE_FOCUS_PERIOD_OFFSET;
+      },
+      set(value) {
+        this.$store.commit(Mutations.QUAKE_FOCUS_PERIOD_OFFSET_SET, value);
+      },
     },
     focusPeriod: {
       get() {

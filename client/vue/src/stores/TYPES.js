@@ -34,6 +34,7 @@ export const Getters = objEnum([
   'QUAKE_FOCUS_PERIOD',
   'QUAKE_PICKING_POSITION',
   'QUAKE_PICKED_DATA',
+  'QUAKE_FOCUS_PERIOD_OFFSET',
 
   // view
   'VIEW_ID',
@@ -75,6 +76,7 @@ export const Mutations = objEnum([
   'QUAKE_FOCUS_PERIOD_SET',
   'QUAKE_PICKING_POSITION_SET',
   'QUAKE_PICKED_DATA_SET',
+  'QUAKE_FOCUS_PERIOD_OFFSET_SET',
 
   // view
   'VIEW_ID_SET',

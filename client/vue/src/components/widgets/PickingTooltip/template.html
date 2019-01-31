@@ -3,31 +3,31 @@
     <v-container v-if="pickedData" fluid grid-list-md class="pa-1">
       <v-layout row wrap align-center>
         <v-flex xs2 :class="$style.center">
-          <v-icon>insert_invitation</v-icon>
+          <v-icon color="#333">insert_invitation</v-icon>
         </v-flex>
         <v-flex xs4 :class="$style.center">
            {{ dateHelper.formatEpochDate(pickedData.time) }}
         </v-flex>
         <v-flex xs2 :class="$style.center">
-          <v-icon>graphic_eq</v-icon>
+          <v-icon color="#333">graphic_eq</v-icon>
         </v-flex>
         <v-flex xs4>
           {{ pickedData.magnitude.toFixed(2) }}
         </v-flex>
         <v-flex xs2 :class="$style.center">
-          <v-icon>access_time</v-icon>
+          <v-icon color="#333">access_time</v-icon>
         </v-flex>
         <v-flex xs4 :class="$style.center">
            {{ dateHelper.formatEpochTime(pickedData.time) }}
         </v-flex>
         <v-flex xs2 :class="$style.center">
-          <v-icon>vertical_align_top</v-icon>
+          <v-icon color="#333">vertical_align_top</v-icon>
         </v-flex>
         <v-flex xs4>
           {{ pickedData.worldPosition[2].toFixed(2) }} m
         </v-flex>
         <v-flex xs2 :class="$style.center" v-show="pickedData.uncertainty > -1">
-          <v-icon>vertical_align_center</v-icon>
+          <v-icon color="#333">vertical_align_center</v-icon>
         </v-flex>
         <v-flex xs4 v-show="pickedData.uncertainty > -1">
           {{ pickedData.uncertainty.toFixed(2) }}

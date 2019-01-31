@@ -42,6 +42,7 @@ export default {
     presets: PRESETS,
     historicalTime: 0,
     focusPeriod: [0, 2190],
+    focusOffset: 2190,
     // tooltip
     pickingPosition: [0, 0],
     pickedData: null,
@@ -84,6 +85,9 @@ export default {
     QUAKE_PICKED_DATA(state) {
       return state.pickedData;
     },
+    QUAKE_FOCUS_PERIOD_OFFSET(state) {
+      return state.focusOffset;
+    },
   },
   mutations: {
     QUAKE_MINE_SET(state, value) {
@@ -115,6 +119,9 @@ export default {
     },
     QUAKE_PICKED_DATA_SET(state, value) {
       state.pickedData = value;
+    },
+    QUAKE_FOCUS_PERIOD_OFFSET_SET(state, value) {
+      state.focusOffset = value;
     },
   },
   actions: {

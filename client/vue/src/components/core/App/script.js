@@ -6,6 +6,7 @@ import VtkView from 'paraview-quake/src/components/core/View';
 
 import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
+import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
 
 import shortcuts from 'paraview-quake/src/shortcuts';
 import { Mutations, Actions } from 'paraview-quake/src/stores/TYPES';
@@ -29,6 +30,7 @@ export default {
     VtkView,
     ProgressBar,
     PickingTooltip,
+    ToolbarTimeRange,
   },
   data() {
     return {
