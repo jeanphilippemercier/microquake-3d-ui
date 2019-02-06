@@ -45,6 +45,20 @@
             :step="0.01"
           />
         </v-flex>
+        <v-flex xs5>
+          <span class="body-2">Uncertainty</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="uncertaintyScaleFactor"
+            :min="1"
+            :max="50"
+            :step="1"
+          />
+        </v-flex>
       </v-layout>
     </v-container>
   </v-card>

@@ -26,10 +26,10 @@
         <v-flex xs4>
           {{ pickedData.worldPosition[2].toFixed(2) }} m
         </v-flex>
-        <v-flex xs2 :class="$style.center" v-show="pickedData.uncertainty > -1">
+        <v-flex xs2 :class="$style.center" v-show="pickedData.uncertainty > 0">
           <v-icon color="#333">vertical_align_center</v-icon>
         </v-flex>
-        <v-flex xs4 v-show="pickedData.uncertainty > -1">
+        <v-flex xs4 v-show="pickedData.uncertainty > 0">
           {{ pickedData.uncertainty.toFixed(2) }}
         </v-flex>
       </v-layout>

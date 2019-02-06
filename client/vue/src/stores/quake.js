@@ -35,9 +35,12 @@ export default {
       seismicEvents: true,
       blast: true,
       historicEvents: true,
+      ray: false,
+      uncertainty: false,
     },
     scalingRange: [0.1, 1],
     magnitudeRange: [-2, 3],
+    uncertaintyScaleFactor: 1,
     preset: 'coolwarm',
     presets: PRESETS,
     historicalTime: 0,
@@ -49,6 +52,7 @@ export default {
     // Internal semaphores
     busyUpdateEvents: 0,
     busyUpdateScaleFunction: 0,
+    busyUpdateUncertaintyScale: 0,
     busyEventPicking: 0,
   },
   getters: {
@@ -88,6 +92,9 @@ export default {
     QUAKE_FOCUS_PERIOD_OFFSET(state) {
       return state.focusOffset;
     },
+    QUAKE_UNCERTAINTY_SCALE_FACTOR(state) {
+      return state.uncertaintyScaleFactor;
+    },
   },
   mutations: {
     QUAKE_MINE_SET(state, value) {
@@ -122,6 +129,9 @@ export default {
     },
     QUAKE_FOCUS_PERIOD_OFFSET_SET(state, value) {
       state.focusOffset = value;
+    },
+    QUAKE_UNCERTAINTY_SCALE_FACTOR_SET(state, value) {
+      state.uncertaintyScaleFactor = value;
     },
   },
   actions: {
@@ -164,6 +174,8 @@ export default {
           quake: state.componentsVisibility.seismicEvents,
           blast: state.componentsVisibility.blast,
           historical: state.componentsVisibility.historicEvents,
+          ray: state.componentsVisibility.ray,
+          uncertainty: state.componentsVisibility.uncertainty,
         };
         client.remote.Quake.updateVisibility(visibilityMap);
       }
@@ -209,6 +221,23 @@ export default {
               }
             }
           );
+        }
+      }
+    },
+    QUAKE_UPDATE_UNCERTAINTY_SCALING({ rootState, state, dispatch }) {
+      const client = rootState.network.client;
+      if (client) {
+        state.busyUpdateUncertaintyScale++;
+        if (state.busyUpdateUncertaintyScale === 1) {
+          client.remote.Quake.updateUncertaintyScaling(
+            state.uncertaintyScaleFactor
+          ).then(() => {
+            state.busyUpdateUncertaintyScale--;
+            if (state.busyUpdateUncertaintyScale) {
+              state.busyUpdateUncertaintyScale = 0;
+              dispatch('QUAKE_UPDATE_UNCERTAINTY_SCALING');
+            }
+          });
         }
       }
     },

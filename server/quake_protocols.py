@@ -1,5 +1,5 @@
 # Main python libs
-import os, time, json, math, calendar, time
+import os, time, json, math, calendar, time, random
 
 # ParaViewWeb
 from wslink import register as exportRpc
@@ -18,6 +18,7 @@ from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 # Quake stuff
 from spp.utils import seismic_client
+# from spp.utils.application import Application
 
 # -----------------------------------------------------------------------------
 # User configuration
@@ -122,11 +123,11 @@ def addPiecewisePoint(fn, scalar, size):
 
 # -----------------------------------------------------------------------------
 
-def createPicturePipeline(basePath, config):
+def createPicturePipeline(basePath, config, translate):
     source = simple.Plane()
-    source.Origin = config['origin']
-    source.Point1 = config['point1']
-    source.Point2 = config['point2']
+    source.Origin = [config['origin'][0] + translate[0], config['origin'][1] + translate[1], config['origin'][2] + translate[2]]
+    source.Point1 = [config['point1'][0] + translate[0], config['point1'][1] + translate[1], config['point1'][2] + translate[2]]
+    source.Point2 = [config['point2'][0] + translate[0], config['point2'][1] + translate[1], config['point2'][2] + translate[2]]
 
     texture = servermanager._getPyProxy(servermanager.CreateProxy('textures', 'ImageTexture'))
     texture.FileName = os.path.join(basePath, config['file'])
@@ -146,8 +147,12 @@ def createPicturePipeline(basePath, config):
 
 # -----------------------------------------------------------------------------
 
-def createLinePipeline(basePath, config):
-    source = simple.OpenDataFile(os.path.join(basePath, config['file']))
+def createLinePipeline(basePath, config, translate):
+    reader = simple.OpenDataFile(os.path.join(basePath, config['file']))
+    source = simple.Transform(Input=reader)
+    source.Transform = 'Transform'
+    source.Transform.Translate = translate
+
     representation = simple.GetRepresentation(source)
     representation.Visibility = config['visibility']
 
@@ -164,8 +169,12 @@ def createLinePipeline(basePath, config):
 
 # -----------------------------------------------------------------------------
 
-def createSensorPipeline(basePath, config):
-    source = simple.OpenDataFile(os.path.join(basePath, config['file']))
+def createSensorPipeline(basePath, config, translate):
+    reader = simple.OpenDataFile(os.path.join(basePath, config['file']))
+    source = simple.Transform(Input=reader)
+    source.Transform = 'Transform'
+    source.Transform.Translate = translate
+
     representation = simple.GetRepresentation(source)
     representation.Visibility = config['visibility']
 
@@ -182,10 +191,98 @@ def createSensorPipeline(basePath, config):
 
 # -----------------------------------------------------------------------------
 
+def createSensorCSVPipeline(basePath, config, translate):
+    source = createTrivialProducer()
+    polyData = source.GetClientSideObject().GetOutputDataObject(0)
+    points = polyData.GetPoints()
+    points.SetNumberOfPoints(0)
+    cellArray = polyData.GetVerts().GetData()
+    cellArray.SetNumberOfTuples(0)
+    cellArray.InsertNextValue(0)
+    direction = polyData.GetPointData().GetArray('direction')
+    if not direction:
+        direction = vtkFloatArray()
+        direction.SetName('direction')
+        direction.SetNumberOfComponents(3)
+        polyData.GetPointData().SetVectors(direction)
+    direction.SetNumberOfTuples(0)
+
+    with open(os.path.join(basePath, config['file']), 'r') as csv:
+        header = None
+        for line in csv:
+            if header:
+                # process station
+                tokens = line[:-1].split(',')
+                # Try to use x3 first and fallback to x1 if not available
+                if len(tokens[header['dx']]):
+                    x = float(tokens[header['x']]) + translate[0]
+                    y = float(tokens[header['y']]) + translate[1]
+                    z = float(tokens[header['z']]) + translate[2]
+                    dx = -float(tokens[header['dx']])
+                    dy = -float(tokens[header['dy']])
+                    dz = -float(tokens[header['dz']])
+                    cellArray.InsertNextValue(points.GetNumberOfPoints())
+                    points.InsertNextPoint(x, y, z)
+                    direction.InsertNextTuple3(dx, dy, dz)
+                elif len(tokens[header['dx_']]):
+                    x = float(tokens[header['x']]) + translate[0]
+                    y = float(tokens[header['y']]) + translate[1]
+                    z = float(tokens[header['z']]) + translate[2]
+                    dx = -float(tokens[header['dx_']])
+                    dy = -float(tokens[header['dy_']])
+                    dz = -float(tokens[header['dz_']])
+                    cellArray.InsertNextValue(points.GetNumberOfPoints())
+                    points.InsertNextPoint(x, y, z)
+                    direction.InsertNextTuple3(dx, dy, dz)
+            else:
+                # process header
+                header = {}
+                tokens = line[:-1].split(',')
+                header['x'] = tokens.index('Easting')
+                header['y'] = tokens.index('Northing')
+                header['z'] = tokens.index('Elev')
+
+                header['dx'] = tokens.index('x3')
+                header['dy'] = tokens.index('y3')
+                header['dz'] = tokens.index('z3')
+
+                header['dx_'] = tokens.index('x1')
+                header['dy_'] = tokens.index('y1')
+                header['dz_'] = tokens.index('z1')
+
+    size = points.GetNumberOfPoints()
+    cellArray.SetValue(0, size)
+
+    representation = simple.GetRepresentation(source)
+    representation.SetRepresentationType('3D Glyphs')
+
+    representation.Orient = 1
+    representation.GlyphType = 'Cone'
+    representation.GlyphType.Resolution = 12
+    representation.GlyphType.Height = 20
+    representation.GlyphType.Radius = 10
+    representation.GlyphType.Capping = 1
+
+    representation.Visibility = config['visibility']
+
+    # No color, wider width and looks like tubes
+    # representation.DiffuseColor = config['color']
+
+    polyData.Modified()
+    source.MarkModified(source)
+
+    return {
+        'label': config['label'],
+        'source': source,
+        'representation': representation
+    }
+
+# -----------------------------------------------------------------------------
+
 MINE_PIECES = {
     'picture': createPicturePipeline,
     'lines': createLinePipeline,
-    'sensors': createSensorPipeline,
+    'sensors': createSensorCSVPipeline,
 }
 
 # -----------------------------------------------------------------------------
@@ -193,6 +290,10 @@ MINE_PIECES = {
 class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     def __init__(self, mineBasePath = None, **kwargs):
         super(pv_protocols.ParaViewWebProtocol, self).__init__()
+
+        self.showRay = False
+        self.uncertaintyScaling = 1.0
+
         self.focusQuakeProxy = createTrivialProducer()
         self.focusBlastProxy = createTrivialProducer()
         self.historicalProxy = createTrivialProducer()
@@ -243,6 +344,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         # Load mine definition
         self.mineBounds = [-1, 1, -1, 1, -1, 1]
+        self.translate = [0, 0, 0]
         self.mineCategories = []
         self.minePieces = []
         self.minePiecesByCategory = {}
@@ -251,12 +353,18 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             with open(filepath, 'r') as mineFileMeta:
                 mine = json.load(mineFileMeta)
                 self.mineBounds = mine['boundaries']
+                self.translate[0] = -0.5 * (self.mineBounds[0] + self.mineBounds[1])
+                self.translate[1] = -0.5 * (self.mineBounds[2] + self.mineBounds[3])
+                # Do not affect Z as it is small and we want to keep it untouch for picking info (depth)
+                # Actually translating so the ground show up as 0
+                # self.translate[2] = -0.5 * (self.mineBounds[4] + self.mineBounds[5])
+                self.translate[2] = -self.mineBounds[5]
                 self.mineCategories = mine['categories']
                 for piece in mine['pieces']:
                     category = piece['category']
                     if category not in self.minePiecesByCategory:
                         self.minePiecesByCategory[category] = []
-                    pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece)
+                    pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece, self.translate)
 
                     self.minePiecesByCategory[category].append(pipelineItem)
                     self.minePieces.append(pipelineItem)
@@ -324,6 +432,14 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             polydata.GetPointData().AddArray(uncertaintyArray)
         uncertaintyArray.SetNumberOfTuples(size)
 
+        uncertaintyDirectionArray = polydata.GetPointData().GetArray('direction')
+        if not uncertaintyDirectionArray:
+            uncertaintyDirectionArray = vtkFloatArray()
+            uncertaintyDirectionArray.SetName('uncertainty_direction')
+            uncertaintyDirectionArray.SetNumberOfComponents(3)
+            polydata.GetPointData().AddArray(uncertaintyDirectionArray)
+        uncertaintyDirectionArray.SetNumberOfTuples(size)
+
         # ---------------------------------------------------------------------
 
         points = polydata.GetPoints()
@@ -340,17 +456,22 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         for i in range(size):
             event = filteredList[i]
-            points.SetPoint(i, event.x, event.y, event.z)
+            points.SetPoint(i, event.x + self.translate[0], event.y + self.translate[1], event.z + self.translate[2])
             verts.SetValue(i + 1, i)
             mag.SetValue(i, event.magnitude)
             timeArray.SetValue(i, event.time_epoch)
             idArray.SetValue(i, len(self.idList))
 
             # Not all events have the uncertainty
-            uncertaintyArray.SetValue(i, -1000.0)
+
             if 'uncertainty' in dir(event) and event.uncertainty:
                 value = float(event.uncertainty)
                 uncertaintyArray.SetValue(i, value)
+                # FIXME the data should have such info
+                uncertaintyDirectionArray.SetTuple3(i, random.random(), random.random(), random.random())
+            else:
+                uncertaintyArray.SetValue(i, 0.0)
+                uncertaintyDirectionArray.SetTuple3(i, 0, 0, 1)
 
 
             self.idList.append(event.event_resource_id)
@@ -372,6 +493,32 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         return {
             'count': len(event_list),
         }
+
+
+    def showEventsUncertainty(self, showUncertainty):
+        if showUncertainty:
+            # Use glyph mapper
+            for representation in [self.focusQuakeRepresentation, self.focusBlastRepresentation]:
+                representation.SetRepresentationType('3D Glyphs')
+
+                representation.Orient = 1
+                representation.SelectOrientationVectors = 'uncertainty_direction'
+
+                representation.Scaling = 1
+                representation.ScaleMode = 'Magnitude'
+                representation.SelectScaleArray = 'uncertainty'
+                representation.ScaleFactor = self.uncertaintyScaling
+
+                representation.GlyphType = 'Arrow'
+                representation.GlyphType.TipResolution = 12
+                representation.GlyphType.TipRadius = 0.1
+                representation.GlyphType.ShaftResolution = 12
+                representation.GlyphType.ShaftRadius = 0.03
+        else:
+            # Use point gaussian
+            self.focusQuakeRepresentation.SetRepresentationType('Point Gaussian')
+            self.focusBlastRepresentation.SetRepresentationType('Point Gaussian')
+
 
 
     # @exportRpc("paraview.quake.events.get")
@@ -398,6 +545,16 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.focusBlastRepresentation.ScaleTransferFunction.Points = fnPoints
         self.focusQuakeRepresentation.UseScaleFunction = 1
         self.focusBlastRepresentation.UseScaleFunction = 1
+
+        self.getApplication().InvokeEvent('UpdateEvent')
+
+
+    @exportRpc("paraview.quake.scale.uncertainty")
+    def updateUncertaintyScaling(self, scaling):
+        self.uncertaintyScaling = scaling
+
+        self.focusQuakeRepresentation.ScaleFactor = self.uncertaintyScaling
+        self.focusBlastRepresentation.ScaleFactor = self.uncertaintyScaling
 
         self.getApplication().InvokeEvent('UpdateEvent')
 
@@ -434,6 +591,12 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.focusQuakeRepresentation.Visibility = 1 if 'quake' in visibilityMap and visibilityMap['quake'] else 0
         self.focusBlastRepresentation.Visibility = 1 if 'blast' in visibilityMap and visibilityMap['blast'] else 0
         self.historicalRepresentation.Visibility = 1 if 'historical' in visibilityMap and visibilityMap['historical'] else 0
+
+        # Show ray of the picked data
+        self.showRay = 'ray' in visibilityMap and visibilityMap['ray']
+
+        # Show event 'uncertainty' or magnitude+time
+        self.showEventsUncertainty('uncertainty' in visibilityMap and visibilityMap['uncertainty'])
 
         self.getApplication().InvokeEvent('UpdateEvent')
 

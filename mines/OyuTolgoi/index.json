@@ -96,18 +96,11 @@
       "visibility": 1
     },{
       "category": "sensors",
-      "label": "Surface sensors",
-      "file": "sensors_surface.vtp",
+      "label": "Stations",
+      "file": "sensors.csv",
       "type": "sensors",
       "visibility": 1,
       "color": [1, 0, 0]
-    },{
-      "category": "sensors",
-      "label": "Underground sensors",
-      "file": "sensors_underground.vtp",
-      "type": "sensors",
-      "visibility": 1,
-      "color": [0, 1, 0]
     }
   ]
 }

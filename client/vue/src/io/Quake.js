@@ -17,6 +17,8 @@ export default function createMethods(session) {
       session.call('paraview.quake.visibility.update', [visibilityMap]),
     updateScaleFunction: (dataRange, sizeRange) =>
       session.call('paraview.quake.scale.range', [dataRange, sizeRange]),
+    updateUncertaintyScaling: (scaleFactor) =>
+      session.call('paraview.quake.scale.uncertainty', [scaleFactor]),
     updatePreset: (presetName) =>
       session.call('paraview.quake.color.preset', [presetName]),
     // Mine -------------------------------------------------------------------

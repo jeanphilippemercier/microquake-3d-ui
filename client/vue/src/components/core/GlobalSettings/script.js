@@ -68,6 +68,13 @@ const KEYS = {
     defaultValue: 30,
     variable: 'maxFPS',
   },
+  QUAKE_UNCERTAINTY_SCALE_FACTOR: {
+    name: 'uncertaintyScaleFactor',
+    set: numberSet,
+    get: numberGet,
+    defaultValue: 1,
+    variable: 'uncertaintyScaleFactor',
+  },
   MOUSE_THROTTLE: {
     name: 'throttle',
     set: numberSet,
@@ -130,6 +137,9 @@ export default {
     magnitudeRange() {
       this.$store.dispatch(Actions.QUAKE_UPDATE_SCALING);
     },
+    uncertaintyScaleFactor() {
+      this.$store.dispatch(Actions.QUAKE_UPDATE_UNCERTAINTY_SCALING);
+    },
   },
   computed: {
     hasChanges() {
@@ -181,6 +191,22 @@ export default {
         return this.wrapSet(
           'QUAKE_MAGNITUDE_RANGE_SET',
           'QUAKE_MAGNITUDE_RANGE',
+          value
+        );
+      },
+    },
+    uncertaintyScaleFactor: {
+      get() {
+        return this.wrapGet(
+          'QUAKE_UNCERTAINTY_SCALE_FACTOR',
+          'QUAKE_UNCERTAINTY_SCALE_FACTOR_SET',
+          'QUAKE_UNCERTAINTY_SCALE_FACTOR'
+        );
+      },
+      set(value) {
+        return this.wrapSet(
+          'QUAKE_UNCERTAINTY_SCALE_FACTOR_SET',
+          'QUAKE_UNCERTAINTY_SCALE_FACTOR',
           value
         );
       },

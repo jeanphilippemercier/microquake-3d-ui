@@ -20,6 +20,8 @@ const VISIBILITY_ICON_INDEX_MAPPING = [
   'seismicEvents',
   'blast',
   'historicEvents',
+  'ray',
+  'uncertainty',
 ];
 
 export default {
