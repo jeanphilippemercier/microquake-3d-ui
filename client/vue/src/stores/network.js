@@ -50,6 +50,8 @@ export default {
           commit(Mutations.NETWORK_CLIENT_SET, validClient);
           dispatch(Actions.QUAKE_FETCH_MINE);
           dispatch(Actions.QUAKE_UPDATE_EVENTS);
+          dispatch(Actions.QUAKE_UPDATE_SCALING);
+          dispatch(Actions.QUAKE_UPDATE_UNCERTAINTY_SCALING);
           clientToConnect.updateBusy(-1);
         })
         .catch((error) => {

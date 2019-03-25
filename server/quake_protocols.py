@@ -103,10 +103,14 @@ def extractCamera(view):
     'bounds': bounds,
   }
 
-def createTrivialProducer():
+def createTrivialProducer(cellTypes = []):
     polyData = vtkPolyData()
     polyData.SetPoints(vtkPoints())
-    polyData.SetVerts(vtkCellArray())
+    for cellType in cellTypes:
+        fnSet = getattr(polyData, 'Set%s' % cellType)
+        fnSet(vtkCellArray())
+        # fnGet = getattr(polyData, 'Get%s' % cellType)
+        # fnGet().SetNumberOfCells(0)
 
     trivialProducer = simple.TrivialProducer()
     trivialProducer.GetClientSideObject().SetOutput(polyData)
@@ -192,7 +196,7 @@ def createSensorPipeline(basePath, config, translate):
 # -----------------------------------------------------------------------------
 
 def createSensorCSVPipeline(basePath, config, translate):
-    source = createTrivialProducer()
+    source = createTrivialProducer(['Verts'])
     polyData = source.GetClientSideObject().GetOutputDataObject(0)
     points = polyData.GetPoints()
     points.SetNumberOfPoints(0)
@@ -252,6 +256,7 @@ def createSensorCSVPipeline(basePath, config, translate):
 
     size = points.GetNumberOfPoints()
     cellArray.SetValue(0, size)
+    polyData.GetVerts().SetNumberOfCells(1)
 
     representation = simple.GetRepresentation(source)
     representation.SetRepresentationType('3D Glyphs')
@@ -294,13 +299,21 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.showRay = False
         self.uncertaintyScaling = 1.0
 
-        self.focusQuakeProxy = createTrivialProducer()
-        self.focusBlastProxy = createTrivialProducer()
-        self.historicalProxy = createTrivialProducer()
+        self.focusQuakeProxy = createTrivialProducer(['Verts'])
+        self.focusBlastProxy = createTrivialProducer(['Verts'])
+        self.historicalProxy = createTrivialProducer(['Verts'])
+        self.rayProxy = createTrivialProducer(['Verts']) # , 'Lines'
 
         self.focusQuakeRepresentation = simple.Show(self.focusQuakeProxy)
         self.focusBlastRepresentation = simple.Show(self.focusBlastProxy)
         self.historicalRepresentation = simple.Show(self.historicalProxy)
+        self.rayRepresentation = simple.Show(self.rayProxy)
+
+        # custom ray rendering
+        self.rayRepresentation.Visibility = 0
+        # self.rayRepresentation.LineWidth = 2.0
+        # self.rayRepresentation.RenderLinesAsTubes = 1
+
         self.view = simple.Render()
 
         # Green for earthquake and red for blast
@@ -468,6 +481,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                 value = float(event.uncertainty)
                 uncertaintyArray.SetValue(i, value)
                 # FIXME the data should have such info
+                print('uncertainty_vector(%s, %s, %s) - mag(%s)' % (event.uncertainty_vector_x, event.uncertainty_vector_y, event.uncertainty_vector_z, value))
                 uncertaintyDirectionArray.SetTuple3(i, random.random(), random.random(), random.random())
             else:
                 uncertaintyArray.SetValue(i, 0.0)
@@ -519,6 +533,54 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             self.focusQuakeRepresentation.SetRepresentationType('Point Gaussian')
             self.focusBlastRepresentation.SetRepresentationType('Point Gaussian')
 
+
+    def updateRay(self, event):
+        if 'id' in event:
+            polydata = self.rayProxy.GetClientSideObject().GetOutputDataObject(0)
+            coords = event['worldPosition']
+
+            idArray = polydata.GetPointData().GetArray('id')
+            if not idArray:
+                idArray = vtkUnsignedIntArray()
+                idArray.SetName('id')
+                polydata.GetPointData().AddArray(idArray)
+
+            idArray.SetNumberOfTuples(2)
+            idArray.SetValue(0, 1)
+            idArray.SetValue(0, 2)
+
+            points = polydata.GetPoints()
+            points.SetNumberOfPoints(2)
+            points.SetPoint(0, 1, 2, 1000)
+            points.SetPoint(1, 3, 4, -1000)
+            # points.SetPoint(1, coords[0], coords[1], coords[2])
+
+            lines = polydata.GetLines()
+            lines.SetNumberOfCells(0)
+            lines.InsertNextCell(2)
+            lines.InsertCellPoint(0)
+            lines.InsertCellPoint(1)
+
+            # verts = polydata.GetVerts()
+            # verts.SetNumberOfCells(0)
+            # verts.InsertNextCell(2)
+            # verts.InsertCellPoint(0)
+            # verts.InsertCellPoint(1)
+
+            # verts = polydata.GetVerts().GetData()
+            # verts.SetNumberOfTuples(3)
+            # verts.SetValue(0, 2)
+            # verts.SetValue(1, 0)
+            # verts.SetValue(2, 1)
+            # polydata.GetVerts().SetNumberOfCells(1);
+
+
+            polydata.Modified()
+            self.rayProxy.MarkModified(self.rayProxy)
+
+            self.rayRepresentation.Visibility = 1
+        else:
+            self.rayRepresentation.Visibility = 0
 
 
     # @exportRpc("paraview.quake.events.get")
@@ -710,9 +772,14 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # Add picked point world coordinates
         output['worldPosition'] = selectedDataSet.GetPoints().GetPoint(0)
 
+        # Handle ray if needed
+        if self.showRay:
+            self.updateRay(output)
+
         return output
 
       # No selection found
+      self.rayRepresentation.Visibility = 0
       return None
 
 
