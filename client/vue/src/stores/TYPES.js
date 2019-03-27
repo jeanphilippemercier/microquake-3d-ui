@@ -115,6 +115,7 @@ export const Actions = objEnum([
   'QUAKE_EVENT_PICKING',
   'QUAKE_OPEN_EVENT',
   'QUAKE_UPDATE_UNCERTAINTY_SCALING',
+  'QUAKE_SHOW_RAY',
 
   // view
   'VIEW_UPDATE_CAMERA',

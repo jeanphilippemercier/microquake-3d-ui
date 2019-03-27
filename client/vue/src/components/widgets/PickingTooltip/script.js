@@ -30,6 +30,9 @@ export default {
     pickedData() {
       return this.$store.getters.QUAKE_PICKED_DATA;
     },
+    rayCount() {
+      return this.$store.getters.QUAKE_RAY_MAPPING[this.pickedData.event_resource_id];
+    },
   },
   mounted() {
     // Create methods as closures
@@ -38,7 +41,11 @@ export default {
     };
 
     this.onDoubleClick = () => {
-      this.$store.dispatch(Actions.QUAKE_OPEN_EVENT);
+      if (this.$store.getters.QUAKE_COMPONENTS_VISIBILITY.ray) {
+        this.$store.dispatch(Actions.QUAKE_SHOW_RAY);
+      } else {
+        this.$store.dispatch(Actions.QUAKE_OPEN_EVENT);
+      }
     };
 
     this.onMousePress = () => {

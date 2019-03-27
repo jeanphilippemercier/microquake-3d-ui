@@ -25,6 +25,14 @@ class Event:
                 setattr(self, key, ev_dict[key])
 
 
+class Ray:
+    def __init__(self, nodes, ray_length, travel_time):
+        self.nodes = nodes
+        self.num_nodes = len(self.nodes)
+        self.ray_length = ray_length
+        self.travel_time = travel_time
+
+
 def get_events_catalog(api_base_url, start_time, end_time):
     """
     return a list of events
@@ -49,6 +57,28 @@ def get_events_catalog(api_base_url, start_time, end_time):
         events.append(Event(event))
 
     return events
+
+
+def parse_ray(ray_data):
+    if ('nodes' in ray_data and ray_data['nodes'] and
+        'ray_length' in ray_data and 'travel_time' in ray_data):
+        return Ray(ray_data['nodes'], ray_data['ray_length'], ray_data['travel_time'])
+    return None
+
+
+def get_rays_for_event(api_base_url, event_resource_id):
+    url = api_base_url + "events"
+    url = '{0}/events/{1}/rays'.format(api_base_url, event_resource_id)
+
+    response = requests.request("GET", url).json()
+
+    rays = []
+    for ray_json in response:
+        ray = parse_ray(ray_json)
+        if ray:
+            rays.append(ray)
+
+    return rays
 
 
 #----------------------------------------------------------------------------

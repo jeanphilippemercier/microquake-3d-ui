@@ -32,6 +32,12 @@
         <v-flex xs4 v-show="pickedData.uncertainty > 0">
           {{ pickedData.uncertainty.toFixed(2) }}
         </v-flex>
+        <v-flex xs2 :class="$style.center" v-show="rayCount !== undefined">
+          <v-icon color="#333">language</v-icon>
+        </v-flex>
+        <v-flex xs4 >
+          {{rayCount}}
+        </v-flex>
       </v-layout>
     </v-container>
   </div>
