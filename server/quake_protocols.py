@@ -478,7 +478,10 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
             if 'uncertainty' in dir(event) and event.uncertainty:
                 value = float(event.uncertainty)
-                uncertaintyArray.SetValue(i, value)
+                if value > 100.0:
+                  uncertaintyArray.SetValue(i, 0)
+                else:
+                  uncertaintyArray.SetValue(i, value)
                 # FIXME the data should have such info
                 print('uncertainty_vector(%s, %s, %s) - mag(%s)' % (event.uncertainty_vector_x, event.uncertainty_vector_y, event.uncertainty_vector_z, value))
                 uncertaintyDirectionArray.SetTuple3(i, random.random(), random.random(), random.random())
@@ -753,7 +756,6 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
       output = {}
       selectedRepresentations = vtkCollection()
       selectionSources = vtkCollection()
-
       found = self.view.SelectSurfacePoints([int(x), int(y), int(x), int(y)], selectedRepresentations, selectionSources)
       if selectedRepresentations.GetNumberOfItems() == selectionSources.GetNumberOfItems() and selectionSources.GetNumberOfItems() == 1:
         # We are good for selection
