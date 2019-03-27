@@ -75,6 +75,15 @@ Then if you want to make sure the new runtime works, you can run the following c
 sudo docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
 ```
 
+To avoid having to run all docker commands with `sudo`, you can create a docker group and add your user to it, as described [here](https://docs.docker.com/install/linux/linux-postinstall/).  In summary, those instructions look like this:
+
+```
+sudo groupadd docker
+sudo usermod -aG docker $USER
+```
+
+Then log out and log back in to make sure your group membership is updated.  If it doesn't seem to work, or you run into issues, the documentation linked above has more information.
+
 ### Apache configuration
 
 This section can be skipped if you don't plan to use Apache as front end to expose your service over HTTPS. 
@@ -148,40 +157,26 @@ sudo service apache2 restart
 
 ## Build Micro-quake
 
-The project depends on several moving pieces and therefore require several repository checkout.
 During the various steps described below we are going to build the following tree structures.
 `${EXTERNAL}` should be replaced by a valid directory path.
 
 ```
 ${EXTERNAL}/
   repos/
-    seismic-processing-platform/
-    microquake/
     microquake-3d-ui/
   apps/
-    py-env/
     quake/
       server/
       www/
   mines/
 ```
 
-### Fetch the various git repos
+### Fetch the 3D UI git repo
 
 ```
 mkdir -p ${EXTERNAL}/repos
 cd ${EXTERNAL}/repos
-
-git clone https://git.microquake.org/rio-tinto/seismic-processing-platform.git
-git clone https://git.microquake.org/rio-tinto/microquake.git
 git clone https://git.microquake.org/rio-tinto/microquake-3d-ui.git
-```
-
-### Update config file
-
-```
-cd ${EXTERNAL}/repos/seismic-processing-platform
-cp config/settings.toml.example config/settings.toml
 ```
 
 ### Copy mines data
@@ -189,30 +184,6 @@ cp config/settings.toml.example config/settings.toml
 ```
 cp -r ${EXTERNAL}/repos/microquake-3d-ui/mines ${EXTERNAL}/
 ```
-
-### Create virtual environment
-
-```
-mkdir -p ${EXTERNAL}/apps
-cd ${EXTERNAL}/apps
-
-virtualenv py-env
-source py-env/bin/activate
-pip install ipython
-
-cd ${EXTERNAL}/repos/seismic-processing-platform
-pip install -e .
-
-cd ${EXTERNAL}/repos/microquake
-pip install -e .
-```
-
-Then patch it to replace the host absolute paths into docker absolute path.
-
-```
-cd ${EXTERNAL}/repo/microquake-3d-ui/docker
-./patch-virtual-env.sh 
-``` 
 
 ### Create Docker image
 
@@ -237,13 +208,13 @@ The `www/` directory needs to be built and will require other system dependencie
 
 **OPTIONAL**:
 Building the web client can be achieved by running the following set of commands:
-1) `cd ${EXTERNAL}/repos/microquake-3d-ui/client`
+1) `cd ${EXTERNAL}/repos/microquake-3d-ui/client/vue`
 2) `npm i`
 3) `npm run build`
 
 ```
 mkdir -p ${EXTERNAL}/apps/quake/www
-cp -r ${EXTERNAL}/repos/microquake-3d-ui/www/* ${EXTERNAL}/apps/quake/www/
+cp -r ${EXTERNAL}/repos/microquake-3d-ui/client/www/* ${EXTERNAL}/apps/quake/www/
 ```
 
 ## Run Micro-quake Docker image
@@ -257,7 +228,7 @@ In the following command some fields need to be changed to match the user needs.
 - `${EXTERNAL}`: This is a local path on your system where the latest application is stored so that the Web application will serve and load the latest one available without rebuilding the docker image.
 - `${PORT}`: The port that you want the docker image to run on. For the Apache virtual host configuration, we assume the value to be `9000`.
 
-So the command line should looks like that:
+So the command line should look like this:
 
 ```
 PORT=9000
@@ -269,7 +240,7 @@ sudo docker run --runtime=nvidia    \
     -v ${EXTERNAL}:/external          \
     --restart unless-stopped           \
     -dti pvw-micro-quake-v5.6.0         \
-    "${PROTOCOL}://${SERVER_NAME}/"
+    "${PROTOCOL}://${SERVER_NAME}"
 ```
 
 And you can access it by pointing your browser to `https://${SERVER_NAME}/`, assuming you used Apache for HTTPS as frontend.

@@ -17,8 +17,7 @@ from vtkmodules.vtkPVClientServerCoreRendering import vtkPVRenderView
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 # Quake stuff
-from spp.utils import seismic_client
-# from spp.utils.application import Application
+from event_access import get_events_catalog
 
 # -----------------------------------------------------------------------------
 # User configuration
@@ -302,7 +301,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.focusQuakeProxy = createTrivialProducer(['Verts'])
         self.focusBlastProxy = createTrivialProducer(['Verts'])
         self.historicalProxy = createTrivialProducer(['Verts'])
-        self.rayProxy = createTrivialProducer(['Verts']) # , 'Lines'
+        self.rayProxy = createTrivialProducer(['Lines']) # , 'Lines'
 
         self.focusQuakeRepresentation = simple.Show(self.focusQuakeProxy)
         self.focusBlastRepresentation = simple.Show(self.focusBlastProxy)
@@ -623,8 +622,9 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
     @exportRpc("paraview.quake.data.update")
     def updateData(self, now, focusTime, historicalTime):
-        events_in_focus = seismic_client.get_events_catalog(API_URL, focusTime, now)
-        historic_events = seismic_client.get_events_catalog(API_URL, historicalTime, focusTime)
+        events_in_focus = get_events_catalog(API_URL, focusTime, now)
+        historic_events = get_events_catalog(API_URL, historicalTime, focusTime)
+
         print('focus', focusTime, now)
         print('historical', historicalTime, focusTime)
 
@@ -754,7 +754,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
       selectedRepresentations = vtkCollection()
       selectionSources = vtkCollection()
 
-      found = self.view.SelectSurfacePoints([x, y, x, y], selectedRepresentations, selectionSources)
+      found = self.view.SelectSurfacePoints([int(x), int(y), int(x), int(y)], selectedRepresentations, selectionSources)
       if selectedRepresentations.GetNumberOfItems() == selectionSources.GetNumberOfItems() and selectionSources.GetNumberOfItems() == 1:
         # We are good for selection
         representation = servermanager._getPyProxy(selectedRepresentations.GetItemAsObject(0))
