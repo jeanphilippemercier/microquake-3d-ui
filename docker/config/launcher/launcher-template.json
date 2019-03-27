@@ -16,7 +16,6 @@
   "properties": {
     "apps_dir": "/external/apps",
     "mines_dir": "/external/mines",
-    "virtual_env_dir": "/external/apps/py-env",
     "python_exec": "/opt/paraview/install/bin/pvpython"
   },
   "apps": {
@@ -26,9 +25,7 @@
         EXTRA_PVPYTHON_ARGS
         "${apps_dir}/quake/server/pvw-quake.py",
         "--mine", "${mines_dir}/OyuTolgoi",
-        "--virtual-env", "${virtual_env_dir}",
         "--port", "${port}",
-
         "--authKey", "${secret}",
         "--viewport-max-width", "1920",
         "--viewport-max-height", "1080",

@@ -1,5 +1,5 @@
 function getWaveformURLForEvent(id) {
-  return `https://FIXME_waveform_ui/?id=${encodeURI(id)}`;
+  return `https://waveform.microquake.org/?id=${encodeURI(id)}`;
 }
 
 export default {
