@@ -17,7 +17,7 @@ from vtkmodules.vtkPVClientServerCoreRendering import vtkPVRenderView
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 # Quake stuff
-from event_access import get_events_catalog
+from event_access import get_events_catalog, get_rays_for_event
 
 # -----------------------------------------------------------------------------
 # User configuration
@@ -70,9 +70,16 @@ SHIFT = 2
 MAX_MAGNITUDE = 2
 GAUSSIAN_RADIUS = 10
 
+UNCERTAINTY_CAP = 50.0
+
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
+def debugWritePolyData(pd, name):
+    writer = vtkXMLPolyDataWriter()
+    writer.SetFileName(os.path.join('/external', name + '.vtp'))
+    writer.SetInputData(pd)
+    writer.Write()
 
 def printEventFields(event):
     print('-' * 80)
@@ -310,8 +317,9 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         # custom ray rendering
         self.rayRepresentation.Visibility = 0
-        # self.rayRepresentation.LineWidth = 2.0
-        # self.rayRepresentation.RenderLinesAsTubes = 1
+        self.rayRepresentation.LineWidth = 2.0
+        self.rayRepresentation.DiffuseColor = [93.0 / 255.0, 173.0 / 255.0, 226.0 / 255.0]
+        self.rayRepresentation.RenderLinesAsTubes = 1
 
         self.view = simple.Render()
 
@@ -478,8 +486,8 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
             if 'uncertainty' in dir(event) and event.uncertainty:
                 value = float(event.uncertainty)
-                if value > 100.0:
-                  uncertaintyArray.SetValue(i, 0)
+                if value > UNCERTAINTY_CAP:
+                  uncertaintyArray.SetValue(i, UNCERTAINTY_CAP)
                 else:
                   uncertaintyArray.SetValue(i, value)
                 # FIXME the data should have such info
@@ -536,53 +544,69 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             self.focusBlastRepresentation.SetRepresentationType('Point Gaussian')
 
 
-    def updateRay(self, event):
-        if 'id' in event:
-            polydata = self.rayProxy.GetClientSideObject().GetOutputDataObject(0)
-            coords = event['worldPosition']
+    def updateRay(self, event_resource_id):
+        rayFound = 0
+        if event_resource_id:
+            rays = get_rays_for_event(API_URL, event_resource_id)
+            numRayCells = len(rays)
+            rayFound = numRayCells
 
-            idArray = polydata.GetPointData().GetArray('id')
-            if not idArray:
-                idArray = vtkUnsignedIntArray()
-                idArray.SetName('id')
-                polydata.GetPointData().AddArray(idArray)
+            if numRayCells > 0:
+                # print('got {0} rays for event {1}'.format(len(rays), event_resource_id))
 
-            idArray.SetNumberOfTuples(2)
-            idArray.SetValue(0, 1)
-            idArray.SetValue(0, 2)
+                # Count number of nodes/points in all the rays
+                numRayPoints = 0
+                for ray in rays:
+                    numRayPoints += ray.num_nodes
 
-            points = polydata.GetPoints()
-            points.SetNumberOfPoints(2)
-            points.SetPoint(0, 1, 2, 1000)
-            points.SetPoint(1, 3, 4, -1000)
-            # points.SetPoint(1, coords[0], coords[1], coords[2])
+                # print('  polydata should have {0} points and {1} cells'.format(numRayPoints, numRayCells))
 
-            lines = polydata.GetLines()
-            lines.SetNumberOfCells(0)
-            lines.InsertNextCell(2)
-            lines.InsertCellPoint(0)
-            lines.InsertCellPoint(1)
+                polydata = self.rayProxy.GetClientSideObject().GetOutputDataObject(0)
 
-            # verts = polydata.GetVerts()
-            # verts.SetNumberOfCells(0)
-            # verts.InsertNextCell(2)
-            # verts.InsertCellPoint(0)
-            # verts.InsertCellPoint(1)
+                # idArray = polydata.GetPointData().GetArray('id')
+                # if not idArray:
+                #     idArray = vtkUnsignedIntArray()
+                #     idArray.SetName('id')
+                #     polydata.GetPointData().AddArray(idArray)
 
-            # verts = polydata.GetVerts().GetData()
-            # verts.SetNumberOfTuples(3)
-            # verts.SetValue(0, 2)
-            # verts.SetValue(1, 0)
-            # verts.SetValue(2, 1)
-            # polydata.GetVerts().SetNumberOfCells(1);
+                # idArray.SetNumberOfTuples(2)
+                # idArray.SetValue(0, 1)
+                # idArray.SetValue(0, 2)
 
+                points = polydata.GetPoints()
+                points.SetNumberOfPoints(numRayPoints)
 
-            polydata.Modified()
-            self.rayProxy.MarkModified(self.rayProxy)
+                lines = polydata.GetLines()
+                lines.SetNumberOfCells(0)
 
-            self.rayRepresentation.Visibility = 1
+                ptIdx = 0
+
+                for ray in rays:
+                    lines.InsertNextCell(ray.num_nodes)
+                    for pt in ray.nodes:
+                        points.SetPoint(ptIdx, pt[0] + self.translate[0], pt[1] + self.translate[1], pt[2] + self.translate[2])
+                        lines.InsertCellPoint(ptIdx)
+                        ptIdx += 1
+
+                # print('  polydata actually has {0} points and {1} cells'.format(polydata.GetNumberOfPoints(), polydata.GetNumberOfCells()))
+
+                polydata.Modified()
+                self.rayProxy.MarkModified(self.rayProxy)
+
+                # fname = event_resource_id.replace('/', '-')
+                # fname = fname.replace(':', '-')
+                # debugWritePolyData(polydata, fname)
+
+                self.rayRepresentation.Visibility = 1
+            else:
+                # print('Clearing ray {0} (no rays)'.format(event_resource_id))
+                self.rayRepresentation.Visibility = 0
         else:
+            # print('Clearing ray (no id)')
             self.rayRepresentation.Visibility = 0
+
+        self.getApplication().InvokeEvent('UpdateEvent')
+        return rayFound
 
 
     # @exportRpc("paraview.quake.events.get")
@@ -770,24 +794,29 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         for i in range(nbArrays):
           array = selectedData.GetAbstractArray(i)
           output[array.GetName()] = array.GetValue(0)
+          if array.GetName() == 'id':
+            output['event_resource_id'] = self.idList[array.GetValue(0)]
 
         # Add picked point world coordinates
         output['worldPosition'] = selectedDataSet.GetPoints().GetPoint(0)
 
-        # Handle ray if needed
-        if self.showRay:
-            self.updateRay(output)
 
         return output
 
-      # No selection found
-      self.rayRepresentation.Visibility = 0
       return None
 
 
     @exportRpc("paraview.quake.event.id")
     def getEventId(self, idx):
         return self.idList[idx]
+
+
+    @exportRpc("paraview.quake.show.ray")
+    def showRay(self, idx):
+        if self.showRay:
+            return [self.idList[idx], self.updateRay(self.idList[idx])]
+        return [self.idList[idx], 0]
+
 
     @exportRpc("paraview.quake.color.preset")
     def updatePreset(self, presetName):

@@ -28,6 +28,7 @@ function convertMineItem(node, visibilityList) {
 
 export default {
   state: {
+    rayMapping: {},
     mine: [],
     mineVisibility: [],
     componentsVisibility: {
@@ -95,6 +96,9 @@ export default {
     QUAKE_UNCERTAINTY_SCALE_FACTOR(state) {
       return state.uncertaintyScaleFactor;
     },
+    QUAKE_RAY_MAPPING(state) {
+      return state.rayMapping;
+    },
   },
   mutations: {
     QUAKE_MINE_SET(state, value) {
@@ -132,6 +136,9 @@ export default {
     },
     QUAKE_UNCERTAINTY_SCALE_FACTOR_SET(state, value) {
       state.uncertaintyScaleFactor = value;
+    },
+    QUAKE_RAY_MAPPING_SET(state, value) {
+      state.rayMapping = value;
     },
   },
   actions: {
@@ -268,6 +275,14 @@ export default {
           const url = URLHelper.getWaveformURLForEvent(id);
           const win = window.open(url, '_blank');
           win.focus();
+        });
+      }
+    },
+    QUAKE_SHOW_RAY({ rootState, state, commit }) {
+      const client = rootState.network.client;
+      if (client && state.pickedData) {
+        client.remote.Quake.showRay(state.pickedData.id).then(([event_resource_id, nbRays]) => {
+          commit('QUAKE_RAY_MAPPING_SET', Object.assign({}, state.rayMapping, { [event_resource_id]: nbRays}));
         });
       }
     },

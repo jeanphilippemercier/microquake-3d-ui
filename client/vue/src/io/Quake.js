@@ -28,5 +28,6 @@ export default function createMethods(session) {
     // Selection --------------------------------------------------------------
     pickPoint: (x, y) => session.call('paraview.quake.view.pick.point', [x, y]),
     getEventId: (idx) => session.call('paraview.quake.event.id', [idx]),
+    showRay: (idx) => session.call('paraview.quake.show.ray', [idx]),
   };
 }
