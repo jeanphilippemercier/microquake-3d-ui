@@ -683,6 +683,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         # Show ray of the picked data
         self.showRay = 'ray' in visibilityMap and visibilityMap['ray']
+        self.rayRepresentation.Visibility = 1 if self.showRay else 0
 
         # Show event 'uncertainty' or magnitude+time
         self.showEventsUncertainty('uncertainty' in visibilityMap and visibilityMap['uncertainty'])
