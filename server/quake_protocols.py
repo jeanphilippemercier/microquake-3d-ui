@@ -7,7 +7,8 @@ from paraview import simple, servermanager
 from paraview.web import protocols as pv_protocols
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray
-from vtkmodules.vtkCommonCore import vtkPoints, vtkFloatArray, vtkUnsignedIntArray, vtkUnsignedLongArray
+from vtkmodules.vtkCommonCore import (vtkPoints, vtkFloatArray,
+    vtkUnsignedCharArray, vtkUnsignedIntArray, vtkUnsignedLongArray)
 
 # Picking
 from vtkmodules.vtkCommonCore import vtkCollection
@@ -71,6 +72,10 @@ MAX_MAGNITUDE = 2
 GAUSSIAN_RADIUS = 10
 
 UNCERTAINTY_CAP = 50.0
+PHASE_NUMBER_MAPPING = {
+    'P': 0,
+    'S': 1,
+}
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -310,18 +315,57 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.historicalProxy = createTrivialProducer(['Verts'])
         self.rayProxy = createTrivialProducer(['Lines']) # , 'Lines'
 
+        self.prefOrigThreshold = simple.Threshold(Input=self.rayProxy)
+        self.prefOrigThreshold.Scalars = ['CELLS', 'preferred_origin']
+        self.prefOrigThreshold.ThresholdRange = [0.0, 1.0]
+
+        self.arrivalThreshold = simple.Threshold(Input=self.prefOrigThreshold)
+        self.arrivalThreshold.Scalars = ['CELLS', 'arrival']
+        self.arrivalThreshold.ThresholdRange = [0.0, 1.0]
+
+        # get color transfer function/color map for 'phase'
+        self.phaseLUT = simple.GetColorTransferFunction('phase')
+        self.phaseLUT.InterpretValuesAsCategories = 1
+        self.phaseLUT.AnnotationsInitialized = 1
+        self.phaseLUT.ScalarRangeInitialized = 1.0
+        self.phaseLUT.Annotations = ['0', 'P Waves', '1', 'S Waves']
+        self.phaseLUT.ActiveAnnotatedValues = ['0', '1']
+        # Blue = [93, 173, 226] = [0.36470588235294116, 0.6784313725490196, 0.8862745098039215]
+        # Purple = [96, 40, 180] = [0.3764705882352941, 0.1568627450980392, 0.7058823529411765]
+        self.phaseLUT.IndexedColors = [0.36470588235294116, 0.6784313725490196, 0.8862745098039215, 0.3764705882352941, 0.1568627450980392, 0.7058823529411765]
+        self.phaseLUT.IndexedOpacities = [1.0, 1.0]
+
+        # get opacity transfer function/opacity map for 'phase'
+        self.phasePWF = simple.GetOpacityTransferFunction('phase')
+        self.phasePWF.ScalarRangeInitialized = 1
+
         self.focusQuakeRepresentation = simple.Show(self.focusQuakeProxy)
         self.focusBlastRepresentation = simple.Show(self.focusBlastProxy)
         self.historicalRepresentation = simple.Show(self.historicalProxy)
-        self.rayRepresentation = simple.Show(self.rayProxy)
+        self.rayRepresentation = simple.Show(self.arrivalThreshold)
 
         # custom ray rendering
         self.rayRepresentation.Visibility = 0
         self.rayRepresentation.LineWidth = 2.0
-        self.rayRepresentation.DiffuseColor = [93.0 / 255.0, 173.0 / 255.0, 226.0 / 255.0]
         self.rayRepresentation.RenderLinesAsTubes = 1
+        self.rayRepresentation.ColorArrayName = ['CELLS', 'phase']
+        self.rayRepresentation.LookupTable = self.phaseLUT
+        self.rayRepresentation.ScalarOpacityFunction = self.phasePWF
+        self.rayRepresentation.ScalarOpacityUnitDistance = 373.2584881144596
 
         self.view = simple.Render()
+
+        # self.phaseLUTColorBar = simple.GetScalarBar(self.phaseLUT, self.view)
+        # self.phaseLUTColorBar.Title = 'Ray Phase'
+        # self.phaseLUTColorBar.ComponentTitle = ''
+        # self.phaseLUTColorBar.TitleFontFile = ''
+        # self.phaseLUTColorBar.LabelFontFile = ''
+
+        # # set color bar visibility
+        # self.phaseLUTColorBar.Visibility = 1
+
+        # # show color legend
+        # self.rayRepresentation.SetScalarBarVisibility(self.view, True)
 
         # Green for earthquake and red for blast
         self.focusQuakeRepresentation.DiffuseColor = [0.0, 1.0, 0.0]
@@ -499,6 +543,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
 
             self.idList.append(event.event_resource_id)
+            self.preferredOrigins[event.event_resource_id] = event.preferred_origin_id
 
         polydata.Modified()
         proxy.MarkModified(proxy)
@@ -563,15 +608,26 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
                 polydata = self.rayProxy.GetClientSideObject().GetOutputDataObject(0)
 
-                # idArray = polydata.GetPointData().GetArray('id')
-                # if not idArray:
-                #     idArray = vtkUnsignedIntArray()
-                #     idArray.SetName('id')
-                #     polydata.GetPointData().AddArray(idArray)
+                prefOriginArray = polydata.GetCellData().GetArray('preferred_origin')
+                if not prefOriginArray:
+                    prefOriginArray = vtkUnsignedCharArray()
+                    prefOriginArray.SetName('preferred_origin')
+                    polydata.GetCellData().AddArray(prefOriginArray)
+                prefOriginArray.SetNumberOfTuples(numRayCells)
 
-                # idArray.SetNumberOfTuples(2)
-                # idArray.SetValue(0, 1)
-                # idArray.SetValue(0, 2)
+                arrivalArray = polydata.GetCellData().GetArray('arrival')
+                if not arrivalArray:
+                    arrivalArray = vtkUnsignedCharArray()
+                    arrivalArray.SetName('arrival')
+                    polydata.GetCellData().AddArray(arrivalArray)
+                arrivalArray.SetNumberOfTuples(numRayCells)
+
+                phaseArray = polydata.GetCellData().GetArray('phase')
+                if not phaseArray:
+                    phaseArray = vtkUnsignedCharArray()
+                    phaseArray.SetName('phase')
+                    polydata.GetCellData().AddArray(phaseArray)
+                phaseArray.SetNumberOfTuples(numRayCells)
 
                 points = polydata.GetPoints()
                 points.SetNumberOfPoints(numRayPoints)
@@ -580,22 +636,41 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                 lines.SetNumberOfCells(0)
 
                 ptIdx = 0
+                cellIdx = 0
 
                 for ray in rays:
+                    # Build geometry and topology of the ray
                     lines.InsertNextCell(ray.num_nodes)
                     for pt in ray.nodes:
                         points.SetPoint(ptIdx, pt[0] + self.translate[0], pt[1] + self.translate[1], pt[2] + self.translate[2])
                         lines.InsertCellPoint(ptIdx)
                         ptIdx += 1
 
+                    # Mark this ray as either belonging to the preferred origin of the event or not
+                    preferred = 0
+                    if self.preferredOrigins[event_resource_id] == ray.origin_resource_id:
+                        preferred = 1
+                    prefOriginArray.SetValue(cellIdx, preferred)
+
+                    # Mark this ray has being associated with an arrival or not
+                    arrival = 0
+                    if ray.arrival_resource_id:
+                        arrival = 1
+                    arrivalArray.SetValue(cellIdx, arrival)
+
+                    # Assign the phase for this ray
+                    phaseArray.SetValue(cellIdx, PHASE_NUMBER_MAPPING[ray.phase])
+
+                    cellIdx += 1
+
                 # print('  polydata actually has {0} points and {1} cells'.format(polydata.GetNumberOfPoints(), polydata.GetNumberOfCells()))
 
                 polydata.Modified()
                 self.rayProxy.MarkModified(self.rayProxy)
 
-                # fname = event_resource_id.replace('/', '-')
-                # fname = fname.replace(':', '-')
-                # debugWritePolyData(polydata, fname)
+                fname = event_resource_id.replace('/', '-')
+                fname = fname.replace(':', '-')
+                debugWritePolyData(polydata, fname)
 
                 self.rayRepresentation.Visibility = 1
             else:
@@ -661,6 +736,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         startEpoch = calendar.timegm(time.strptime(focusTime, '%Y-%m-%dT%H:%M:%S.0'))
 
         self.idList = []
+        self.preferredOrigins = {}
         self.updateEventsPolyData(events_in_focus, self.focusQuakeProxy, 1)
         self.updateEventsPolyData(events_in_focus, self.focusBlastProxy, 2)
         self.updateEventsPolyData(historic_events, self.historicalProxy)
