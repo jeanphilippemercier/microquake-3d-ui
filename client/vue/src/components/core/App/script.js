@@ -12,6 +12,16 @@ import shortcuts from 'paraview-quake/src/shortcuts';
 import { Mutations, Actions } from 'paraview-quake/src/stores/TYPES';
 
 // ----------------------------------------------------------------------------
+// Helper methods
+// ----------------------------------------------------------------------------
+
+function pushVisibilityChanges(store, visibilityMap) {
+  store.commit(Mutations.QUAKE_COMPONENTS_VISIBILITY_SET, visibilityMap);
+  store.dispatch(Actions.QUAKE_UPDATE_MINE_VISIBILITY);
+  store.dispatch(Actions.QUAKE_UPDATE_EVENTS_VISIBILITY);
+}
+
+// ----------------------------------------------------------------------------
 // Component API
 // ----------------------------------------------------------------------------
 
@@ -20,7 +30,6 @@ const VISIBILITY_ICON_INDEX_MAPPING = [
   'seismicEvents',
   'blast',
   'historicEvents',
-  'ray',
   'uncertainty',
 ];
 
@@ -38,6 +47,11 @@ export default {
     return {
       menuVisible: true,
       advanceMenuVisible: false,
+      rayFilterModes: [
+        { label: 'Preferred Origin + Arrival', value: 0 },
+        { label: 'Preferred Origin', value: 1 },
+        { label: 'All Rays', value: 2 },
+      ],
     };
   },
   computed: {
@@ -58,19 +72,53 @@ export default {
         );
       },
       set(value) {
-        const visibilityMap = {};
+        const visibilityMap = Object.assign(
+          {},
+          this.$store.getters.QUAKE_COMPONENTS_VISIBILITY
+        );
+
+        VISIBILITY_ICON_INDEX_MAPPING.forEach((key) => {
+          visibilityMap[key] = false;
+        });
+
         for (let i = 0; i < value.length; i++) {
           const key = VISIBILITY_ICON_INDEX_MAPPING[value[i]];
           if (key) {
             visibilityMap[key] = true;
           }
         }
-        this.$store.commit(
-          Mutations.QUAKE_COMPONENTS_VISIBILITY_SET,
-          visibilityMap
-        );
-        this.$store.dispatch(Actions.QUAKE_UPDATE_MINE_VISIBILITY);
-        this.$store.dispatch(Actions.QUAKE_UPDATE_EVENTS_VISIBILITY);
+        pushVisibilityChanges(this.$store, visibilityMap);
+      },
+    },
+    raysInScene() {
+      return this.$store.getters.QUAKE_RAYS_IN_SCENE;
+    },
+    raysVisible: {
+      get() {
+        const curVal = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY.ray;
+        return curVal ? 0 : null;
+      },
+      set(value) {
+        const visibilityMap = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
+        visibilityMap.ray = !visibilityMap.ray;
+        pushVisibilityChanges(this.$store, visibilityMap);
+      },
+    },
+    doubleClickMode: {
+      get() {
+        return this.$store.getters.QUAKE_DOUBLE_CLICK_MODE;
+      },
+      set(value) {
+        this.$store.commit(Mutations.QUAKE_DOUBLE_CLICK_MODE_SET, value);
+      },
+    },
+    rayFilterMode: {
+      get() {
+        return this.$store.getters.QUAKE_RAY_FILTER_MODE;
+      },
+      set(value) {
+        this.$store.commit(Mutations.QUAKE_RAY_FILTER_MODE_SET, value.value);
+        this.$store.dispatch(Actions.QUAKE_UPDATE_RAY_FILTER_MODE);
       },
     },
   },

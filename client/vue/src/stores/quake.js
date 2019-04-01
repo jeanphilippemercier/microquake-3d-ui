@@ -29,6 +29,7 @@ function convertMineItem(node, visibilityList) {
 export default {
   state: {
     rayMapping: {},
+    raysInScene: false,
     mine: [],
     mineVisibility: [],
     componentsVisibility: {
@@ -39,6 +40,8 @@ export default {
       ray: false,
       uncertainty: false,
     },
+    doubleClickMode: 0,
+    rayFilterMode: 0,
     scalingRange: [0.1, 1],
     magnitudeRange: [-2, 3],
     uncertaintyScaleFactor: 1,
@@ -99,6 +102,15 @@ export default {
     QUAKE_RAY_MAPPING(state) {
       return state.rayMapping;
     },
+    QUAKE_DOUBLE_CLICK_MODE(state) {
+      return state.doubleClickMode;
+    },
+    QUAKE_RAY_FILTER_MODE(state) {
+      return state.rayFilterMode;
+    },
+    QUAKE_RAYS_IN_SCENE(state) {
+      return state.raysInScene;
+    },
   },
   mutations: {
     QUAKE_MINE_SET(state, value) {
@@ -139,6 +151,15 @@ export default {
     },
     QUAKE_RAY_MAPPING_SET(state, value) {
       state.rayMapping = value;
+    },
+    QUAKE_DOUBLE_CLICK_MODE_SET(state, value) {
+      state.doubleClickMode = value;
+    },
+    QUAKE_RAY_FILTER_MODE_SET(state, value) {
+      state.rayFilterMode = value;
+    },
+    QUAKE_RAYS_IN_SCENE_SET(state, value) {
+      state.raysInScene = value;
     },
   },
   actions: {
@@ -281,9 +302,39 @@ export default {
     QUAKE_SHOW_RAY({ rootState, state, commit }) {
       const client = rootState.network.client;
       if (client && state.pickedData) {
-        client.remote.Quake.showRay(state.pickedData.id).then(([event_resource_id, nbRays]) => {
-          commit('QUAKE_RAY_MAPPING_SET', Object.assign({}, state.rayMapping, { [event_resource_id]: nbRays}));
-        });
+        client.remote.Quake.showRay(state.pickedData.id).then(
+          ([eventResourceId, nbRays]) => {
+            commit(
+              'QUAKE_RAY_MAPPING_SET',
+              Object.assign({}, state.rayMapping, {
+                [eventResourceId]: nbRays,
+              })
+            );
+            commit('QUAKE_RAYS_IN_SCENE_SET', nbRays > 0);
+          }
+        );
+      }
+    },
+    QUAKE_UPDATE_RAY_FILTER_MODE({ rootState, state, commit }) {
+      const client = rootState.network.client;
+      if (client) {
+        const prefOrigRange = [0.0, 1.0];
+        const arrivalRange = [0.0, 1.0];
+        switch (state.rayFilterMode) {
+          case 0:
+            // Preferred origin + arrival
+            prefOrigRange[0] = 1.0;
+            arrivalRange[0] = 1.0;
+            break;
+          case 1:
+            // Preferred origin
+            prefOrigRange[0] = 1.0;
+            break;
+          default:
+            // All rays, already set
+            break;
+        }
+        client.remote.Quake.updateRayThresholds(prefOrigRange, arrivalRange);
       }
     },
   },

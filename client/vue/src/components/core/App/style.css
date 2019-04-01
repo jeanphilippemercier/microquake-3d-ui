@@ -13,3 +13,22 @@
 .toolbarOverride :global(.v-toolbar__content) {
   padding-right: 0;
 }
+
+.selectButton {
+  border-radius: 2px 0 0 2px !important;
+}
+
+.toolbarSelect {
+  max-width: 250px;
+  border-left: 1px solid grey;
+  /*padding: 2px;*/
+  /*height: 40px;*/
+}
+
+.toolbarSelect :global .v-input__slot {
+  border-radius: 0 2px 2px 0 !important;
+}
+
+.toolbarSelect :global .v-input__control.v-input__control {
+  min-height: 20px;
+}

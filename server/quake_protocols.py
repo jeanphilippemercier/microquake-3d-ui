@@ -317,11 +317,11 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         self.prefOrigThreshold = simple.Threshold(Input=self.rayProxy)
         self.prefOrigThreshold.Scalars = ['CELLS', 'preferred_origin']
-        self.prefOrigThreshold.ThresholdRange = [0.0, 1.0]
+        self.prefOrigThreshold.ThresholdRange = [1.0, 1.0]
 
         self.arrivalThreshold = simple.Threshold(Input=self.prefOrigThreshold)
         self.arrivalThreshold.Scalars = ['CELLS', 'arrival']
-        self.arrivalThreshold.ThresholdRange = [0.0, 1.0]
+        self.arrivalThreshold.ThresholdRange = [1.0, 1.0]
 
         # get color transfer function/color map for 'phase'
         self.phaseLUT = simple.GetColorTransferFunction('phase')
@@ -672,7 +672,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                 fname = fname.replace(':', '-')
                 debugWritePolyData(polydata, fname)
 
-                self.rayRepresentation.Visibility = 1
+                self.rayRepresentation.Visibility = 1 if self.showRay else 0
             else:
                 # print('Clearing ray {0} (no rays)'.format(event_resource_id))
                 self.rayRepresentation.Visibility = 0
@@ -890,9 +890,14 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
     @exportRpc("paraview.quake.show.ray")
     def showRay(self, idx):
-        if self.showRay:
-            return [self.idList[idx], self.updateRay(self.idList[idx])]
-        return [self.idList[idx], 0]
+        return [self.idList[idx], self.updateRay(self.idList[idx])]
+
+
+    @exportRpc("paraview.quake.ray.filter.update")
+    def updateRayThresholdFilters(self, prefOrigRange, arrivalRange):
+        self.prefOrigThreshold.ThresholdRange = prefOrigRange
+        self.arrivalThreshold.ThresholdRange = arrivalRange
+        self.getApplication().InvokeEvent('UpdateEvent')
 
 
     @exportRpc("paraview.quake.color.preset")
