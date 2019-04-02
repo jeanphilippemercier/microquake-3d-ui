@@ -36,64 +36,117 @@
     <toolbar-time-range v-if="!menuVisible"/>
     <v-spacer />
 
-    <v-btn-toggle
-      v-model="componentsVisibility"
-      multiple
-      class="mx-3"
-    >
-      <v-tooltip bottom>
-        <span>Mine</span>
-        <v-btn flat slot="activator">
-          <v-icon>location_city</v-icon>
-        </v-btn>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <span>Seismic events</span>
-        <v-btn flat slot="activator">
-          <v-icon>bubble_chart</v-icon>
-        </v-btn>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <span>Blast</span>
-        <v-btn flat slot="activator">
-          <v-icon>offline_bolt</v-icon>
-        </v-btn>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <span>Historical events</span>
-        <v-btn flat slot="activator">
-          <v-icon>update</v-icon>
-        </v-btn>
-      </v-tooltip>
-      <v-divider vertical />
-      <v-tooltip bottom>
-        <span>Event Rays</span>
-        <v-btn flat slot="activator">
-          <v-icon>language</v-icon>
-        </v-btn>
-      </v-tooltip>
-      <v-tooltip bottom>
-        <span>Uncertainty</span>
-        <v-btn flat slot="activator">
-          <v-icon>settings_ethernet</v-icon>
-        </v-btn>
-      </v-tooltip>
-    </v-btn-toggle>
-
-    <v-divider vertical />
-
-    <v-tooltip bottom>
-      <span>Toggle Settings</span>
-      <v-btn
-        slot="activator"
-        flat
-        icon
-        @click.stop="advanceMenuVisible = !advanceMenuVisible"
-        class="mx-2"
+    <v-layout align-center justify-end>
+      <v-btn-toggle
+        v-model="doubleClickMode"
+        mandatory
       >
-        <v-icon>settings</v-icon>
-      </v-btn>
-    </v-tooltip>
+        <v-tooltip bottom>
+          <span>Double-clicking triggers waveform UI</span>
+          <v-btn flat slot="activator">
+            <v-icon>graphic_eq</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Double-clicking retrieves event rays</span>
+          <v-btn flat slot="activator">
+            <v-icon>language</v-icon>
+          </v-btn>
+        </v-tooltip>
+      </v-btn-toggle>
+
+      <v-layout style="flex: none" class="mx-4">
+        <v-layout d-flex align-center>
+          <v-btn-toggle
+            v-model="raysVisible"
+            :class="$style.selectButton"
+          >
+            <v-tooltip bottom>
+              <span>Show/Hide Event Rays</span>
+              <v-btn
+                dense
+                flat
+                v-bind:disabled="raysInScene === false"
+                slot="activator"
+              >
+                <v-icon>language</v-icon>
+              </v-btn>
+            </v-tooltip>
+          </v-btn-toggle>
+        </v-layout>
+        <v-layout d-flex align-center>
+          <v-select
+            :class="$style.toolbarSelect"
+            v-model="rayFilterMode"
+            :items="rayFilterModes"
+            item-text="label"
+            item-value="value"
+            label="Ray Filter Mode"
+            v-bind:disabled="raysInScene === false"
+            flat
+            solo
+            dense
+            return-object
+            single-line
+            hide-details
+            height="36"
+          ></v-select>
+        </v-layout>
+      </v-layout>
+
+      <v-btn-toggle
+        v-model="componentsVisibility"
+        multiple
+        class="mr-2"
+      >
+        <v-tooltip bottom>
+          <span>Show/Hide Mine</span>
+          <v-btn flat slot="activator">
+            <v-icon>location_city</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Seismic events</span>
+          <v-btn flat slot="activator">
+            <v-icon>bubble_chart</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Blast</span>
+          <v-btn flat slot="activator">
+            <v-icon>offline_bolt</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Historical events</span>
+          <v-btn flat slot="activator">
+            <v-icon>update</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-divider vertical />
+        <v-tooltip bottom>
+          <span>Show/Hide Uncertainty</span>
+          <v-btn flat slot="activator">
+            <v-icon>settings_ethernet</v-icon>
+          </v-btn>
+        </v-tooltip>
+      </v-btn-toggle>
+
+      <v-divider vertical />
+
+      <v-tooltip bottom>
+        <span>Toggle Settings</span>
+        <v-btn
+          slot="activator"
+          flat
+          icon
+          @click.stop="advanceMenuVisible = !advanceMenuVisible"
+          class="mx-2"
+        >
+          <v-icon>settings</v-icon>
+        </v-btn>
+      </v-tooltip>
+    </v-layout>
   </v-toolbar>
   <v-content style="background: darkgray; position: relative;">
     <progress-bar :progress="busyProgress" />

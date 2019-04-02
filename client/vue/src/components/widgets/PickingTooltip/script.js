@@ -31,7 +31,9 @@ export default {
       return this.$store.getters.QUAKE_PICKED_DATA;
     },
     rayCount() {
-      return this.$store.getters.QUAKE_RAY_MAPPING[this.pickedData.event_resource_id];
+      return this.$store.getters.QUAKE_RAY_MAPPING[
+        this.pickedData.event_resource_id
+      ];
     },
   },
   mounted() {
@@ -41,10 +43,10 @@ export default {
     };
 
     this.onDoubleClick = () => {
-      if (this.$store.getters.QUAKE_COMPONENTS_VISIBILITY.ray) {
-        this.$store.dispatch(Actions.QUAKE_SHOW_RAY);
-      } else {
+      if (this.$store.getters.QUAKE_DOUBLE_CLICK_MODE === 0) {
         this.$store.dispatch(Actions.QUAKE_OPEN_EVENT);
+      } else {
+        this.$store.dispatch(Actions.QUAKE_SHOW_RAY);
       }
     };
 
