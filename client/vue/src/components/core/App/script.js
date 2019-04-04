@@ -98,7 +98,7 @@ export default {
         const curVal = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY.ray;
         return curVal ? 0 : null;
       },
-      set(value) {
+      set() {
         const visibilityMap = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
         visibilityMap.ray = !visibilityMap.ray;
         pushVisibilityChanges(this.$store, visibilityMap);

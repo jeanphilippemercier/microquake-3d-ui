@@ -1,13 +1,13 @@
 <div :class="$style.noSelectChildren">
-  <expension-section id="mine" title="Mine" icon="location_city">
+  <expension-section id="mine" title="Mine" :icon="$vuetify.icons.mines">
     <mine-visibility />
   </expension-section>
 
-  <expension-section id="seismicEvents,blast" title="Focus period" icon="bubble_chart">
+  <expension-section id="seismicEvents,blast" title="Focus period" :icon="$vuetify.icons.seismicEvents">
     <focus-period />
   </expension-section>
 
-  <expension-section id="historicEvents" title="Historical period" icon="update">
+  <expension-section id="historicEvents" title="Historical period" :icon="$vuetify.icons.historicalEvents">
     <historical-period />
   </expension-section>
 </div>
