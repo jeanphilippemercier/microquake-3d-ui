@@ -8,10 +8,10 @@
         :open="allIds"
         open-on-click
         selectable
-        expand-icon="arrow_drop_down"
-        on-icon="bookmark"
-        off-icon="bookmark_border"
-        indeterminate-icon="bookmarks"
+        :expand-icon="$vuetify.icons.expandGroup"
+        :on-icon="$vuetify.icons.layerOn"
+        :off-icon="$vuetify.icons.layerOff"
+        :indeterminate-icon="$vuetify.icons.layerIndeterminate"
       />
     </v-flex>
   </v-layout>

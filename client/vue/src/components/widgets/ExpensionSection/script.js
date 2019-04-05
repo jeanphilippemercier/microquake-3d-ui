@@ -11,7 +11,9 @@ export default {
     },
     icon: {
       type: String,
-      default: 'location_city',
+      default() {
+        return this.$vuetify.icons.defaultExpansionIcon;
+      },
     },
   },
   computed: {

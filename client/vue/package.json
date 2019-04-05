@@ -30,7 +30,7 @@
   },
   "author": "Kitware",
   "dependencies": {
-    "material-design-icons-iconfont": "4.0.4",
+    "@mdi/font": "3.5.95",
     "mousetrap": "1.6.2",
     "typeface-roboto": "0.0.54",
     "vtk.js": "8.3.5",
