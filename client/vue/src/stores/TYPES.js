@@ -50,6 +50,8 @@ export const Getters = objEnum([
   'VIEW_RATIO_INTERACTIVE',
   'VIEW_FPS_MAX',
   'VIEW_MOUSE_THROTTLE',
+  'VIEW_ADVANCED_ORIENTATION_WIDGET',
+  'VIEW_WIDGET_MANAGER',
 ]);
 
 // ----------------------------------------------------------------------------
@@ -96,6 +98,8 @@ export const Mutations = objEnum([
   'VIEW_FPS_MAX_SET',
   'VIEW_MOUSE_THROTTLE_SET',
   'VIEW_PROXY_SET',
+  'VIEW_ADVANCED_ORIENTATION_WIDGET_SET',
+  'VIEW_WIDGET_MANAGER_SET',
 ]);
 
 // ----------------------------------------------------------------------------
@@ -132,6 +136,7 @@ export const Actions = objEnum([
   'VIEW_UPDATE_ORIENTATION',
   'VIEW_RENDER',
   'VIEW_UP',
+  'VIEW_TOGGLE_WIDGET_MANAGER',
 ]);
 
 // ----------------------------------------------------------------------------
