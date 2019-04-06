@@ -46,7 +46,7 @@ build:
   image: node:10
   script:
   - cd client/vue
-  - ng build
+  - npm install
   artifacts:
     expire_in: 2 months
     paths:
