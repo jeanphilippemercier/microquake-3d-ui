@@ -19,6 +19,9 @@ base:
   - name: docker:stable-dind
     entrypoint:
     - dockerd-entrypoint.sh
+  only:
+    changes:
+      - docker
   before_script:
   - apk add --update openssh-client make ca-certificates openssl python git bash
   script:
