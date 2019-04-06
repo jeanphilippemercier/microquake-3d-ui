@@ -47,6 +47,7 @@ build:
   script:
   - cd client/vue
   - npm install
+  - npm run build
   artifacts:
     expire_in: 2 months
     paths:
