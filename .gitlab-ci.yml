@@ -47,7 +47,7 @@ build:
   artifacts:
     expire_in: 2 months
     paths:
-      client/www
+    - client/www
 
 docker:
   image: docker:stable
