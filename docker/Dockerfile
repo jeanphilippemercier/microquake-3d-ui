@@ -13,7 +13,7 @@ RUN pip install requests wslink[security] && \
 COPY config/launcher/launcher-template.json /opt/wslink-launcher/launcher-template.json
 
 RUN ["/opt/paraviewweb/scripts/addEndpoints.sh", \
-  "quake", "/external/apps/quake/www" \
+  "DOCUMENT-ROOT-DIRECTORY", "/external/apps/quake/www" \
 ]
 
 # Start the container
