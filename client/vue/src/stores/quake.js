@@ -299,7 +299,7 @@ export default {
         });
       }
     },
-    QUAKE_SHOW_RAY({ rootState, state, commit }) {
+    QUAKE_SHOW_RAY({ rootState, state, commit, dispatch }) {
       const client = rootState.network.client;
       if (client && state.pickedData) {
         client.remote.Quake.showRay(state.pickedData.id).then(
@@ -310,7 +310,19 @@ export default {
                 [eventResourceId]: nbRays,
               })
             );
-            commit('QUAKE_RAYS_IN_SCENE_SET', nbRays > 0);
+            const hasRays = nbRays > 0;
+            commit('QUAKE_RAYS_IN_SCENE_SET', hasRays);
+
+            // Auto show the rays
+            if (hasRays && !state.componentsVisibility.ray) {
+              const newVizibility = Object.assign(
+                {},
+                state.componentsVisibility,
+                { ray: true }
+              );
+              commit('QUAKE_COMPONENTS_VISIBILITY_SET', newVizibility);
+              dispatch('QUAKE_UPDATE_EVENTS_VISIBILITY');
+            }
           }
         );
       }
