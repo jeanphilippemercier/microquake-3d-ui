@@ -47,6 +47,13 @@ const KEYS = {
     defaultValue: false,
     variable: 'darkMode',
   },
+  ADVANCED_ORIENTATION: {
+    name: 'advancedorientation',
+    set: booleanSet,
+    get: booleanGet,
+    defaultValue: true,
+    variable: 'advancedOrienation',
+  },
   QUAKE_SCALING_RANGE: {
     name: 'scaling',
     set: rangeSet,
@@ -140,6 +147,9 @@ export default {
     uncertaintyScaleFactor() {
       this.$store.dispatch(Actions.QUAKE_UPDATE_UNCERTAINTY_SCALING);
     },
+    advancedOrientation() {
+      this.$store.dispatch(Actions.VIEW_TOGGLE_WIDGET_MANAGER);
+    },
   },
   computed: {
     hasChanges() {
@@ -161,6 +171,22 @@ export default {
       },
       set(value) {
         return this.wrapSet('APP_DARK_THEME_SET', 'DARK_MODE', value);
+      },
+    },
+    advancedOrientation: {
+      get() {
+        return this.wrapGet(
+          'VIEW_ADVANCED_ORIENTATION_WIDGET',
+          'VIEW_ADVANCED_ORIENTATION_WIDGET_SET',
+          'ADVANCED_ORIENTATION'
+        );
+      },
+      set(value) {
+        return this.wrapSet(
+          'VIEW_ADVANCED_ORIENTATION_WIDGET_SET',
+          'ADVANCED_ORIENTATION',
+          value
+        );
       },
     },
     scalingRange: {

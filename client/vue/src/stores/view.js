@@ -54,6 +54,8 @@ export default {
     mouseThrottle: 16.6,
     camera: null,
     viewProxy: null,
+    widgetManager: null,
+    advancedOrientation: true,
     inAnimation: false,
   },
   getters: {
@@ -83,6 +85,12 @@ export default {
     },
     VIEW_MOUSE_THROTTLE(state) {
       return state.mouseThrottle;
+    },
+    VIEW_ADVANCED_ORIENTATION_WIDGET(state) {
+      return state.advancedOrientation;
+    },
+    VIEW_WIDGET_MANAGER(state) {
+      return state.widgetManager;
     },
   },
   mutations: {
@@ -115,6 +123,12 @@ export default {
     },
     VIEW_MOUSE_THROTTLE_SET(state, value) {
       state.mouseThrottle = value;
+    },
+    VIEW_ADVANCED_ORIENTATION_WIDGET_SET(state, value) {
+      state.advancedOrientation = value;
+    },
+    VIEW_WIDGET_MANAGER_SET(state, widgetManager) {
+      state.widgetManager = widgetManager;
     },
   },
   actions: {
@@ -186,6 +200,23 @@ export default {
           .catch(console.error);
       } else {
         console.error('no client', rootState);
+      }
+    },
+    VIEW_TOGGLE_WIDGET_MANAGER({ rootState, state, dispatch }) {
+      if (state.widgetManager) {
+        if (rootState.view.advancedOrientation) {
+          state.widgetManager.enablePicking();
+        } else {
+          state.widgetManager.disablePicking();
+        }
+
+        if (state.viewProxy) {
+          state.viewProxy.renderLater();
+        } else {
+          console.error('no viewProxy', rootState);
+        }
+      } else {
+        console.error('no widgetManager', rootState);
       }
     },
   },

@@ -111,6 +111,11 @@ export default {
     // Add orientation widget
     const orientationWidget = this.view.getReferenceByName('orientationWidget');
     this.widgetManager = vtkWidgetManager.newInstance();
+    if (this.$store.getters.VIEW_ADVANCED_ORIENTATION_WIDGET) {
+      this.widgetManager.enablePicking();
+    } else {
+      this.widgetManager.disablePicking();
+    }
     this.widgetManager.setRenderer(orientationWidget.getRenderer());
     orientationWidget.setViewportCorner(
       vtkOrientationMarkerWidget.Corners.BOTTOM_RIGHT
@@ -156,6 +161,9 @@ export default {
 
     // Expose viewProxy to store (for camera update...)
     this.$store.commit(Mutations.VIEW_PROXY_SET, this.view);
+
+    // Expose widgetManager to store (for enable/disable picking)
+    this.$store.commit(Mutations.VIEW_WIDGET_MANAGER_SET, this.widgetManager);
 
     // Link server side camera to local
     this.client.remote.Quake.resetCamera().then((cameraInfo) => {
@@ -223,7 +231,9 @@ export default {
           this.view.resize();
           this.view.renderLater();
           this.viewStream.render();
-          this.$nextTick(this.widgetManager.enablePicking);
+          if (this.$store.getters.VIEW_ADVANCED_ORIENTATION_WIDGET) {
+            this.$nextTick(this.widgetManager.enablePicking);
+          }
           this.render();
         }
       },

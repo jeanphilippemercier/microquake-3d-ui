@@ -21,8 +21,8 @@ Vue.use(Vuex);
 Vue.use(Vuetify, {
   iconfont: 'mdi',
   icons: {
+    // toolbar
     settings: 'mdi-settings',
-    defaultExpansionIcon: 'mdi-city',
     mines: 'mdi-pickaxe',
     seismicEvents: 'mdi-chart-bubble',
     quakeTrace: 'mdi-pulse',
@@ -30,13 +30,22 @@ Vue.use(Vuetify, {
     historicalEvents: 'mdi-history',
     uncertainty: 'mdi-help-network-outline',
     blasts: 'mdi-bomb',
+
+    // global settings
     undo: 'mdi-undo',
+
+    // view
     resetCamera: 'mdi-image-filter-center-focus',
     snapViewUp: 'mdi-compass',
+
+    // expansion sections treeview
+    defaultExpansionIcon: 'mdi-city',
     expandGroup: 'mdi-menu-down',
     layerOn: 'mdi-checkbox-blank',
     layerOff: 'mdi-checkbox-blank-outline',
     layerIndeterminate: 'mdi-checkbox-multiple-blank-outline',
+
+    // picking tooltip
     pickedDate: 'mdi-calendar',
     pickedTime: 'mdi-clock-outline',
     pickedPosition: 'mdi-crosshairs-gps',
