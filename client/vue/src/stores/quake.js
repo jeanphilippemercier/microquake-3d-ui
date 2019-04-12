@@ -40,7 +40,7 @@ export default {
       ray: false,
       uncertainty: false,
     },
-    doubleClickMode: 0,
+    doubleClickMode: 1,
     rayFilterMode: 0,
     scalingRange: [0.1, 1],
     magnitudeRange: [-2, 3],

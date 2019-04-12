@@ -330,9 +330,9 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.phaseLUT.ScalarRangeInitialized = 1.0
         self.phaseLUT.Annotations = ['0', 'P Waves', '1', 'S Waves']
         self.phaseLUT.ActiveAnnotatedValues = ['0', '1']
-        # Blue = [93, 173, 226] = [0.36470588235294116, 0.6784313725490196, 0.8862745098039215]
-        # Purple = [96, 40, 180] = [0.3764705882352941, 0.1568627450980392, 0.7058823529411765]
-        self.phaseLUT.IndexedColors = [0.36470588235294116, 0.6784313725490196, 0.8862745098039215, 0.3764705882352941, 0.1568627450980392, 0.7058823529411765]
+        # Blue = [0, 123, 255] = [0, 0.4823529, 1]
+        # Red = [220, 53, 69] = [0.862745098, 0.2078431373, 0.2705882353]
+        self.phaseLUT.IndexedColors = [0, 0.4823529, 1, 0.862745098, 0.2078431373, 0.2705882353]
         self.phaseLUT.IndexedOpacities = [1.0, 1.0]
 
         # get opacity transfer function/opacity map for 'phase'
@@ -763,6 +763,10 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
         # Show event 'uncertainty' or magnitude+time
         self.showEventsUncertainty('uncertainty' in visibilityMap and visibilityMap['uncertainty'])
+
+        # Make sure we flush the rendering for picking
+        if self.showRay:
+            simple.Render()
 
         self.getApplication().InvokeEvent('UpdateEvent')
 
