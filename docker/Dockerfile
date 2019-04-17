@@ -9,6 +9,9 @@ FROM kitware/paraviewweb:pvw-base-sys-python-v5.6.0
 RUN pip install requests wslink[security] && \
     sed -i 's#/opt/paraview/install/lib/python2.7/site-packages/wslink/launcher.py#/usr/local/lib/python2.7/dist-packages/wslink/launcher.py#g' /opt/paraviewweb/scripts/start.sh
 
+RUN ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
+    ln -sf /proc/self/fd/1 /var/log/apache2/error.log
+
 # Copy the launcher config template
 COPY config/launcher/launcher-template.json /opt/wslink-launcher/launcher-template.json
 
