@@ -12,7 +12,8 @@ RUN pip install requests wslink[security] && \
 # Copy the launcher config template
 COPY config/launcher/launcher-template.json /opt/wslink-launcher/launcher-template.json
 
-ADD start.sh /opt/paraviewweb/scripts/start.sh
+ADD start.sh /opt/paraviewweb/scripts
+RUN chmod +x /opt/paraviewweb/scripts/start.sh
 
 RUN ["/opt/paraviewweb/scripts/addEndpoints.sh", \
   "DOCUMENT-ROOT-DIRECTORY", "/external/apps/quake/www" \
