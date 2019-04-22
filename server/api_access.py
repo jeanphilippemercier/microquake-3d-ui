@@ -211,15 +211,18 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
             print('  for file: {0}'.format(piece['file']))
             print('    received checksum: {0}'.format(piece_checksum))
             print('    computed checksum: {0}'.format(checksum))
-            # Currently we just overwrite the checksum with the one we
-            # computed and keep going
+            os.remove(piece_file_path)
+            continue
 
         # Now rename the file with the checksum
         piece_new_file_name = checksum + piece_ext
         piece_file_name_sha = os.path.join(mine_root, piece_new_file_name)
         shutil.move(piece_file_path, piece_file_name_sha)
 
-        # Put the checksum in the index
+        # Put the checksum in the index.
+        # FIXME: We won't need to update the sha once we're getting the correct
+        # sha from the server, but for now we'll keep it so the index has a sha
+        # that matches the hash of the file.
         if 'sha' not in piece or not piece['sha']:
             piece['sha'] = checksum
 
