@@ -18,7 +18,7 @@ from vtkmodules.vtkPVClientServerCoreRendering import vtkPVRenderView
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 # Quake stuff
-from event_access import get_events_catalog, get_rays_for_event
+from api_access import get_events_catalog, get_rays_for_event
 
 # -----------------------------------------------------------------------------
 # User configuration
@@ -424,10 +424,11 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                 # self.translate[2] = -0.5 * (self.mineBounds[4] + self.mineBounds[5])
                 self.translate[2] = -self.mineBounds[5]
                 self.mineCategories = mine['categories']
+                for category in self.mineCategories:
+                    if category['name'] not in self.minePiecesByCategory:
+                        self.minePiecesByCategory[category['name']] = []
                 for piece in mine['pieces']:
                     category = piece['category']
-                    if category not in self.minePiecesByCategory:
-                        self.minePiecesByCategory[category] = []
                     pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece, self.translate)
 
                     self.minePiecesByCategory[category].append(pipelineItem)
