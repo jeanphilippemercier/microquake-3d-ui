@@ -64,6 +64,9 @@ export default {
     busyProgress() {
       return this.$store.getters.BUSY_PROGRESS;
     },
+    errorMessage() {
+      return this.$store.getters.NETWORK_ERROR;
+    },
     componentsVisibility: {
       get() {
         const visibilityMap = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;

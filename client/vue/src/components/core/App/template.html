@@ -26,11 +26,23 @@
   </v-navigation-drawer>
 
   <v-toolbar clipped-left app absolute dense :class="$style.toolbarOverride">
-    <v-btn icon @click.stop="menuVisible = !menuVisible">
-      <v-icon>{{ $vuetify.icons.quakeTrace }}</v-icon>
-    </v-btn>
+    <v-tooltip bottom :disabled="!errorMessage">
+      <span>{{ errorMessage }}</span>
+      <v-btn icon @click.stop="menuVisible = !menuVisible" slot="activator">
+        <v-icon
+          v-if="!errorMessage"
+        >{{ $vuetify.icons.quakeTrace }}</v-icon>
+        <v-icon
+          v-if="errorMessage"
+          color="red"
+          class="px-3"
+        >{{ $vuetify.icons.connectionError }}</v-icon>
+      </v-btn>
+    </v-tooltip>
 
-    <v-toolbar-title class="ml-0">Micro Quake 3D</v-toolbar-title>
+    <v-toolbar-title class="ml-0">
+      Micro Quake 3D
+    </v-toolbar-title>
 
     <v-spacer />
     <toolbar-time-range v-if="!menuVisible"/>

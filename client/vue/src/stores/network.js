@@ -3,6 +3,7 @@ import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
 
 export default {
   state: {
+    errorMessage: null,
     client: null,
     config: null,
   },
@@ -13,6 +14,9 @@ export default {
     NETWORK_CONFIG(state) {
       return state.config;
     },
+    NETWORK_ERROR(state) {
+      return state.errorMessage;
+    },
   },
   mutations: {
     NETWORK_CLIENT_SET(state, client) {
@@ -20,6 +24,9 @@ export default {
     },
     NETWORK_CONFIG_SET(state, config) {
       state.config = config;
+    },
+    NETWORK_ERROR_SET(state, value) {
+      state.errorMessage = value;
     },
   },
   actions: {
@@ -40,6 +47,7 @@ export default {
         const message =
           (httpReq && httpReq.response && httpReq.response.error) ||
           `Connection ${type}`;
+        commit('NETWORK_ERROR_SET', message);
         console.error(message);
         console.log(httpReq);
       });

@@ -26,6 +26,7 @@ Vue.use(Vuetify, {
   iconfont: 'mdi',
   icons: {
     // toolbar
+    connectionError: 'mdi-access-point-network-off',
     settings: 'mdi-settings',
     mines: 'mdi-pickaxe',
     seismicEvents: 'mdi-chart-bubble',
