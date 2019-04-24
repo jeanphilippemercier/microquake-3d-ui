@@ -20,6 +20,9 @@ from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 # Quake stuff
 from api_access import get_events_catalog, get_rays_for_event
 
+# import Twisted reactor for later callback
+from twisted.internet import reactor
+
 # -----------------------------------------------------------------------------
 # User configuration
 # -----------------------------------------------------------------------------
@@ -307,6 +310,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     def __init__(self, mineBasePath = None, **kwargs):
         super(pv_protocols.ParaViewWebProtocol, self).__init__()
 
+        self.heartBeatCount = 0
         self.showRay = False
         self.uncertaintyScaling = 1.0
 
@@ -437,6 +441,20 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # Selection part
         self.selection = simple.ExtractSelection()
         self.extractSelection = simple.MergeBlocks(Input=self.selection)
+
+        # Schedule heart beat
+        reactor.callLater(2, lambda: self.heartBeat())
+
+
+    def heartBeat(self):
+        self.heartBeatCount += 1
+        try:
+            self.publish('microquake.heart.beat', { 'beat': self.heartBeatCount })
+        except:
+            print('client not connected (heart beat)')
+            pass
+        reactor.callLater(2, lambda: self.heartBeat())
+
 
     def keepEvent(self, event, filterType = 0):
         if event.x < self.mineBounds[0] or event.x > self.mineBounds[1]:
