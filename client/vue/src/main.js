@@ -1,3 +1,7 @@
+// Import polyfills
+import 'core-js/modules/es7.promise.finally';
+import 'core-js/modules/web.immediate';
+
 /* eslint-disable import/prefer-default-export */
 import Vue from 'vue';
 import Vuex from 'vuex';
@@ -54,32 +58,15 @@ Vue.use(Vuetify, {
 
 // ----------------------------------------------------------------------------
 
-export function createConfigurationFromURLArgs(
-  addOn = { application: 'quake' }
-) {
-  return Object.assign({}, vtkURLExtract.extractURLParameters(), addOn);
-}
+const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
+  application: 'quake',
+});
+const store = createStore();
+store.commit(Mutations.NETWORK_CONFIG_SET, config);
+setInterval(() => store.dispatch(Actions.BUSY_UPDATE_PROGRESS, 1), 50);
 
-// ----------------------------------------------------------------------------
-
-export function createViewer(
-  container,
-  config = createConfigurationFromURLArgs()
-) {
-  const store = createStore();
-  store.commit(Mutations.NETWORK_CONFIG_SET, config);
-  setInterval(() => store.dispatch(Actions.BUSY_UPDATE_PROGRESS, 1), 50);
-
-  /* eslint-disable no-new */
-  new Vue({
-    el: container || '#root-container',
-    components: { App },
-    store,
-    template: '<App />',
-  });
-
-  return {
-    container,
-    store,
-  };
-}
+/* eslint-disable no-new */
+new Vue({
+  store,
+  render: (h) => h(App),
+}).$mount('#app');

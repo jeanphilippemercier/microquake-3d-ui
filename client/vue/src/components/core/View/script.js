@@ -110,13 +110,15 @@ export default {
 
     // Add orientation widget
     const orientationWidget = this.view.getReferenceByName('orientationWidget');
-    this.widgetManager = vtkWidgetManager.newInstance();
+    this.widgetManager = vtkWidgetManager.newInstance({
+      pickingEnabled: false,
+    });
+    this.widgetManager.setRenderer(orientationWidget.getRenderer());
     if (this.$store.getters.VIEW_ADVANCED_ORIENTATION_WIDGET) {
       this.widgetManager.enablePicking();
     } else {
       this.widgetManager.disablePicking();
     }
-    this.widgetManager.setRenderer(orientationWidget.getRenderer());
     orientationWidget.setViewportCorner(
       vtkOrientationMarkerWidget.Corners.BOTTOM_RIGHT
     );

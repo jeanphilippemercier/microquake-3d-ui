@@ -67,8 +67,8 @@ export default {
     componentsVisibility: {
       get() {
         const visibilityMap = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
-        return VISIBILITY_ICON_INDEX_MAPPING.map(
-          (v, i) => (visibilityMap[v] ? i : -1)
+        return VISIBILITY_ICON_INDEX_MAPPING.map((v, i) =>
+          visibilityMap[v] ? i : -1
         );
       },
       set(value) {
