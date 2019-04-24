@@ -50,6 +50,18 @@ export default {
       }
     };
 
+    this.onClick = () => {
+      if (this.$store.getters.QUAKE_PICKING_CENTER_OF_ROTATION) {
+        if (this.$store.getters.QUAKE_PICKED_DATA) {
+          const { worldPosition } = this.$store.getters.QUAKE_PICKED_DATA;
+          this.$store.dispatch(
+            'QUAKE_UPDATE_CENTER_OF_ROTATION',
+            worldPosition
+          );
+        }
+      }
+    };
+
     this.onMousePress = () => {
       this.disablePicking = true;
     };
@@ -81,6 +93,7 @@ export default {
     this.$el.addEventListener('mousedown', this.onMousePress, true);
     this.$el.addEventListener('mouseup', this.onMouseRelease);
     this.$el.addEventListener('dblclick', this.onDoubleClick);
+    this.$el.addEventListener('click', this.onClick);
   },
   beforeDestroy() {
     // Remove listeners to the DOM
@@ -89,5 +102,6 @@ export default {
     this.$el.removeEventListener('mousedown', this.onMousePress);
     this.$el.removeEventListener('mouseup', this.onMouseRelease);
     this.$el.removeEventListener('dblclick', this.onDoubleClick);
+    this.$el.removeEventListener('click', this.onClick);
   },
 };

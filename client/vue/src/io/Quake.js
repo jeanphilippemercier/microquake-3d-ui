@@ -37,5 +37,7 @@ export default function createMethods(session) {
       ]),
     onMineChange: (callback) =>
       session.subscribe('microquake.mine.dirty', callback),
+    updateCenterOfRotation: (xyz) =>
+      session.call('paraview.quake.center.rotation', [xyz]),
   };
 }

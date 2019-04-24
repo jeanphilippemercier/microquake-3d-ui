@@ -28,6 +28,7 @@ function convertMineItem(node, visibilityList) {
 
 export default {
   state: {
+    pickingCenterOfRotation: false,
     rayMapping: {},
     raysInScene: false,
     mine: [],
@@ -60,6 +61,9 @@ export default {
     busyEventPicking: 0,
   },
   getters: {
+    QUAKE_PICKING_CENTER_OF_ROTATION(state) {
+      return state.pickingCenterOfRotation;
+    },
     QUAKE_MINE(state) {
       return state.mine;
     },
@@ -113,6 +117,9 @@ export default {
     },
   },
   mutations: {
+    QUAKE_PICKING_CENTER_OF_ROTATION_SET(state, value) {
+      state.pickingCenterOfRotation = value;
+    },
     QUAKE_MINE_SET(state, value) {
       state.mine = value;
     },
@@ -163,6 +170,23 @@ export default {
     },
   },
   actions: {
+    QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION({ state, commit }) {
+      commit(
+        'QUAKE_PICKING_CENTER_OF_ROTATION_SET',
+        !state.pickingCenterOfRotation
+      );
+    },
+    QUAKE_UPDATE_CENTER_OF_ROTATION({ rootState, commit, dispatch }, position) {
+      commit('QUAKE_PICKING_CENTER_OF_ROTATION_SET', false);
+      const client = rootState.network.client;
+      if (client) {
+        client.remote.Quake.updateCenterOfRotation(position)
+          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
+          .catch(console.error);
+      } else {
+        console.error('no client', rootState);
+      }
+    },
     QUAKE_FETCH_MINE({ rootState, commit }) {
       const client = rootState.network.client;
       if (client) {

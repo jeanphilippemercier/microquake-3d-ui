@@ -182,6 +182,7 @@ export default {
     interactiveRatio: Getters.VIEW_RATIO_INTERACTIVE,
     mouseThrottle: Getters.VIEW_MOUSE_THROTTLE,
     maxFPS: Getters.VIEW_FPS_MAX,
+    pickingCenter: 'QUAKE_PICKING_CENTER_OF_ROTATION',
   }),
   data() {
     return {
@@ -268,6 +269,7 @@ export default {
       render: Actions.VIEW_RENDER,
       snapViewUp: Actions.VIEW_UP,
       updateOrientation: Actions.VIEW_UPDATE_ORIENTATION,
+      togglePickCenter: 'QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION',
     })
   ),
   beforeDestroy() {

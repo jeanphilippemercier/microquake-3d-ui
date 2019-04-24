@@ -105,7 +105,7 @@ def extractCamera(view):
       rr = view.GetClientSideView().GetRenderer()
       bounds = rr.ComputeVisiblePropBounds()
     return {
-      'centerOfRotation': tuple(view.CameraFocalPoint),
+      'centerOfRotation': tuple(view.CenterOfRotation),
       'focalPoint': tuple(view.CameraFocalPoint),
       'position': tuple(view.CameraPosition),
       'viewUp': tuple(view.CameraViewUp),
@@ -884,6 +884,11 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.getApplication().InvalidateCache(self.view.SMProxy)
         self.getApplication().InvokeEvent('UpdateEvent')
 
+        return extractCamera(self.view)
+
+    @exportRpc("paraview.quake.center.rotation")
+    def updateCenterOfRotation(self, xyz):
+        self.view.CenterOfRotation = xyz
         return extractCamera(self.view)
 
 

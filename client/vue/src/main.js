@@ -42,6 +42,7 @@ Vue.use(Vuetify, {
     // view
     resetCamera: 'mdi-image-filter-center-focus',
     snapViewUp: 'mdi-compass',
+    pickCenter: 'mdi-axis-x-rotate-clockwise',
 
     // expansion sections treeview
     defaultExpansionIcon: 'mdi-city',

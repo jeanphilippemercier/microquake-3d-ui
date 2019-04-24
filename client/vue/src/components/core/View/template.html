@@ -25,6 +25,18 @@
           <v-icon>{{ $vuetify.icons.snapViewUp }}</v-icon>
         </v-btn>
       </v-tooltip>
+      <v-tooltip left>
+        <span :class="$style.noSelect">Pick Center of Rotation</span>
+        <v-btn
+          slot="activator"
+          icon
+          dark
+          small
+          v-on:click="togglePickCenter()"
+        >
+          <v-icon :color="pickingCenter ? 'green' : 'white'">{{ $vuetify.icons.pickCenter }}</v-icon>
+        </v-btn>
+      </v-tooltip>
     </v-layout>
   </v-container>
   <div
