@@ -1,5 +1,5 @@
 # Main python libs
-import os, time, json, math, calendar, time, random
+import os, time, json, math, calendar, time, random, datetime
 
 # ParaViewWeb
 from wslink import register as exportRpc
@@ -26,6 +26,8 @@ from twisted.internet import reactor
 # -----------------------------------------------------------------------------
 # User configuration
 # -----------------------------------------------------------------------------
+
+EVENT_REFRESH_RATE = 5 * 60 # 5 minutes
 
 PRINT_EVENT_STRUCTURE = False
 
@@ -314,6 +316,10 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.showRay = False
         self.uncertaintyScaling = 1.0
 
+        self.liveMonitoring = {
+            'refresh': False,
+        }
+
         self.focusQuakeProxy = createTrivialProducer(['Verts'])
         self.focusBlastProxy = createTrivialProducer(['Verts'])
         self.historicalProxy = createTrivialProducer(['Verts'])
@@ -450,6 +456,9 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         # Schedule heart beat
         reactor.callLater(2, lambda: self.heartBeat())
 
+        # Schedule event update
+        reactor.callLater(EVENT_REFRESH_RATE, lambda: self.monitorLiveEvents())
+
 
     def heartBeat(self):
         self.heartBeatCount += 1
@@ -459,6 +468,24 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             print('client not connected (heart beat)')
             pass
         reactor.callLater(2, lambda: self.heartBeat())
+
+
+    def monitorLiveEvents(self):
+        # Reschedule ourself
+        reactor.callLater(EVENT_REFRESH_RATE, lambda: self.monitorLiveEvents())
+
+        # Check if we need to do anything
+        if self.liveMonitoring['refresh']:
+            now = self.liveMonitoring['now']
+            focusTime = self.liveMonitoring['focusTime']
+            historicalTime = self.liveMonitoring['historicalTime']
+
+            # Patch the NOW by just pretending to be 1 year in future
+            now = '%s' % datetime.datetime.now()
+            now = now[:19].replace(' ', 'T') + '.0'
+
+            print('Pull new event with now=', now)
+            self.updateData(now, focusTime, historicalTime, True)
 
 
     def keepEvent(self, event, filterType = 0):
@@ -747,7 +774,15 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
 
     @exportRpc("paraview.quake.data.update")
-    def updateData(self, now, focusTime, historicalTime):
+    def updateData(self, now, focusTime, historicalTime, liveMonitoring = False):
+        self.liveMonitoring = {
+            'refresh': liveMonitoring,
+            'now': now,
+            'focusTime': focusTime,
+            'historicalTime': historicalTime,
+        }
+        print('liveMonitoring', liveMonitoring)
+
         events_in_focus = get_events_catalog(API_URL, focusTime, now)
         historic_events = get_events_catalog(API_URL, historicalTime, focusTime)
 

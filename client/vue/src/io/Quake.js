@@ -7,11 +7,12 @@ export default function createMethods(session) {
     getCamera: () => session.call('paraview.quake.camera.get', []),
     render: () => session.call('paraview.quake.render', []),
     // Quake events -----------------------------------------------------------
-    updateEvents: (now, focusTime, historicalTime) =>
+    updateEvents: (now, focusTime, historicalTime, monitorLiveEvents = false) =>
       session.call('paraview.quake.data.update', [
         now,
         focusTime,
         historicalTime,
+        monitorLiveEvents,
       ]),
     updateVisibility: (visibilityMap) =>
       session.call('paraview.quake.visibility.update', [visibilityMap]),

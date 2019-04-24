@@ -223,7 +223,13 @@ export default {
           const now = DateHelper.getDateFromNow(2190 - state.focusPeriod[1]);
           const fTime = DateHelper.getDateFromNow(2190 - state.focusPeriod[0]);
           const hTime = DateHelper.getDateFromNow(state.historicalTime);
-          client.remote.Quake.updateEvents(now, fTime, hTime).then(() => {
+          const monitorEvents = state.focusPeriod[1] > 2160;
+          client.remote.Quake.updateEvents(
+            now,
+            fTime,
+            hTime,
+            monitorEvents
+          ).then(() => {
             state.busyUpdateEvents--;
             if (state.busyUpdateEvents) {
               state.busyUpdateEvents = 0;
