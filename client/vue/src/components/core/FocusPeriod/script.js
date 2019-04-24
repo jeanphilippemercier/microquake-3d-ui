@@ -1,4 +1,3 @@
-import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import ColorPresets from 'paraview-quake/src/components/widgets/ColorPresets';
 
@@ -31,7 +30,7 @@ export default {
         return this.$store.getters.QUAKE_FOCUS_PERIOD_OFFSET;
       },
       set(value) {
-        this.$store.commit(Mutations.QUAKE_FOCUS_PERIOD_OFFSET_SET, value);
+        this.$store.commit('QUAKE_FOCUS_PERIOD_OFFSET_SET', value);
       },
     },
     focusPeriod: {
@@ -39,7 +38,7 @@ export default {
         return this.$store.getters.QUAKE_FOCUS_PERIOD;
       },
       set(value) {
-        this.$store.commit(Mutations.QUAKE_FOCUS_PERIOD_SET, value.slice());
+        this.$store.commit('QUAKE_FOCUS_PERIOD_SET', value.slice());
       },
     },
     focusPeriodLabels() {
@@ -93,10 +92,10 @@ export default {
   },
   methods: {
     updateActivePreset(value) {
-      this.$store.dispatch(Actions.QUAKE_UPDATE_PRESET, `${value}`);
+      this.$store.dispatch('QUAKE_UPDATE_PRESET', `${value}`);
     },
     updateFocusPeriod() {
-      this.$store.dispatch(Actions.QUAKE_UPDATE_EVENTS);
+      this.$store.dispatch('QUAKE_UPDATE_EVENTS');
     },
   },
 };

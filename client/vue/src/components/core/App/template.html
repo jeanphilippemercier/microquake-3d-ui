@@ -172,9 +172,14 @@
         </v-btn>
       </v-tooltip>
     </v-layout>
+    <v-progress-linear
+      indeterminate
+      :class="$style.progress"
+      :active="!!busyCount"
+      height="3"
+    />
   </v-toolbar>
   <v-content style="background: darkgray; position: relative;">
-    <progress-bar :progress="busyProgress" />
     <picking-tooltip>
       <vtk-view v-if="client"/>
     </picking-tooltip>

@@ -1,6 +1,3 @@
-/* eslint-disable no-unused-vars */
-import { Mutations } from 'paraview-quake/src/stores/TYPES';
-
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import URLHelper from 'paraview-quake/src/util/URLHelper';
 
@@ -196,8 +193,8 @@ export default {
             const mine = mineFromServer.map((item) =>
               convertMineItem(item, mineVisibility)
             );
-            commit(Mutations.QUAKE_MINE_SET, mine);
-            commit(Mutations.QUAKE_MINE_VISIBILITY_SET, mineVisibility);
+            commit('QUAKE_MINE_SET', mine);
+            commit('QUAKE_MINE_VISIBILITY_SET', mineVisibility);
           })
           .catch(console.error);
       } else {
@@ -232,8 +229,8 @@ export default {
         client.remote.Quake.updateVisibility(visibilityMap);
       }
     },
-    QUAKE_UPDATE_PRESET({ rootState, state, commit }, preset) {
-      commit(Mutations.QUAKE_COLOR_PRESET_SET, preset);
+    QUAKE_UPDATE_PRESET({ rootState, commit }, preset) {
+      commit('QUAKE_COLOR_PRESET_SET', preset);
       const client = rootState.network.client;
       if (client) {
         client.remote.Quake.updatePreset(preset);
@@ -357,7 +354,7 @@ export default {
         );
       }
     },
-    QUAKE_UPDATE_RAY_FILTER_MODE({ rootState, state, commit }) {
+    QUAKE_UPDATE_RAY_FILTER_MODE({ rootState, state }) {
       const client = rootState.network.client;
       if (client) {
         const prefOrigRange = [0.0, 1.0];

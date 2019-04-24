@@ -1,5 +1,3 @@
-import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
-
 export default {
   name: 'HistoricalPeriod',
   computed: {
@@ -8,8 +6,8 @@ export default {
         return this.$store.getters.QUAKE_HISTORICAL_TIME;
       },
       set(value) {
-        this.$store.commit(Mutations.QUAKE_HISTORICAL_TIME_SET, value);
-        this.$store.dispatch(Actions.QUAKE_UPDATE_EVENTS);
+        this.$store.commit('QUAKE_HISTORICAL_TIME_SET', value);
+        this.$store.dispatch('QUAKE_UPDATE_EVENTS');
       },
     },
   },

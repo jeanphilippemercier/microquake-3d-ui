@@ -9,16 +9,15 @@ import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip
 import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
 
 import shortcuts from 'paraview-quake/src/shortcuts';
-import { Mutations, Actions } from 'paraview-quake/src/stores/TYPES';
 
 // ----------------------------------------------------------------------------
 // Helper methods
 // ----------------------------------------------------------------------------
 
 function pushVisibilityChanges(store, visibilityMap) {
-  store.commit(Mutations.QUAKE_COMPONENTS_VISIBILITY_SET, visibilityMap);
-  store.dispatch(Actions.QUAKE_UPDATE_MINE_VISIBILITY);
-  store.dispatch(Actions.QUAKE_UPDATE_EVENTS_VISIBILITY);
+  store.commit('QUAKE_COMPONENTS_VISIBILITY_SET', visibilityMap);
+  store.dispatch('QUAKE_UPDATE_MINE_VISIBILITY');
+  store.dispatch('QUAKE_UPDATE_EVENTS_VISIBILITY');
 }
 
 // ----------------------------------------------------------------------------
@@ -61,8 +60,8 @@ export default {
     darkMode() {
       return this.$store.getters.APP_DARK_THEME;
     },
-    busyProgress() {
-      return this.$store.getters.BUSY_PROGRESS;
+    busyCount() {
+      return this.$store.getters.BUSY_COUNT;
     },
     errorMessage() {
       return this.$store.getters.NETWORK_ERROR;
@@ -112,7 +111,7 @@ export default {
         return this.$store.getters.QUAKE_DOUBLE_CLICK_MODE;
       },
       set(value) {
-        this.$store.commit(Mutations.QUAKE_DOUBLE_CLICK_MODE_SET, value);
+        this.$store.commit('QUAKE_DOUBLE_CLICK_MODE_SET', value);
       },
     },
     rayFilterMode: {
@@ -120,30 +119,26 @@ export default {
         return this.$store.getters.QUAKE_RAY_FILTER_MODE;
       },
       set(value) {
-        this.$store.commit(Mutations.QUAKE_RAY_FILTER_MODE_SET, value.value);
-        this.$store.dispatch(Actions.QUAKE_UPDATE_RAY_FILTER_MODE);
+        this.$store.commit('QUAKE_RAY_FILTER_MODE_SET', value.value);
+        this.$store.dispatch('QUAKE_UPDATE_RAY_FILTER_MODE');
       },
     },
   },
   mounted() {
     // attach keyboard shortcuts
     shortcuts.forEach(({ key, action }) => {
-      if (Actions[action]) {
-        Mousetrap.bind(key, (e) => {
-          e.preventDefault();
-          this.$store.dispatch(Actions[action]);
-        });
-      }
+      Mousetrap.bind(key, (e) => {
+        e.preventDefault();
+        this.$store.dispatch(action);
+      });
     });
 
     // Establish websocket connection
-    this.$store.dispatch(Actions.NETWORK_CONNECT);
+    this.$store.dispatch('NETWORK_CONNECT');
   },
   beforeDestroy() {
-    shortcuts.forEach(({ key, action }) => {
-      if (Actions[action]) {
-        Mousetrap.unbind(key);
-      }
+    shortcuts.forEach(({ key }) => {
+      Mousetrap.unbind(key);
     });
   },
 };

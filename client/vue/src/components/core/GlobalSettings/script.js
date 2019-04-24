@@ -1,5 +1,3 @@
-import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
-
 function storeItem(key, value) {
   window.localStorage.setItem(
     `paraview.quake.config.${key.name}`,
@@ -123,13 +121,13 @@ export default {
       const originalValue = this.$store.getters[storeGetKey];
       const value = retreiveItem(KEYS[storageKey], originalValue);
       if (value !== originalValue) {
-        this.$store.commit(Mutations[storeSetKey], value);
+        this.$store.commit(storeSetKey, value);
       }
       return value;
     },
     wrapSet(storeSetKey, storageKey, value) {
       storeItem(KEYS[storageKey], value);
-      this.$store.commit(Mutations[storeSetKey], value);
+      this.$store.commit(storeSetKey, value);
     },
     resetSettings() {
       Object.values(KEYS).forEach(({ variable, defaultValue }) => {
@@ -139,16 +137,16 @@ export default {
   },
   watch: {
     scalingRange() {
-      this.$store.dispatch(Actions.QUAKE_UPDATE_SCALING);
+      this.$store.dispatch('QUAKE_UPDATE_SCALING');
     },
     magnitudeRange() {
-      this.$store.dispatch(Actions.QUAKE_UPDATE_SCALING);
+      this.$store.dispatch('QUAKE_UPDATE_SCALING');
     },
     uncertaintyScaleFactor() {
-      this.$store.dispatch(Actions.QUAKE_UPDATE_UNCERTAINTY_SCALING);
+      this.$store.dispatch('QUAKE_UPDATE_UNCERTAINTY_SCALING');
     },
     advancedOrientation() {
-      this.$store.dispatch(Actions.VIEW_TOGGLE_WIDGET_MANAGER);
+      this.$store.dispatch('VIEW_TOGGLE_WIDGET_MANAGER');
     },
   },
   computed: {
@@ -287,8 +285,8 @@ export default {
         return this.$store.getters.VIEW_STATS;
       },
       set(value) {
-        this.$store.commit(Mutations.VIEW_STATS_SET, value);
-        this.$store.dispatch(Actions.VIEW_RENDER);
+        this.$store.commit('VIEW_STATS_SET', value);
+        this.$store.dispatch('VIEW_RENDER');
       },
     },
   },

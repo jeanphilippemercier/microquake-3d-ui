@@ -1,4 +1,3 @@
-import { Actions } from 'paraview-quake/src/stores/TYPES';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
 export default {
@@ -44,9 +43,9 @@ export default {
 
     this.onDoubleClick = () => {
       if (this.$store.getters.QUAKE_DOUBLE_CLICK_MODE === 0) {
-        this.$store.dispatch(Actions.QUAKE_OPEN_EVENT);
+        this.$store.dispatch('QUAKE_OPEN_EVENT');
       } else {
-        this.$store.dispatch(Actions.QUAKE_SHOW_RAY);
+        this.$store.dispatch('QUAKE_SHOW_RAY');
       }
     };
 
@@ -84,7 +83,7 @@ export default {
         devicePixelRatio * (x - this.viewBounds.x),
         devicePixelRatio * (this.viewBounds.height - (y - this.viewBounds.y)),
       ];
-      this.$store.dispatch(Actions.QUAKE_EVENT_PICKING, vtkCoord);
+      this.$store.dispatch('QUAKE_EVENT_PICKING', vtkCoord);
     };
 
     // Attach listeners to the DOM

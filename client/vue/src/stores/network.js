@@ -1,5 +1,4 @@
 import Client from 'paraview-quake/src/io/Client';
-import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
 
 export default {
   state: {
@@ -38,7 +37,7 @@ export default {
       const clientToConnect = client || new Client();
 
       clientToConnect.setBusyCallback((count) => {
-        commit(Mutations.BUSY_COUNT_SET, count);
+        commit('BUSY_COUNT_SET', count);
       });
 
       clientToConnect.updateBusy(+1);
@@ -55,17 +54,16 @@ export default {
       clientToConnect
         .connect(config)
         .then((validClient) => {
-          commit(Mutations.NETWORK_CLIENT_SET, validClient);
-          dispatch(Actions.QUAKE_FETCH_MINE);
-          dispatch(Actions.QUAKE_UPDATE_EVENTS);
-          dispatch(Actions.QUAKE_UPDATE_SCALING);
-          dispatch(Actions.QUAKE_UPDATE_UNCERTAINTY_SCALING);
+          commit('NETWORK_CLIENT_SET', validClient);
+          dispatch('QUAKE_FETCH_MINE');
+          dispatch('QUAKE_UPDATE_EVENTS');
+          dispatch('QUAKE_UPDATE_SCALING');
+          dispatch('QUAKE_UPDATE_UNCERTAINTY_SCALING');
           clientToConnect.updateBusy(-1);
 
           // Dynamic monitoring of the mine
           validClient.remote.Quake.onMineChange(() => {
-            console.log('fetch new mine plan');
-            dispatch(Actions.QUAKE_FETCH_MINE);
+            dispatch('QUAKE_FETCH_MINE');
           });
         })
         .catch((error) => {

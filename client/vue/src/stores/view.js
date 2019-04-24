@@ -1,11 +1,7 @@
-/* eslint-disable no-unused-vars */
-import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
-
 import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
 import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
 
-const ROTATION_STEP = 2;
 const VIEW_UPS = [[0, 1, 0], [0, 0, 1], [0, 1, 0]];
 
 const actor = vtkActor.newInstance();
@@ -132,8 +128,7 @@ export default {
     },
   },
   actions: {
-    VIEW_UPDATE_CAMERA({ dispatch, rootState, state }, camera) {
-      console.log('camera', camera);
+    VIEW_UPDATE_CAMERA({ state }, camera) {
       const { focalPoint, viewUp, position, centerOfRotation, bounds } = camera;
       // Update bounds in local vtk.js renderer
       source
@@ -157,19 +152,18 @@ export default {
         viewUp,
       });
     },
-    VIEW_RESET_CAMERA({ dispatch, rootState, state }, id) {
+    VIEW_RESET_CAMERA({ dispatch, rootState }) {
       const client = rootState.network.client;
-      const viewId = id || state.view;
       if (client) {
         client.remote.Quake.resetCamera()
-          .then((camera) => dispatch(Actions.VIEW_UPDATE_CAMERA, camera))
+          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
           .catch(console.error);
       } else {
         console.error('no client', rootState);
       }
     },
     VIEW_UPDATE_ORIENTATION(
-      { state, commit, dispatch },
+      { state, dispatch },
       { axis, orientation, viewUp }
     ) {
       if (state.viewProxy && !state.inAnimation) {
@@ -178,31 +172,31 @@ export default {
           .updateOrientation(axis, orientation, viewUp || VIEW_UPS[axis], 100)
           .then(() => {
             state.inAnimation = false;
-            dispatch(Actions.VIEW_RESET_CAMERA);
+            dispatch('VIEW_RESET_CAMERA');
           });
       }
     },
-    VIEW_RENDER({ rootState, state, dispatch }) {
+    VIEW_RENDER({ rootState, dispatch }) {
       const client = rootState.network.client;
       if (client) {
         client.remote.Quake.render()
-          .then((camera) => dispatch(Actions.VIEW_UPDATE_CAMERA, camera))
+          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
           .catch(console.error);
       } else {
         console.error('no client', rootState);
       }
     },
-    VIEW_UP({ rootState, state, dispatch }) {
+    VIEW_UP({ rootState, dispatch }) {
       const client = rootState.network.client;
       if (client) {
         client.remote.Quake.snapCamera()
-          .then((camera) => dispatch(Actions.VIEW_UPDATE_CAMERA, camera))
+          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
           .catch(console.error);
       } else {
         console.error('no client', rootState);
       }
     },
-    VIEW_TOGGLE_WIDGET_MANAGER({ rootState, state, dispatch }) {
+    VIEW_TOGGLE_WIDGET_MANAGER({ rootState, state }) {
       if (state.widgetManager) {
         if (rootState.view.advancedOrientation) {
           state.widgetManager.enablePicking();

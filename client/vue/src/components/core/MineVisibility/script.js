@@ -1,5 +1,3 @@
-import { Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
-
 export default {
   name: 'MineVisibility',
   data() {
@@ -17,8 +15,8 @@ export default {
         return this.$store.getters.QUAKE_MINE_VISIBILITY;
       },
       set(value) {
-        this.$store.commit(Mutations.QUAKE_MINE_VISIBILITY_SET, value);
-        this.$store.dispatch(Actions.QUAKE_UPDATE_MINE_VISIBILITY);
+        this.$store.commit('QUAKE_MINE_VISIBILITY_SET', value);
+        this.$store.dispatch('QUAKE_UPDATE_MINE_VISIBILITY');
       },
     },
     allIds() {

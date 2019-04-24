@@ -6,7 +6,6 @@ import vtkWidgetManager from 'vtk.js/Sources/Widgets/Core/WidgetManager';
 import vtkOrientationMarkerWidget from 'vtk.js/Sources/Interaction/Widgets/OrientationMarkerWidget';
 
 import { mapGetters, mapActions } from 'vuex';
-import { Getters, Actions, Mutations } from 'paraview-quake/src/stores/TYPES';
 
 // ----------------------------------------------------------------------------
 // Component API
@@ -162,10 +161,10 @@ export default {
     this.client.imageStream.setServerAnimationFPS(this.maxFPS);
 
     // Expose viewProxy to store (for camera update...)
-    this.$store.commit(Mutations.VIEW_PROXY_SET, this.view);
+    this.$store.commit('VIEW_PROXY_SET', this.view);
 
     // Expose widgetManager to store (for enable/disable picking)
-    this.$store.commit(Mutations.VIEW_WIDGET_MANAGER_SET, this.widgetManager);
+    this.$store.commit('VIEW_WIDGET_MANAGER_SET', this.widgetManager);
 
     // Link server side camera to local
     this.client.remote.Quake.resetCamera().then((cameraInfo) => {
@@ -174,14 +173,14 @@ export default {
     });
   },
   computed: mapGetters({
-    client: Getters.NETWORK_CLIENT,
-    showRenderingStats: Getters.VIEW_STATS,
-    stillQuality: Getters.VIEW_QUALITY_STILL,
-    interactiveQuality: Getters.VIEW_QUALITY_INTERACTIVE,
-    stillRatio: Getters.VIEW_RATIO_STILL,
-    interactiveRatio: Getters.VIEW_RATIO_INTERACTIVE,
-    mouseThrottle: Getters.VIEW_MOUSE_THROTTLE,
-    maxFPS: Getters.VIEW_FPS_MAX,
+    client: 'NETWORK_CLIENT',
+    showRenderingStats: 'VIEW_STATS',
+    stillQuality: 'VIEW_QUALITY_STILL',
+    interactiveQuality: 'VIEW_QUALITY_INTERACTIVE',
+    stillRatio: 'VIEW_RATIO_STILL',
+    interactiveRatio: 'VIEW_RATIO_INTERACTIVE',
+    mouseThrottle: 'VIEW_MOUSE_THROTTLE',
+    maxFPS: 'VIEW_FPS_MAX',
     pickingCenter: 'QUAKE_PICKING_CENTER_OF_ROTATION',
   }),
   data() {
@@ -265,10 +264,10 @@ export default {
       },
     },
     mapActions({
-      resetCamera: Actions.VIEW_RESET_CAMERA,
-      render: Actions.VIEW_RENDER,
-      snapViewUp: Actions.VIEW_UP,
-      updateOrientation: Actions.VIEW_UPDATE_ORIENTATION,
+      resetCamera: 'VIEW_RESET_CAMERA',
+      render: 'VIEW_RENDER',
+      snapViewUp: 'VIEW_UP',
+      updateOrientation: 'VIEW_UPDATE_ORIENTATION',
       togglePickCenter: 'QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION',
     })
   ),

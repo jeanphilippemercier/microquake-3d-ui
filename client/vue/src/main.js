@@ -17,7 +17,6 @@ import '@mdi/font/css/materialdesignicons.css';
 
 import App from 'paraview-quake/src/components/core/App';
 import createStore from 'paraview-quake/src/stores';
-import { Mutations, Actions } from 'paraview-quake/src/stores/TYPES';
 
 // ----------------------------------------------------------------------------
 
@@ -64,8 +63,7 @@ const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
   application: 'quake',
 });
 const store = createStore();
-store.commit(Mutations.NETWORK_CONFIG_SET, config);
-setInterval(() => store.dispatch(Actions.BUSY_UPDATE_PROGRESS, 1), 50);
+store.commit('NETWORK_CONFIG_SET', config);
 
 /* eslint-disable no-new */
 new Vue({
