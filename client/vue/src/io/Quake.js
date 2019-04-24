@@ -35,5 +35,7 @@ export default function createMethods(session) {
         prefOrigRange,
         arrivalRange,
       ]),
+    onMineChange: (callback) =>
+      session.subscribe('microquake.mine.dirty', callback),
   };
 }

@@ -421,6 +421,7 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.translate = [0, 0, 0]
         self.mineCategories = []
         self.minePieces = []
+        self.pieceToLoad = []
         self.minePiecesByCategory = {}
         if mineBasePath:
             filepath = os.path.join(mineBasePath, 'index.json')
@@ -434,15 +435,11 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                 # self.translate[2] = -0.5 * (self.mineBounds[4] + self.mineBounds[5])
                 self.translate[2] = -self.mineBounds[5]
                 self.mineCategories = mine['categories']
+                self.pieceToLoad = list(mine['pieces'])
                 for category in self.mineCategories:
                     if category['name'] not in self.minePiecesByCategory:
                         self.minePiecesByCategory[category['name']] = []
-                for piece in mine['pieces']:
-                    category = piece['category']
-                    pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece, self.translate)
-
-                    self.minePiecesByCategory[category].append(pipelineItem)
-                    self.minePieces.append(pipelineItem)
+                self.loadMissingMinePiece(mineBasePath)
 
                 # Better initial camera orientation
                 self.view.CameraFocalPoint = [0, 0, 0]
@@ -463,11 +460,34 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     def heartBeat(self):
         self.heartBeatCount += 1
         try:
-            self.publish('microquake.heart.beat', { 'beat': self.heartBeatCount })
+            self.publish('microquake.heart.beat', self.heartBeatCount)
         except:
             print('client not connected (heart beat)')
             pass
         reactor.callLater(2, lambda: self.heartBeat())
+
+
+    def loadMissingMinePiece(self, mineBasePath):
+        if len(self.pieceToLoad):
+            print('load mine piece')
+            piece = self.pieceToLoad.pop()
+            category = piece['category']
+            pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece, self.translate)
+
+            self.minePiecesByCategory[category].append(pipelineItem)
+            self.minePieces.append(pipelineItem)
+            simple.Render()
+
+
+            self.mineDirty()
+            reactor.callLater(0.5, lambda: self.loadMissingMinePiece(mineBasePath))
+
+
+    def mineDirty(self):
+        try:
+            self.publish('microquake.mine.dirty', 'New pieces are available')
+        except:
+            pass
 
 
     def monitorLiveEvents(self):

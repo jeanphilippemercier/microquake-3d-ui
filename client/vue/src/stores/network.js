@@ -61,6 +61,12 @@ export default {
           dispatch(Actions.QUAKE_UPDATE_SCALING);
           dispatch(Actions.QUAKE_UPDATE_UNCERTAINTY_SCALING);
           clientToConnect.updateBusy(-1);
+
+          // Dynamic monitoring of the mine
+          validClient.remote.Quake.onMineChange(() => {
+            console.log('fetch new mine plan');
+            dispatch(Actions.QUAKE_FETCH_MINE);
+          });
         })
         .catch((error) => {
           console.error(error);
