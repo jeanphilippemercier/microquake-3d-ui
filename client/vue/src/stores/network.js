@@ -65,6 +65,20 @@ export default {
           validClient.remote.Quake.onMineChange(() => {
             dispatch('QUAKE_FETCH_MINE');
           });
+
+          // Handle locations in url
+          if (config.locations) {
+            commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
+              mine: true,
+              seismicEvents: false,
+              blast: false,
+              historicEvents: false,
+              ray: false,
+              uncertainty: false,
+            });
+            dispatch('QUAKE_UPDATE_EVENTS_VISIBILITY');
+            dispatch('QUAKE_SHOW_LOCATIONS', config.locations);
+          }
         })
         .catch((error) => {
           console.error(error);

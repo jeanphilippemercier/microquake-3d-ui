@@ -993,3 +993,28 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         lutProxy = simple.GetColorTransferFunction('time')
         lutProxy.ApplyPreset(presetName, True)
         self.getApplication().InvokeEvent('UpdateEvent')
+
+    @exportRpc("paraview.quake.locations.show")
+    def showEventLocations(self, xyzs):
+        lineProducer = createTrivialProducer(['Lines'])
+        polydata = lineProducer.GetClientSideObject().GetOutputDataObject(0)
+        nbPoints = len(xyzs) / 3
+
+        points = polydata.GetPoints()
+        points.SetNumberOfPoints(nbPoints)
+
+        lines = polydata.GetLines()
+        lines.SetNumberOfCells(0)
+        lines.InsertNextCell(nbPoints)
+
+        for i in range(nbPoints):
+            points.SetPoint(i, xyzs[i * 3] + self.translate[0], xyzs[i * 3 + 1] + self.translate[1], xyzs[i * 3 + 2] + self.translate[2])
+            lines.InsertCellPoint(i)
+
+        polydata.Modified()
+        lineProducer.MarkModified(lineProducer)
+
+        lineRepresentation = simple.Show(lineProducer)
+        lineRepresentation.LineWidth = 2.0
+        lineRepresentation.RenderLinesAsTubes = 4
+        lineRepresentation.DiffuseColor = [0, 0, 1]

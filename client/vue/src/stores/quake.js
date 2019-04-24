@@ -376,5 +376,11 @@ export default {
         client.remote.Quake.updateRayThresholds(prefOrigRange, arrivalRange);
       }
     },
+    QUAKE_SHOW_LOCATIONS({ rootState }, locations) {
+      const client = rootState.network.client;
+      if (client) {
+        client.remote.Quake.showEventLocations(locations);
+      }
+    },
   },
 };
