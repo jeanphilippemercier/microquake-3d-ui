@@ -438,6 +438,11 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
                     self.minePiecesByCategory[category].append(pipelineItem)
                     self.minePieces.append(pipelineItem)
 
+                # Better initial camera orientation
+                self.view.CameraFocalPoint = [0, 0, 0]
+                self.view.CameraPosition = [0, -1, 1]
+                simple.Render()
+
         # Selection part
         self.selection = simple.ExtractSelection()
         self.extractSelection = simple.MergeBlocks(Input=self.selection)
