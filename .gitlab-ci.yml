@@ -21,7 +21,7 @@ base:
     - dockerd-entrypoint.sh
   only:
     changes:
-      - docker
+      - docker/**/*
   before_script:
   - apk add --update openssh-client make ca-certificates openssl python git bash
   script:
