@@ -1,6 +1,8 @@
 # Main python libs
 import os, time, json, math, calendar, time, random, datetime
 
+from multiprocessing import Process
+
 # ParaViewWeb
 from wslink import register as exportRpc
 from paraview import simple, servermanager
@@ -18,7 +20,12 @@ from vtkmodules.vtkPVClientServerCoreRendering import vtkPVRenderView
 from vtkmodules.vtkIOXML import vtkXMLPolyDataWriter
 
 # Quake stuff
-from api_access import get_events_catalog, get_rays_for_event
+from api_access import (
+    get_events_catalog,
+    get_rays_for_event,
+    get_mine_plan,
+    download_mine_pieces,
+)
 
 # import Twisted reactor for later callback
 from twisted.internet import reactor
@@ -309,7 +316,7 @@ MINE_PIECES = {
 # -----------------------------------------------------------------------------
 
 class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
-    def __init__(self, mineBasePath = None, **kwargs):
+    def __init__(self, minesBasePath = None, **kwargs):
         super(pv_protocols.ParaViewWebProtocol, self).__init__()
 
         self.heartBeatCount = 0
@@ -423,28 +430,26 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.minePieces = []
         self.pieceToLoad = []
         self.minePiecesByCategory = {}
-        if mineBasePath:
-            filepath = os.path.join(mineBasePath, 'index.json')
-            with open(filepath, 'r') as mineFileMeta:
-                mine = json.load(mineFileMeta)
-                self.mineBounds = mine['boundaries']
-                self.translate[0] = -0.5 * (self.mineBounds[0] + self.mineBounds[1])
-                self.translate[1] = -0.5 * (self.mineBounds[2] + self.mineBounds[3])
-                # Do not affect Z as it is small and we want to keep it untouch for picking info (depth)
-                # Actually translating so the ground show up as 0
-                # self.translate[2] = -0.5 * (self.mineBounds[4] + self.mineBounds[5])
-                self.translate[2] = -self.mineBounds[5]
-                self.mineCategories = mine['categories']
-                self.pieceToLoad = list(mine['pieces'])
-                for category in self.mineCategories:
-                    if category['name'] not in self.minePiecesByCategory:
-                        self.minePiecesByCategory[category['name']] = []
-                self.loadMissingMinePiece(mineBasePath)
+        if minesBasePath:
+            self.minePlan = self.fetchMine(minesBasePath)
+            self.mineBounds = self.minePlan['boundaries']
+            self.translate[0] = -0.5 * (self.mineBounds[0] + self.mineBounds[1])
+            self.translate[1] = -0.5 * (self.mineBounds[2] + self.mineBounds[3])
+            # Do not affect Z as it is small and we want to keep it untouch for picking info (depth)
+            # Actually translating so the ground show up as 0
+            # self.translate[2] = -0.5 * (self.mineBounds[4] + self.mineBounds[5])
+            self.translate[2] = -self.mineBounds[5]
+            self.mineCategories = self.minePlan['categories']
+            self.pieceToLoad = list(self.minePlan['pieces'])
+            for category in self.mineCategories:
+                if category['name'] not in self.minePiecesByCategory:
+                    self.minePiecesByCategory[category['name']] = []
+            self.loadMissingMinePiece(self.minePlan['rootPath'])
 
-                # Better initial camera orientation
-                self.view.CameraFocalPoint = [0, 0, 0]
-                self.view.CameraPosition = [0, -1, 1]
-                simple.Render()
+            # Better initial camera orientation
+            self.view.CameraFocalPoint = [0, 0, 0]
+            self.view.CameraPosition = [0, -1, 1]
+            simple.Render()
 
         # Selection part
         self.selection = simple.ExtractSelection()
@@ -457,6 +462,22 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         reactor.callLater(EVENT_REFRESH_RATE, lambda: self.monitorLiveEvents())
 
 
+    def fetchMine(self, minesBasePath):
+        # FIXME: eventually fetch these values from api server
+        self.siteCode = 'OT'
+        self.networkCode = 'HNUG'
+
+        # Synchronously fetch the mine plan json
+        mine_plan = get_mine_plan(API_URL, self.siteCode, self.networkCode, minesBasePath)
+
+        # Asynchronously download the pieces
+        self.download_process = Process(target=download_mine_pieces, args=(mine_plan,))
+        self.download_process.start()
+
+        print('Downloading mine pieces (pid = {0})'.format(self.download_process.pid))
+        return mine_plan
+
+
     def heartBeat(self):
         self.heartBeatCount += 1
         try:
@@ -467,20 +488,39 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         reactor.callLater(2, lambda: self.heartBeat())
 
 
-    def loadMissingMinePiece(self, mineBasePath):
+    def findReadyPiece(self):
+        rootPath = self.minePlan['rootPath']
+        for idx, piece in enumerate(self.pieceToLoad):
+            pieceFileName = piece['sha'] +  piece['fileExtension']
+            pieceFilePath = os.path.join(rootPath, pieceFileName)
+            print('    checking {0}'.format(pieceFilePath))
+            if os.path.exists(pieceFilePath) and os.path.isfile(pieceFilePath):
+                break;
+        else:
+            print('No pieces were ready yet...')
+            if not self.download_process.is_alive():
+                print('Download finished with pieces still unavailable')
+                self.pieceToLoad = []
+            return None
+
+        print('Piece at index {0} is ready'.format(idx))
+        return self.pieceToLoad.pop(idx)
+
+
+    def loadMissingMinePiece(self, minesBasePath):
         if len(self.pieceToLoad):
             print('load mine piece')
-            piece = self.pieceToLoad.pop()
-            category = piece['category']
-            pipelineItem = MINE_PIECES[piece['type']](mineBasePath, piece, self.translate)
+            piece = self.findReadyPiece()
+            if piece:
+                category = piece['category']
+                pipelineItem = MINE_PIECES[piece['type']](minesBasePath, piece, self.translate)
 
-            self.minePiecesByCategory[category].append(pipelineItem)
-            self.minePieces.append(pipelineItem)
-            simple.Render()
+                self.minePiecesByCategory[category].append(pipelineItem)
+                self.minePieces.append(pipelineItem)
+                simple.Render()
 
-
-            self.mineDirty()
-            reactor.callLater(0.5, lambda: self.loadMissingMinePiece(mineBasePath))
+                self.mineDirty()
+            reactor.callLater(0.1, lambda: self.loadMissingMinePiece(minesBasePath))
 
 
     def mineDirty(self):
@@ -853,7 +893,8 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     @exportRpc("paraview.quake.mine.visibility.update")
     def updateMineVisibility(self, visibilityMap):
         for piece in self.minePieces:
-            piece['representation'].Visibility = 1 if piece['label'] in visibilityMap and visibilityMap[piece['label']] else 0
+            if piece['label'] in visibilityMap:
+                piece['representation'].Visibility = 1 if visibilityMap[piece['label']] else 0
 
         self.getApplication().InvokeEvent('UpdateEvent')
 

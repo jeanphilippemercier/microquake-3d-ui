@@ -24,7 +24,7 @@
         "${python_exec}",
         EXTRA_PVPYTHON_ARGS
         "${apps_dir}/quake/server/pvw-quake.py",
-        "--mine", "${mines_dir}/OyuTolgoi",
+        "--mines", "${mines_dir}",
         "--port", "${port}",
         "--authKey", "${secret}",
         "--viewport-max-width", "1920",

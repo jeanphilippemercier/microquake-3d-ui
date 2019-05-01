@@ -60,7 +60,7 @@ class _Server(pv_wslink.PVServerProtocol):
     viewportMaxWidth = 2560
     viewportMaxHeight = 1440
     settingsLODThreshold = 102400
-    mineBasePath = ''
+    minesBasePath = ''
 
 
     @staticmethod
@@ -70,7 +70,7 @@ class _Server(pv_wslink.PVServerProtocol):
         parser.add_argument("--viewport-max-width", default=2560, type=int, help="Viewport maximum size in width", dest="viewportMaxWidth")
         parser.add_argument("--viewport-max-height", default=1440, type=int, help="Viewport maximum size in height", dest="viewportMaxHeight")
         parser.add_argument("--settings-lod-threshold", default=102400, type=int, help="LOD Threshold in Megabytes", dest="settingsLODThreshold")
-        parser.add_argument("--mine", default=None, help="Path to mine base directory", dest="mine")
+        parser.add_argument("--mines", default=None, help="Path to mine base directory", dest="mines")
 
 
     @staticmethod
@@ -80,7 +80,7 @@ class _Server(pv_wslink.PVServerProtocol):
         _Server.viewportMaxWidth     = args.viewportMaxWidth
         _Server.viewportMaxHeight    = args.viewportMaxHeight
         _Server.settingsLODThreshold = args.settingsLODThreshold
-        _Server.mineBasePath         = args.mine
+        _Server.minesBasePath         = args.mines
 
 
     def initialize(self):
@@ -90,7 +90,7 @@ class _Server(pv_wslink.PVServerProtocol):
         self.registerVtkWebProtocol(pv_protocols.ParaViewWebPublishImageDelivery(decode=False))
 
         # Bring used components from ParaView Lite
-        self.registerVtkWebProtocol(local_protocols.ParaViewQuake(mineBasePath = _Server.mineBasePath))
+        self.registerVtkWebProtocol(local_protocols.ParaViewQuake(minesBasePath = _Server.minesBasePath))
 
         # Update authentication key to use
         self.updateSecret(_Server.authKey)

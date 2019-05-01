@@ -90,7 +90,7 @@ def get_stations(api_base_url, site_code, network_code):
     return requests.request("GET", url).json()
 
 
-def get_mine_plan(api_base_url, site_code, network_code):
+def get_mine_plan(api_base_url, site_code, network_code, root_directory):
     # the v1 api endpoint for this doesn't work
     mod_url = api_base_url.replace('v1', 'v2')
 
@@ -100,28 +100,11 @@ def get_mine_plan(api_base_url, site_code, network_code):
 
     print('Fetching mine plan from: {0}'.format(url))
 
-    return requests.request("GET", url).json()
+    plan_list = requests.request("GET", url).json()
 
-
-def download_piece(url, save_path):
-    r = requests.get(url, stream=True)
-    with open(save_path, 'wb') as f:
-        shutil.copyfileobj(r.raw, f)
-
-
-def retrieve_mines(api_base_url, site_code, network_code, root_directory):
-    """
-    Download all the mines for a site/network into the provided rootDirectory
-
-    :param api_base_url: string e.g. "http://api.microquake.org/api/v1/"
-    :param site_code: string e.g. "OT" for the Oyu Tolgoi mine
-    :param network_code: string e.g. "HNUG" for the Oyu Tolgoi mine
-    :param root_directory: string path giving location to store mines
-    """
     mine_root = os.path.join(
-        root_directory, 'Site_{0}_Network_{1}'.format(site_code, network_code))
+    root_directory, 'Site_{0}_Network_{1}'.format(site_code, network_code))
 
-    plan_list = get_mine_plan(api_base_url, site_code, network_code)
     if not plan_list:
         return None
 
@@ -132,6 +115,7 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
         'description': plan_obj['description'],
         'boundaries': plan_obj['boundaries'],
         'categories': plan_obj['categories'],
+        'rootPath': mine_root,
     }
 
     pieces = []
@@ -143,7 +127,6 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
     piece_keys = ['id', 'mineplan', 'category', 'type', 'label', 'visibility', 'sha']
 
     for idx, piece in enumerate(plan_obj['pieces']):
-
         index_piece = {}
 
         # Get the easy parts
@@ -166,6 +149,9 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
             for extra_key in extra_attrs:
                 index_piece[extra_key] = extra_attrs[extra_key]
 
+        new_file_name = piece['sha'] + index_piece['fileExtension']
+        index_piece['file'] = os.path.join(mine_root, new_file_name)
+
         pieces.append(index_piece)
 
     index['pieces'] = pieces
@@ -174,6 +160,25 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
     index_path = os.path.join(mine_root, 'index.json')
     with open(index_path, 'w') as fd:
         fd.write(json.dumps(index))
+
+    return index
+
+
+def download_piece(url, save_path):
+    print('Fetch mine piece from {0}'.format(url))
+    r = requests.get(url, stream=True)
+    with open(save_path, 'wb') as f:
+        shutil.copyfileobj(r.raw, f)
+
+
+def download_mine_pieces(mine_plan):
+    """
+    Download all the mine pieces in a json mine plan
+
+    :param mine_plan: previously fetched (via get_mine_plan) mine plan
+    """
+    pieces = mine_plan['pieces']
+    mine_root = mine_plan['rootPath']
 
     # Now that we know what the pieces are, we can iterate through them,
     # download each one (if necessary), compute its checksum, rename the
@@ -195,6 +200,8 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
             if os.path.exists(piece_file_name_sha) and os.path.isfile(piece_file_name_sha):
                 print('found file: {0}'.format(piece_file_name_sha))
                 continue
+        else:
+            print('Refusing to download piece without sha {0}'.format(piece['label']))
 
         # Assume that we don't have the file already if we got here, which
         # may not be true if we're not getting checksums from the server in
@@ -203,12 +210,13 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
 
         # Open the file we just downloaded so we can compute the hash
         with open(piece_file_path, 'rb') as fd:
+            # FIXME: When the files get big, we may need some chunking instead
             data = fd.read()
-            checksum = hashlib.sha512(data).hexdigest()
+            checksum = hashlib.sha256(data).hexdigest()
 
         if piece_checksum and checksum != piece_checksum:
             print('WARNING: advertised checksum does not match computed')
-            print('  for file: {0}'.format(piece['file']))
+            print('  for file: {0}'.format(piece['originalFileName']))
             print('    received checksum: {0}'.format(piece_checksum))
             print('    computed checksum: {0}'.format(checksum))
             os.remove(piece_file_path)
@@ -218,20 +226,6 @@ def retrieve_mines(api_base_url, site_code, network_code, root_directory):
         piece_new_file_name = checksum + piece_ext
         piece_file_name_sha = os.path.join(mine_root, piece_new_file_name)
         shutil.move(piece_file_path, piece_file_name_sha)
-
-        # Put the checksum in the index.
-        # FIXME: We won't need to update the sha once we're getting the correct
-        # sha from the server, but for now we'll keep it so the index has a sha
-        # that matches the hash of the file.
-        if 'sha' not in piece or not piece['sha']:
-            piece['sha'] = checksum
-
-        piece['file'] = piece_new_file_name
-
-        # Overwrite the index file, updated with the last checksum
-        with open(index_path, 'w+') as fd:
-            fd.write(json.dumps(index))
-
 
 
 #----------------------------------------------------------------------------
