@@ -3,6 +3,17 @@ import URLHelper from 'paraview-quake/src/util/URLHelper';
 
 import PRESETS from 'paraview-quake/src/presets';
 
+function fillVisibilityMap(nodes, visibilityMap) {
+  if (!nodes) {
+    return;
+  }
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    visibilityMap[node.id] = false;
+    fillVisibilityMap(node.children, visibilityMap)
+  }
+}
+
 function convertMineItem(node, visibilityList) {
   const { name, checked, pieces } = node;
   const response = {
@@ -206,6 +217,7 @@ export default {
       if (client) {
         if (state.componentsVisibility.mine) {
           const visibilityMap = {};
+          fillVisibilityMap(state.mine, visibilityMap);
           state.mineVisibility.forEach((name) => {
             visibilityMap[name] = true;
           });
