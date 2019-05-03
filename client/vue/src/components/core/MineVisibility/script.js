@@ -16,7 +16,7 @@ export default {
       },
       set(value) {
         this.$store.commit('QUAKE_MINE_VISIBILITY_SET', value);
-        this.$store.dispatch('QUAKE_UPDATE_MINE_VISIBILITY');
+        this.$store.dispatch('API_UPDATE_MINE_VISIBILITY');
       },
     },
     allIds() {

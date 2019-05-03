@@ -137,13 +137,13 @@ export default {
   },
   watch: {
     scalingRange() {
-      this.$store.dispatch('QUAKE_UPDATE_SCALING');
+      this.$store.dispatch('API_UPDATE_SCALING');
     },
     magnitudeRange() {
-      this.$store.dispatch('QUAKE_UPDATE_SCALING');
+      this.$store.dispatch('API_UPDATE_SCALING');
     },
     uncertaintyScaleFactor() {
-      this.$store.dispatch('QUAKE_UPDATE_UNCERTAINTY_SCALING');
+      this.$store.dispatch('API_UPDATE_UNCERTAINTY_SCALING');
     },
     advancedOrientation() {
       this.$store.dispatch('VIEW_TOGGLE_WIDGET_MANAGER');
@@ -286,7 +286,7 @@ export default {
       },
       set(value) {
         this.$store.commit('VIEW_STATS_SET', value);
-        this.$store.dispatch('VIEW_RENDER');
+        this.$store.dispatch('API_RENDER');
       },
     },
   },

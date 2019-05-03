@@ -152,16 +152,6 @@ export default {
         viewUp,
       });
     },
-    VIEW_RESET_CAMERA({ dispatch, rootState }) {
-      const client = rootState.network.client;
-      if (client) {
-        client.remote.Quake.resetCamera()
-          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
-          .catch(console.error);
-      } else {
-        console.error('no client', rootState);
-      }
-    },
     VIEW_UPDATE_ORIENTATION(
       { state, dispatch },
       { axis, orientation, viewUp }
@@ -172,33 +162,13 @@ export default {
           .updateOrientation(axis, orientation, viewUp || VIEW_UPS[axis], 100)
           .then(() => {
             state.inAnimation = false;
-            dispatch('VIEW_RESET_CAMERA');
+            dispatch('API_RESET_CAMERA');
           });
       }
     },
-    VIEW_RENDER({ rootState, dispatch }) {
-      const client = rootState.network.client;
-      if (client) {
-        client.remote.Quake.render()
-          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
-          .catch(console.error);
-      } else {
-        console.error('no client', rootState);
-      }
-    },
-    VIEW_UP({ rootState, dispatch }) {
-      const client = rootState.network.client;
-      if (client) {
-        client.remote.Quake.snapCamera()
-          .then((camera) => dispatch('VIEW_UPDATE_CAMERA', camera))
-          .catch(console.error);
-      } else {
-        console.error('no client', rootState);
-      }
-    },
-    VIEW_TOGGLE_WIDGET_MANAGER({ rootState, state }) {
+    VIEW_TOGGLE_WIDGET_MANAGER({ state }) {
       if (state.widgetManager) {
-        if (rootState.view.advancedOrientation) {
+        if (state.advancedOrientation) {
           state.widgetManager.enablePicking();
         } else {
           state.widgetManager.disablePicking();
@@ -207,10 +177,10 @@ export default {
         if (state.viewProxy) {
           state.viewProxy.renderLater();
         } else {
-          console.error('no viewProxy', rootState);
+          console.error('no viewProxy', state);
         }
       } else {
-        console.error('no widgetManager', rootState);
+        console.error('no widgetManager', state);
       }
     },
   },

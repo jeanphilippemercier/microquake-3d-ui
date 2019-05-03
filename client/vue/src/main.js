@@ -63,7 +63,13 @@ const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
   application: 'quake',
 });
 const store = createStore();
-store.commit('NETWORK_CONFIG_SET', config);
+store.commit('REMOTE_CONFIG_SET', config);
+
+if (config.renderMode === 'local') {
+  store.commit('API_RENDER_MODE_SET', 'LOCAL');
+} else {
+  store.commit('API_RENDER_MODE_SET', 'REMOTE');
+}
 
 /* eslint-disable no-new */
 new Vue({
