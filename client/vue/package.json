@@ -27,11 +27,12 @@
   },
   "author": "Kitware",
   "dependencies": {
+    "axios": "0.18.0",
     "@mdi/font": "3.5.95",
     "core-js": "2.6.5",
     "mousetrap": "1.6.2",
     "typeface-roboto": "0.0.54",
-    "vtk.js": "8.4.4",
+    "vtk.js": "8.5.2",
     "vue": "2.6.7",
     "vuetify": "1.5.3",
     "vuex": "3.1.0",
