@@ -112,20 +112,20 @@ export default {
     const { width, height } = container.getBoundingClientRect();
     this.openglRenderWindow.setSize(width, height);
 
-    const coneSource = vtkConeSource.newInstance({ height: 1.0 });
+    // const coneSource = vtkConeSource.newInstance({ height: 1.0 });
 
-    const mapper = vtkMapper.newInstance();
-    mapper.setInputConnection(coneSource.getOutputPort());
+    // const mapper = vtkMapper.newInstance();
+    // mapper.setInputConnection(coneSource.getOutputPort());
 
-    const actor = vtkActor.newInstance();
-    actor.setMapper(mapper);
+    // const actor = vtkActor.newInstance();
+    // actor.setMapper(mapper);
 
-    // ----------------------------------------------------------------------------
-    // Add the actor to the renderer and set the camera based on it
-    // ----------------------------------------------------------------------------
+    // // ----------------------------------------------------------------------------
+    // // Add the actor to the renderer and set the camera based on it
+    // // ----------------------------------------------------------------------------
 
-    this.renderer.addActor(actor);
-    this.renderer.resetCamera();
+    // this.renderer.addActor(actor);
+    // this.renderer.resetCamera();
 
     // ----------------------------------------------------------------------------
     // Setup an interactor to handle mouse events
@@ -141,6 +141,8 @@ export default {
     // ----------------------------------------------------------------------------
 
     this.interactor.setInteractorStyle(vtkInteractorStyleTrackballCamera.newInstance());
+
+    this.$store.commit('VIEW_LOCAL_RENDERER_SET', this.renderer);
 
     // this.camera = this.renderer.getCamera();
 

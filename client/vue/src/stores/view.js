@@ -53,6 +53,7 @@ export default {
     widgetManager: null,
     advancedOrientation: true,
     inAnimation: false,
+    localRenderer: null,
   },
   getters: {
     VIEW_STATS(state) {
@@ -87,6 +88,9 @@ export default {
     },
     VIEW_WIDGET_MANAGER(state) {
       return state.widgetManager;
+    },
+    VIEW_LOCAL_RENDERER(state) {
+      return state.localRenderer;
     },
   },
   mutations: {
@@ -125,6 +129,9 @@ export default {
     },
     VIEW_WIDGET_MANAGER_SET(state, widgetManager) {
       state.widgetManager = widgetManager;
+    },
+    VIEW_LOCAL_RENDERER_SET(state, renderer) {
+      state.localRenderer = renderer;
     },
   },
   actions: {
