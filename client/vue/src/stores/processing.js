@@ -2,6 +2,11 @@ export default {
   state: {
     mode: 'REMOTE',
   },
+  getters: {
+    API_RENDER_MODE(state) {
+      return state.mode;
+    },
+  },
   mutations: {
     API_RENDER_MODE_SET(state, value) {
       state.mode = value;

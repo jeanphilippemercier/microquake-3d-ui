@@ -3,6 +3,7 @@ import Mousetrap from 'mousetrap';
 import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import VtkView from 'paraview-quake/src/components/core/View';
+import LocalView from 'paraview-quake/src/components/core/LocalView';
 
 // import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
@@ -38,6 +39,7 @@ export default {
     ControlsDrawer,
     GlobalSettings,
     VtkView,
+    LocalView,
     // ProgressBar,
     PickingTooltip,
     ToolbarTimeRange,
@@ -54,6 +56,15 @@ export default {
     };
   },
   computed: {
+    remoteReady() {
+      return (
+        this.$store.getters.API_RENDER_MODE === 'REMOTE' &&
+        this.$store.getters.REMOTE_CLIENT
+      );
+    },
+    localReady() {
+      return this.$store.getters.API_RENDER_MODE === 'LOCAL';
+    },
     client() {
       return this.$store.getters.REMOTE_CLIENT;
     },

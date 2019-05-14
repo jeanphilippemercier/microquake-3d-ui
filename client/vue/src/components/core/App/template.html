@@ -181,7 +181,8 @@
   </v-toolbar>
   <v-content style="background: darkgray; position: relative;">
     <picking-tooltip>
-      <vtk-view v-if="client"/>
+      <vtk-view v-if="remoteReady"/>
+      <local-view v-else-if="localReady"/>
     </picking-tooltip>
   </v-content>
 </v-app>

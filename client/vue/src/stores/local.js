@@ -1,7 +1,8 @@
 export default {
   actions: {
-    LOCAL_INITIALIZE({ state }) {
+    LOCAL_INITIALIZE({ state, dispatch }) {
       console.log('LOCAL_INITIALIZE', state);
+      dispatch('HTTP_FETCH_MINES');
     },
     LOCAL_UPDATE_UNCERTAINTY_SCALING({ state }) {
       console.log('LOCAL_UPDATE_UNCERTAINTY_SCALING', state);
