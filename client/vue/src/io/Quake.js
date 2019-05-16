@@ -1,6 +1,9 @@
 /* eslint-disable arrow-body-style */
 export default function createMethods(session) {
   return {
+    // Auth token -------------------------------------------------------------
+    updateAuthenticationToken: (token) =>
+      session.call('paraview.quake.token.update', [token]),
     // 3D View ----------------------------------------------------------------
     resetCamera: () => session.call('paraview.quake.camera.reset', []),
     snapCamera: () => session.call('paraview.quake.camera.snap', []),

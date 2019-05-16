@@ -3,8 +3,10 @@ import Mousetrap from 'mousetrap';
 import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import VtkView from 'paraview-quake/src/components/core/View';
+import LocalView from 'paraview-quake/src/components/core/LocalView';
+import LoginModal from 'paraview-quake/src/components/core/LoginModal';
 
-import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
+// import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
 import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
 
@@ -16,8 +18,8 @@ import shortcuts from 'paraview-quake/src/shortcuts';
 
 function pushVisibilityChanges(store, visibilityMap) {
   store.commit('QUAKE_COMPONENTS_VISIBILITY_SET', visibilityMap);
-  store.dispatch('QUAKE_UPDATE_MINE_VISIBILITY');
-  store.dispatch('QUAKE_UPDATE_EVENTS_VISIBILITY');
+  store.dispatch('API_UPDATE_MINE_VISIBILITY');
+  store.dispatch('API_UPDATE_EVENTS_VISIBILITY');
 }
 
 // ----------------------------------------------------------------------------
@@ -38,7 +40,9 @@ export default {
     ControlsDrawer,
     GlobalSettings,
     VtkView,
-    ProgressBar,
+    LocalView,
+    LoginModal,
+    // ProgressBar,
     PickingTooltip,
     ToolbarTimeRange,
   },
@@ -54,8 +58,20 @@ export default {
     };
   },
   computed: {
+    authToken() {
+      return this.$store.getters.HTTP_AUTH_TOKEN;
+    },
+    remoteReady() {
+      return (
+        this.$store.getters.API_RENDER_MODE === 'REMOTE' &&
+        this.$store.getters.REMOTE_CLIENT
+      );
+    },
+    localReady() {
+      return this.$store.getters.API_RENDER_MODE === 'LOCAL';
+    },
     client() {
-      return this.$store.getters.NETWORK_CLIENT;
+      return this.$store.getters.REMOTE_CLIENT;
     },
     darkMode() {
       return this.$store.getters.APP_DARK_THEME;
@@ -64,7 +80,7 @@ export default {
       return this.$store.getters.BUSY_COUNT;
     },
     errorMessage() {
-      return this.$store.getters.NETWORK_ERROR;
+      return this.$store.getters.REMOTE_ERROR;
     },
     componentsVisibility: {
       get() {
@@ -120,7 +136,7 @@ export default {
       },
       set(value) {
         this.$store.commit('QUAKE_RAY_FILTER_MODE_SET', value.value);
-        this.$store.dispatch('QUAKE_UPDATE_RAY_FILTER_MODE');
+        this.$store.dispatch('API_UPDATE_RAY_FILTER_MODE');
       },
     },
   },
@@ -133,8 +149,10 @@ export default {
       });
     });
 
-    // Establish websocket connection
-    this.$store.dispatch('NETWORK_CONNECT');
+    // // Establish websocket connection
+    // this.$store.dispatch('API_AUTHENTICATE').then(() => {
+    //   this.$store.dispatch('API_INITIALIZE');
+    // });
   },
   beforeDestroy() {
     shortcuts.forEach(({ key }) => {

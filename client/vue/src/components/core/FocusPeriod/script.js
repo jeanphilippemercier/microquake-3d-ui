@@ -92,10 +92,10 @@ export default {
   },
   methods: {
     updateActivePreset(value) {
-      this.$store.dispatch('QUAKE_UPDATE_PRESET', `${value}`);
+      this.$store.dispatch('API_UPDATE_PRESET', `${value}`);
     },
     updateFocusPeriod() {
-      this.$store.dispatch('QUAKE_UPDATE_EVENTS');
+      this.$store.dispatch('API_UPDATE_EVENTS');
     },
   },
 };

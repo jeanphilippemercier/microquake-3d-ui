@@ -43,9 +43,9 @@ export default {
 
     this.onDoubleClick = () => {
       if (this.$store.getters.QUAKE_DOUBLE_CLICK_MODE === 0) {
-        this.$store.dispatch('QUAKE_OPEN_EVENT');
+        this.$store.dispatch('API_OPEN_EVENT');
       } else {
-        this.$store.dispatch('QUAKE_SHOW_RAY');
+        this.$store.dispatch('API_SHOW_RAY');
       }
     };
 
@@ -53,10 +53,7 @@ export default {
       if (this.$store.getters.QUAKE_PICKING_CENTER_OF_ROTATION) {
         if (this.$store.getters.QUAKE_PICKED_DATA) {
           const { worldPosition } = this.$store.getters.QUAKE_PICKED_DATA;
-          this.$store.dispatch(
-            'QUAKE_UPDATE_CENTER_OF_ROTATION',
-            worldPosition
-          );
+          this.$store.dispatch('API_UPDATE_CENTER_OF_ROTATION', worldPosition);
         }
       }
     };
@@ -83,7 +80,7 @@ export default {
         devicePixelRatio * (x - this.viewBounds.x),
         devicePixelRatio * (this.viewBounds.height - (y - this.viewBounds.y)),
       ];
-      this.$store.dispatch('QUAKE_EVENT_PICKING', vtkCoord);
+      this.$store.dispatch('API_EVENT_PICKING', vtkCoord);
     };
 
     // Attach listeners to the DOM

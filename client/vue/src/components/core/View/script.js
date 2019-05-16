@@ -167,13 +167,13 @@ export default {
     this.$store.commit('VIEW_WIDGET_MANAGER_SET', this.widgetManager);
 
     // Link server side camera to local
-    this.client.remote.Quake.resetCamera().then((cameraInfo) => {
+    this.$store.dispatch('API_RESET_CAMERA').then((cameraInfo) => {
       this.updateCamera(cameraInfo);
       this.viewStream.pushCamera();
     });
   },
   computed: mapGetters({
-    client: 'NETWORK_CLIENT',
+    client: 'REMOTE_CLIENT',
     showRenderingStats: 'VIEW_STATS',
     stillQuality: 'VIEW_QUALITY_STILL',
     interactiveQuality: 'VIEW_QUALITY_INTERACTIVE',
@@ -264,9 +264,9 @@ export default {
       },
     },
     mapActions({
-      resetCamera: 'VIEW_RESET_CAMERA',
-      render: 'VIEW_RENDER',
-      snapViewUp: 'VIEW_UP',
+      resetCamera: 'API_RESET_CAMERA',
+      render: 'API_RENDER',
+      snapViewUp: 'API_VIEW_UP',
       updateOrientation: 'VIEW_UPDATE_ORIENTATION',
       togglePickCenter: 'QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION',
     })

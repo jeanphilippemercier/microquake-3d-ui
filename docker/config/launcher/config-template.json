@@ -2,7 +2,7 @@
   "resources": [ {"port_range": [9010, 9014], "host": "localhost"} ],
   "sessionData": {},
   "configuration": {
-    "log_dir": "/opt/wslink-launcher/log",
+    "log_dir": "/opt/launcher/log",
     "host": "localhost",
     "endpoint": "paraview",
     "sessionURL": "SESSION_URL_ROOT/proxy?sessionId=${id}&path=ws",
@@ -10,13 +10,13 @@
     "upload_dir": "/data/upload",
     "fields": [],
     "port": 9000,
-    "proxy_file": "/opt/wslink-launcher/proxy-mapping.txt",
+    "proxy_file": "/opt/launcher/proxy-mapping.txt",
     "sanitize": {}
   },
   "properties": {
     "apps_dir": "/external/apps",
     "mines_dir": "/external/mines",
-    "python_exec": "/opt/paraview/install/bin/pvpython"
+    "python_exec": "/opt/paraview/bin/pvpython"
   },
   "apps": {
     "quake": {

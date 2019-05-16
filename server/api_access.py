@@ -37,7 +37,7 @@ class Ray:
         self.num_nodes = len(self.nodes)
 
 
-def get_events_catalog(api_base_url, start_time, end_time):
+def get_events_catalog(api_base_url, token, start_time, end_time):
     """
     return a list of events
     :param api_base_url:
@@ -51,10 +51,11 @@ def get_events_catalog(api_base_url, start_time, end_time):
     # timezone to UTC before the request is built.
 
     querystring = {"start_time": start_time, "end_time": end_time}
+    headers = {"Authorization": "Token {0}".format(token)}
 
     print('retrieve events from {0}'.format(url))
 
-    response = requests.request("GET", url, params=querystring).json()
+    response = requests.request("GET", url, params=querystring, headers=headers).json()
 
     events = []
     for event in response:
@@ -63,11 +64,11 @@ def get_events_catalog(api_base_url, start_time, end_time):
     return events
 
 
-def get_rays_for_event(api_base_url, event_resource_id):
+def get_rays_for_event(api_base_url, token, event_resource_id):
     url = api_base_url + "events"
     url = '{0}/events/{1}/rays'.format(api_base_url, event_resource_id)
-
-    response = requests.request("GET", url).json()
+    headers = {"Authorization": "Token {0}".format(token)}
+    response = requests.request("GET", url, headers=headers).json()
 
     rays = []
     for ray_json in response:
@@ -90,17 +91,18 @@ def get_stations(api_base_url, site_code, network_code):
     return requests.request("GET", url).json()
 
 
-def get_mine_plan(api_base_url, site_code, network_code, root_directory):
+def get_mine_plan(api_base_url, token, site_code, network_code, root_directory):
     # the v1 api endpoint for this doesn't work
     mod_url = api_base_url.replace('v1', 'v2')
 
     url = mod_url + 'site'
     url = '{0}/{1}/network/{2}/mineplan'.format(
         url, site_code, network_code)
+    headers = {"Authorization": "Token {0}".format(token)}
 
     print('Fetching mine plan from: {0}'.format(url))
 
-    plan_list = requests.request("GET", url).json()
+    plan_list = requests.request("GET", url, headers=headers).json()
 
     mine_root = os.path.join(
     root_directory, 'Site_{0}_Network_{1}'.format(site_code, network_code))

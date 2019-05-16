@@ -7,7 +7,7 @@ export default {
       },
       set(value) {
         this.$store.commit('QUAKE_HISTORICAL_TIME_SET', value);
-        this.$store.dispatch('QUAKE_UPDATE_EVENTS');
+        this.$store.dispatch('API_UPDATE_EVENTS');
       },
     },
   },

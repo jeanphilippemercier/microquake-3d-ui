@@ -1,1 +1,1 @@
-export default [{ key: 'r', action: 'VIEW_RESET_CAMERA' }];
+export default [{ key: 'r', action: 'API_RESET_CAMERA' }];
