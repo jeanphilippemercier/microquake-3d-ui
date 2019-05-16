@@ -264,3 +264,11 @@ And you can access it by pointing your browser to `http://localhost:9000` for re
 Add `?renderMode=local` to the location url to invoke the application in local rendering mode.
 
 Authenticate by entering `test` and `test@seismic` in the username and password fields when prompted.
+
+At the moment, and until CORS issues are resolved, the local rendering mode needs to be run in a browser with web security disabled.  On linux:
+
+```
+/opt/google/chrome/chrome --disable-web-security --user-data-dir ~/chromeTemp
+```
+
+Depending on where you have chrome installed.
