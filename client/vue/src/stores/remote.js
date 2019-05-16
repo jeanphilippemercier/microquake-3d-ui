@@ -130,7 +130,7 @@ export default {
     },
   },
   actions: {
-    REMOTE_INITIALIZE({ state, commit, dispatch }) {
+    REMOTE_INITIALIZE({ state, getters, commit, dispatch }) {
       const { config, client } = state;
       if (client && client.isConnected()) {
         client.disconnect();
@@ -156,30 +156,36 @@ export default {
         .connect(config)
         .then((validClient) => {
           commit('REMOTE_CLIENT_SET', validClient);
-          dispatch('API_FETCH_MINE');
-          dispatch('API_UPDATE_EVENTS');
-          dispatch('API_UPDATE_SCALING');
-          dispatch('API_UPDATE_UNCERTAINTY_SCALING');
-          clientToConnect.updateBusy(-1);
+          dispatch('PVW_UPDATE_AUTH_TOKEN', getters.HTTP_AUTH_TOKEN)
+            .then(() => {
+              dispatch('API_FETCH_MINE');
+              dispatch('API_UPDATE_EVENTS');
+              dispatch('API_UPDATE_SCALING');
+              dispatch('API_UPDATE_UNCERTAINTY_SCALING');
+              clientToConnect.updateBusy(-1);
 
-          // Dynamic monitoring of the mine
-          dispatch('API_ON_MINE_CHANGE', () => {
-            dispatch('API_FETCH_MINE');
-          });
+              // Dynamic monitoring of the mine
+              dispatch('API_ON_MINE_CHANGE', () => {
+                dispatch('API_FETCH_MINE');
+              });
 
-          // Handle locations in url
-          if (config.locations) {
-            commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
-              mine: true,
-              seismicEvents: false,
-              blast: false,
-              historicEvents: false,
-              ray: false,
-              uncertainty: false,
+              // Handle locations in url
+              if (config.locations) {
+                commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
+                  mine: true,
+                  seismicEvents: false,
+                  blast: false,
+                  historicEvents: false,
+                  ray: false,
+                  uncertainty: false,
+                });
+                dispatch('API_UPDATE_EVENTS_VISIBILITY');
+                dispatch('API_SHOW_LOCATIONS', config.locations);
+              }
+            })
+            .catch((error) => {
+              console.error(error);
             });
-            dispatch('API_UPDATE_EVENTS_VISIBILITY');
-            dispatch('API_SHOW_LOCATIONS', config.locations);
-          }
         })
         .catch((error) => {
           console.error(error);

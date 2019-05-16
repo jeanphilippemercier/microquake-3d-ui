@@ -1,10 +1,11 @@
-// import axios from 'axios';
+import axios from 'axios';
 import mineplan from 'paraview-quake/src/stores/mock/mineplan.json';
+import events from 'paraview-quake/src/stores/mock/events.json';
 
 export default {
   state: {
-    baseUrl: 'https://api.microquake.org/api/',
-    authToken: 'be072024b881fd7735ad4865beb9f1e4ac075650',
+    baseUrl: 'https://api.microquake.org/api',
+    authToken: null,
     siteCode: 'OT',
     networkCode: 'HNUG',
   },
@@ -37,30 +38,38 @@ export default {
     },
   },
   actions: {
+    HTTP_AUTHENTICATE({ getters }) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const username = getters.APP_AUTH_USER_NAME;
+      const password = getters.APP_AUTH_USER_PASSWORD;
+
+      const request = {
+        method: 'post',
+        url: `${baseUrl}/token-auth`,
+        data: { username, password },
+      };
+
+      return axios(request);
+    },
     HTTP_FETCH_MINES({ state, commit, dispatch }) {
-      // const { baseUrl, siteCode, networkCode } = state;
+      // const { authToken, baseUrl, siteCode, networkCode } = state;
 
       // const request = {
       //   method: 'get',
-      //   url: `${baseUrl}/v2/site/${siteCode}/network/${networkCode}/mineplan`,
+      //   headers: { Authorization: `Token ${authToken}` },
+      //   url: `${baseUrl}/v2/mineplan`,
       //   headers: {
       //     Authentication: `Token ${state.authToken}`,
       //   },
       // };
 
       // // Make the request to retrieve the mineplan description
-      // axios(request).then((response) => {
-      //   console.log('Got mine plan');
-      //   console.log(response);
-      //   commit('LOCAL_MINE_PLAN_SET', response);
-      //   dispatch('LOCAL_UPDATE_MINE_PLAN');
-      // }).catch((error) => {
-      //   console.log('Encountered error retrieving mineplan');
-      //   console.log(error);
-      // });
+      // return axios(request);
 
-      commit('LOCAL_MINE_PLAN_SET', mineplan);
-      dispatch('LOCAL_UPDATE_MINE_PLAN');
+      return Promise.resolve(mineplan);
+    },
+    HTTP_FETCH_EVENTS({ state, commit, dispatch }) {
+      return Promise.resolve(events);
     },
   },
 };

@@ -257,4 +257,10 @@ sudo docker run --runtime=nvidia \
     "ws://localhost:9000/"
 ```
 
-And you can access it by pointing your browser to `http://localhost:9000/quake`
+And you can access it by pointing your browser to `http://localhost:9000` for remote rendering, or 'http://localhost:9000?renderMode=local' for local rendering.
+
+## Running the application
+
+Add `?renderMode=local` to the location url to invoke the application in local rendering mode.
+
+Authenticate by entering `test` and `test@seismic` in the username and password fields when prompted.

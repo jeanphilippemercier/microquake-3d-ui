@@ -319,6 +319,8 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     def __init__(self, minesBasePath = None, **kwargs):
         super(pv_protocols.ParaViewWebProtocol, self).__init__()
 
+        self.authToken = None
+
         self.heartBeatCount = 0
         self.showRay = False
         self.uncertaintyScaling = 1.0
@@ -430,8 +432,12 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         self.minePieces = []
         self.pieceToLoad = []
         self.minePiecesByCategory = {}
-        if minesBasePath:
-            self.minePlan = self.fetchMine(minesBasePath)
+        self.minesBasePath = minesBasePath
+
+
+    def initialize(self):
+        if self.minesBasePath:
+            self.minePlan = self.fetchMine(self.minesBasePath)
             self.mineBounds = self.minePlan['boundaries']
             self.translate[0] = -0.5 * (self.mineBounds[0] + self.mineBounds[1])
             self.translate[1] = -0.5 * (self.mineBounds[2] + self.mineBounds[3])
@@ -463,12 +469,16 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
 
     def fetchMine(self, minesBasePath):
+        if not self.authToken:
+            print('Cannot fetchMine without auth token')
+            return None
+
         # FIXME: eventually fetch these values from api server
         self.siteCode = 'OT'
         self.networkCode = 'HNUG'
 
         # Synchronously fetch the mine plan json
-        mine_plan = get_mine_plan(API_URL, self.siteCode, self.networkCode, minesBasePath)
+        mine_plan = get_mine_plan(API_URL, self.authToken, self.siteCode, self.networkCode, minesBasePath)
 
         # Asynchronously download the pieces
         self.download_process = Process(target=download_mine_pieces, args=(mine_plan,))
@@ -701,9 +711,13 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
 
     def updateRay(self, event_resource_id):
+        if not self.authToken:
+            print('Cannot updateRay without auth token')
+            return None
+
         rayFound = 0
         if event_resource_id:
-            rays = get_rays_for_event(API_URL, event_resource_id)
+            rays = get_rays_for_event(API_URL, self.authToken, event_resource_id)
             numRayCells = len(rays)
             rayFound = numRayCells
 
@@ -804,6 +818,12 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
     #     self.updateEventsPolyData(event_list, self.eventsProxy)
     #     return self.getEventsForClient(event_list)
 
+    @exportRpc("paraview.quake.token.update")
+    def updateAuthenticationToken(self, token):
+        self.authToken = token
+        print('Authentication token set to: {0}'.format(self.authToken))
+        self.initialize()
+
     @exportRpc("paraview.quake.scale.range")
     def updateScaleFunction(self, linearRange, sizeRange):
         # Create new function
@@ -835,6 +855,10 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
     @exportRpc("paraview.quake.data.update")
     def updateData(self, now, focusTime, historicalTime, liveMonitoring = False):
+        if not self.authToken:
+            print('Cannot updateData without auth token')
+            return None
+
         self.liveMonitoring = {
             'refresh': liveMonitoring,
             'now': now,
@@ -843,8 +867,8 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         }
         print('liveMonitoring', liveMonitoring)
 
-        events_in_focus = get_events_catalog(API_URL, focusTime, now)
-        historic_events = get_events_catalog(API_URL, historicalTime, focusTime)
+        events_in_focus = get_events_catalog(API_URL, self.authToken, focusTime, now)
+        historic_events = get_events_catalog(API_URL, self.authToken, historicalTime, focusTime)
 
         print('focus', focusTime, now)
         print('historical', historicalTime, focusTime)

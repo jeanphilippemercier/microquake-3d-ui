@@ -52,8 +52,8 @@
 ROOT_URL="ws://localhost"
 REPLACEMENT_ARGS=""
 
-LAUNCHER_TEMPLATE_PATH=/opt/wslink-launcher/launcher-template.json
-LAUNCHER_PATH=/opt/wslink-launcher/launcher.json
+LAUNCHER_TEMPLATE_PATH=/opt/launcher/config-template.json
+LAUNCHER_PATH=/opt/launcher/config.json
 
 if [[ ! -z "${SERVER_NAME}" ]] && [[ ! -z "${PROTOCOL}" ]]
 then
@@ -87,7 +87,7 @@ echo -e "$OUTPUT" > "${LAUNCHER_PATH}"
 
 ln -sf /proc/self/fd/1 /var/log/apache2/access.log && \
 ln -sf /proc/self/fd/1 /var/log/apache2/error.log
-tail -n 0 -q -F /opt/wslink-launcher/log/*.txt >> /proc/1/fd/1 &
+tail -n 0 -q -F /opt/launcher/log/*.txt >> /proc/1/fd/1 &
 
 # Make sure the apache webserver is running
 echo "Starting/Restarting Apache webserver"
@@ -95,4 +95,4 @@ service apache2 restart
 
 # Run the pvw launcher in the foreground so this script doesn't end
 echo "Starting the wslink launcher"
-/opt/paraview/install/bin/pvpython /usr/local/lib/python2.7/dist-packages/wslink/launcher.py ${LAUNCHER_PATH}
+/opt/paraview/bin/pvpython /opt/paraview/lib/python2.7/site-packages/wslink/launcher.py ${LAUNCHER_PATH}

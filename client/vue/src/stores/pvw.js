@@ -1,5 +1,13 @@
 export default {
   actions: {
+    PVW_UPDATE_AUTH_TOKEN({ getters }, token){
+      const client = getters.REMOTE_CLIENT;
+      if (!client) {
+        return Promise.reject('No client for PVW_UPDATE_AUTH_TOKEN\n');
+      }
+      console.log(`Client sending message to server to update auth token: ${token}`)
+      return client.remote.Quake.updateAuthenticationToken(token);
+    },
     PVW_UPDATE_UNCERTAINTY_SCALING({ getters }, scaleFactor) {
       const client = getters.REMOTE_CLIENT;
       if (!client) {

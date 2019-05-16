@@ -4,6 +4,7 @@ import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import VtkView from 'paraview-quake/src/components/core/View';
 import LocalView from 'paraview-quake/src/components/core/LocalView';
+import LoginModal from 'paraview-quake/src/components/core/LoginModal';
 
 // import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
@@ -40,6 +41,7 @@ export default {
     GlobalSettings,
     VtkView,
     LocalView,
+    LoginModal,
     // ProgressBar,
     PickingTooltip,
     ToolbarTimeRange,
@@ -56,6 +58,9 @@ export default {
     };
   },
   computed: {
+    authToken() {
+      return this.$store.getters.HTTP_AUTH_TOKEN;
+    },
     remoteReady() {
       return (
         this.$store.getters.API_RENDER_MODE === 'REMOTE' &&
@@ -144,8 +149,10 @@ export default {
       });
     });
 
-    // Establish websocket connection
-    this.$store.dispatch('API_INITIALIZE');
+    // // Establish websocket connection
+    // this.$store.dispatch('API_AUTHENTICATE').then(() => {
+    //   this.$store.dispatch('API_INITIALIZE');
+    // });
   },
   beforeDestroy() {
     shortcuts.forEach(({ key }) => {
