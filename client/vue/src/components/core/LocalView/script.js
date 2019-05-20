@@ -239,11 +239,23 @@ export default {
     })
   ),
   beforeDestroy() {
-    this.renderWindow.delete();
-    this.renderer.delete();
-    this.openglRenderWindow.delete();
-    this.interactor.delete();
-    this.widget.delete();
-    this.mousePositionCache.delete();
+    if (this.renderWindow) {
+      this.renderWindow.delete();
+    }
+    if (this.renderer) {
+      this.renderer.delete();
+    }
+    if (this.openglRenderWindow) {
+      this.openglRenderWindow.delete();
+    }
+    if (this.interactor) {
+      this.interactor.delete();
+    }
+    if (this.widget) {
+      this.widget.delete();
+    }
+    if (this.mousePositionCache) {
+      this.mousePositionCache.delete();
+    }
   },
 };

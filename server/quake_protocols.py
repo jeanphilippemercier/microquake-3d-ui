@@ -38,7 +38,7 @@ EVENT_REFRESH_RATE = 5 * 60 # 5 minutes
 
 PRINT_EVENT_STRUCTURE = False
 
-API_URL = 'http://api.microquake.org/api/v1/'
+API_URL = 'https://api.microquake.org/api'
 
 BLAST_SHADER = """
 // This custom shader code define a gaussian blur
@@ -320,6 +320,8 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         super(pv_protocols.ParaViewWebProtocol, self).__init__()
 
         self.authToken = None
+        self.siteCode = None
+        self.networkCode = None
 
         self.heartBeatCount = 0
         self.showRay = False
@@ -473,12 +475,14 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             print('Cannot fetchMine without auth token')
             return None
 
-        # FIXME: eventually fetch these values from api server
-        self.siteCode = 'OT'
-        self.networkCode = 'HNUG'
+        access_info = {
+            'token': self.authToken,
+            'siteCode': self.siteCode,
+            'networkCode': self.networkCode,
+        }
 
         # Synchronously fetch the mine plan json
-        mine_plan = get_mine_plan(API_URL, self.authToken, self.siteCode, self.networkCode, minesBasePath)
+        mine_plan = get_mine_plan(API_URL, access_info, minesBasePath)
 
         # Asynchronously download the pieces
         self.download_process = Process(target=download_mine_pieces, args=(mine_plan,))
@@ -715,9 +719,15 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
             print('Cannot updateRay without auth token')
             return None
 
+        access_info = {
+            'token': self.authToken,
+            'siteCode': self.siteCode,
+            'networkCode': self.networkCode,
+        }
+
         rayFound = 0
         if event_resource_id:
-            rays = get_rays_for_event(API_URL, self.authToken, event_resource_id)
+            rays = get_rays_for_event(API_URL, access_info, event_resource_id)
             numRayCells = len(rays)
             rayFound = numRayCells
 
@@ -809,20 +819,13 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         return rayFound
 
 
-    # @exportRpc("paraview.quake.events.get")
-    # def getEvents(self, start_time='2018-11-08T10:21:00.0', end_time='2018-11-09T10:21:00.0'):
-    #     '''
-    #     Update event sets to visualize on the server side and send the part the client can use
-    #     '''
-    #     event_list = seismic_client.get_events_catalog(API_URL, start_time, end_time)
-    #     self.updateEventsPolyData(event_list, self.eventsProxy)
-    #     return self.getEventsForClient(event_list)
-
     @exportRpc("paraview.quake.token.update")
-    def updateAuthenticationToken(self, token):
+    def updateAuthenticationToken(self, token, siteCode, networkCode):
         self.authToken = token
-        print('Authentication token set to: {0}'.format(self.authToken))
+        self.siteCode = siteCode
+        self.networkCode = networkCode
         self.initialize()
+
 
     @exportRpc("paraview.quake.scale.range")
     def updateScaleFunction(self, linearRange, sizeRange):
@@ -867,8 +870,13 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
         }
         print('liveMonitoring', liveMonitoring)
 
-        events_in_focus = get_events_catalog(API_URL, self.authToken, focusTime, now)
-        historic_events = get_events_catalog(API_URL, self.authToken, historicalTime, focusTime)
+        access_info = {
+            'token': self.authToken,
+            'siteCode': self.siteCode,
+            'networkCode': self.networkCode,
+        }
+        events_in_focus = get_events_catalog(API_URL, access_info, focusTime, now)
+        historic_events = get_events_catalog(API_URL, access_info, historicalTime, focusTime)
 
         print('focus', focusTime, now)
         print('historical', historicalTime, focusTime)

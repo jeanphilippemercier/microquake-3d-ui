@@ -5,6 +5,7 @@ import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import VtkView from 'paraview-quake/src/components/core/View';
 import LocalView from 'paraview-quake/src/components/core/LocalView';
 import LoginModal from 'paraview-quake/src/components/core/LoginModal';
+import SiteSelectModal from 'paraview-quake/src/components/core/SiteSelectModal';
 
 // import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
@@ -44,6 +45,7 @@ export default {
     LoginModal,
     // ProgressBar,
     PickingTooltip,
+    SiteSelectModal,
     ToolbarTimeRange,
   },
   data() {
@@ -60,6 +62,9 @@ export default {
   computed: {
     authToken() {
       return this.$store.getters.HTTP_AUTH_TOKEN;
+    },
+    siteSelected() {
+      return this.$store.getters.QUAKE_USER_ACCEPTED_SITE;
     },
     remoteReady() {
       return (

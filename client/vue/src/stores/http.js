@@ -1,13 +1,9 @@
 import axios from 'axios';
-import mineplan from 'paraview-quake/src/stores/mock/mineplan.json';
-import events from 'paraview-quake/src/stores/mock/events.json';
 
 export default {
   state: {
     baseUrl: 'https://api.microquake.org/api',
     authToken: null,
-    siteCode: 'OT',
-    networkCode: 'HNUG',
   },
   getters: {
     HTTP_AUTH_TOKEN(state) {
@@ -16,12 +12,6 @@ export default {
     HTTP_BASE_URL(state) {
       return state.baseUrl;
     },
-    HTTP_SITE_CODE(state) {
-      return state.siteCode;
-    },
-    HTTP_NETWORK_CODE(state) {
-      return state.networkCode;
-    },
   },
   mutations: {
     HTTP_AUTH_TOKEN_SET(state, token) {
@@ -29,12 +19,6 @@ export default {
     },
     HTTP_BASE_URL_SET(state, url) {
       state.baseUrl = url;
-    },
-    HTTP_SITE_CODE_SET(state, code) {
-      state.siteCode = code;
-    },
-    HTTP_NETWORK_CODE_SET(state, code) {
-      state.networkCode = code;
     },
   },
   actions: {
@@ -51,25 +35,57 @@ export default {
 
       return axios(request);
     },
-    HTTP_FETCH_MINES({ state, commit, dispatch }) {
-      // const { authToken, baseUrl, siteCode, networkCode } = state;
+    HTTP_FETCH_MINES({ getters, commit, dispatch }) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+      const siteCode = getters.QUAKE_SELECTED_SITE;
+      const networkCode = getters.QUAKE_SELECTED_NETWORK;
 
-      // const request = {
-      //   method: 'get',
-      //   headers: { Authorization: `Token ${authToken}` },
-      //   url: `${baseUrl}/v2/mineplan`,
-      //   headers: {
-      //     Authentication: `Token ${state.authToken}`,
-      //   },
-      // };
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/mineplan`,
+        headers: {
+          Authentication: `Token ${authToken}`,
+        },
+        params: {
+          site_code: siteCode,
+          network_code: networkCode,
+        },
+      };
 
-      // // Make the request to retrieve the mineplan description
-      // return axios(request);
-
-      return Promise.resolve(mineplan);
+      return axios(request);
     },
-    HTTP_FETCH_EVENTS({ state, commit, dispatch }) {
-      return Promise.resolve(events);
+    HTTP_FETCH_EVENTS({ getters }, [startTime, endTime]) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/catalog`,
+        headers: {
+          Authentication: `Token ${authToken}`,
+        },
+        params: {
+          start_time: startTime,
+          end_time: endTime,
+        },
+      };
+
+      return axios(request);
+    },
+    HTTP_FETCH_SITES({ getters }) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/sites`,
+        headers: {
+          Authentication: `Token ${authToken}`,
+        },
+      };
+
+      return axios(request);
     },
   },
 };
