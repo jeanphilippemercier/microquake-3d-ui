@@ -422,7 +422,6 @@ export default {
       // }
     },
     LOCAL_EVENT_PICKING({ commit, dispatch }, [x, y]) {
-      console.log(`LOCAL_EVENT_PICKING at [${x}, ${y}]`);
       commit('QUAKE_PICKING_POSITION_SET', [x, y]);
       dispatch('REMOTE_UPDATE_PICKING');
     },

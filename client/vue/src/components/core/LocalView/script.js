@@ -91,7 +91,9 @@ export default {
     const container = this.$el.querySelector('.js-renderer');
 
     this.renderWindow = vtkRenderWindow.newInstance();
-    this.renderer = vtkRenderer.newInstance({ background: [0.2, 0.3, 0.4] });
+    this.renderer = vtkRenderer.newInstance({
+      background: [0.4470588235294118, 0.4470588235294118, 0.4470588235294118],
+    });
     this.renderWindow.addRenderer(this.renderer);
 
     this.openglRenderWindow = vtkOpenGLRenderWindow.newInstance();
