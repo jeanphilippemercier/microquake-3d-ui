@@ -59,6 +59,30 @@ function createStore() {
           dispatch('API_INITIALIZE');
         }
       },
+      APP_LOGIN({ dispatch, commit }) {
+        const log = console.log; // () => {}
+        dispatch('HTTP_AUTHENTICATE')
+          .then((result) => {
+            log('Authenticated');
+            log(result);
+            commit('HTTP_AUTH_TOKEN_SET', result.data.token);
+            log('Stored auth token, about to dispatch HTTP_FETCH_SITES');
+            dispatch('HTTP_FETCH_SITES')
+              .then((sitesResponse) => {
+                log('Got sites json:');
+                log(sitesResponse.data);
+                dispatch('QUAKE_UPDATE_SITES', sitesResponse.data);
+              })
+              .catch((siteError) => {
+                console.error('Error fetching sites:');
+                console.error(siteError);
+              });
+          })
+          .catch((error) => {
+            console.error('Authentication failure');
+            console.error(error);
+          });
+      },
     },
   });
 }

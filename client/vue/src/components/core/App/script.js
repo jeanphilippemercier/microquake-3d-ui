@@ -1,5 +1,5 @@
 import Mousetrap from 'mousetrap';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
@@ -161,35 +161,9 @@ export default {
       updateLocalRendering: 'API_LOCAL_RENDERING_SET',
       updateDoubleClickMode: 'QUAKE_DOUBLE_CLICK_MODE_SET',
     }),
-    performLogin() {
-      // const username = this.$store.getters.APP_AUTH_USER_NAME;
-      // const password = this.$store.getters.APP_AUTH_USER_PASSWORD;
-      // console.log(`Authenticate: username = ${username}, password = ${password}`);
-
-      this.$store
-        .dispatch('HTTP_AUTHENTICATE')
-        .then((result) => {
-          console.log('Authenticated');
-          console.log(result);
-          this.$store.commit('HTTP_AUTH_TOKEN_SET', result.data.token);
-          console.log('Stored auth token, about to dispatch HTTP_FETCH_SITES');
-          this.$store
-            .dispatch('HTTP_FETCH_SITES')
-            .then((sitesResponse) => {
-              console.log('Got sites json:');
-              console.log(sitesResponse.data);
-              this.$store.dispatch('QUAKE_UPDATE_SITES', sitesResponse.data);
-            })
-            .catch((siteError) => {
-              console.error('Error fetching sites:');
-              console.error(siteError);
-            });
-        })
-        .catch((error) => {
-          console.error('Authentication failure');
-          console.error(error);
-        });
-    },
+    ...mapActions({
+      login: 'APP_LOGIN',
+    }),
     selectSite() {
       console.log('In selectSite() method');
       if (this.selectSite && this.selectedNetwork) {
