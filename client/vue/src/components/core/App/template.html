@@ -1,7 +1,73 @@
 <v-app :dark="darkMode">
-  <login-modal v-if="!authToken"></login-modal>
-  <site-select-modal v-if="authToken && !siteSelected"></site-select-modal>
+  <v-dialog
+    :value="!authToken"
+    hide-overlay
+    persistent
+    width="400"
+  >
+    <v-card class="pa-3">
+      <v-card-title class="headline">Application Authentication</v-card-title>
+      <v-card-text>
+        <v-text-field
+          label="Username"
+          v-model="userName"
+          :prepend-icon="$vuetify.icons.username"
+        />
+        <v-text-field
+          label="Password"
+          v-model="userPassword"
+          :prepend-icon="$vuetify.icons.password"
+          type="password"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="performLogin">
+          Login
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    :value="authToken && !siteSelected"
+    hide-overlay
+    persistent
+    width="400"
+  >
+    <v-card class="pa-3">
+      <v-card-title class="headline">Site Selection</v-card-title>
+      <v-card-text>
+        <v-select
+          label="Site"
+          v-model="site"
+          :items="sitesAvailable"
+          solo
+        />
+        <v-select
+          label="Network"
+          v-model="network"
+          :items="networksAvailable"
+          solo
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-switch
+          v-model="renderMode"
+          hide-details
+          class="pt-0 mt-0"
+          style="flex: none;"
+        />
+        <div class="body-2">{{renderMode ? 'Local' : 'Remote'}} Rendering</div>
+        <v-spacer />
+        <v-btn @click="selectSite">
+          Open
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <v-navigation-drawer
+    v-if="authToken && siteSelected"
     v-model="menuVisible"
     clipped
     overflow
@@ -15,6 +81,7 @@
   </v-navigation-drawer>
 
   <v-navigation-drawer
+    v-if="authToken && siteSelected"
     v-model="advanceMenuVisible"
     clipped
     overflow
@@ -47,10 +114,10 @@
     </v-toolbar-title>
 
     <v-spacer />
-    <toolbar-time-range v-if="!menuVisible"/>
+    <toolbar-time-range v-if="!menuVisible && authToken && siteSelected"/>
     <v-spacer />
 
-    <v-layout align-center justify-end>
+    <v-layout align-center justify-end v-if="authToken && siteSelected">
       <v-btn-toggle
         v-model="doubleClickMode"
         mandatory

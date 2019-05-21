@@ -4,10 +4,7 @@ import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import VtkView from 'paraview-quake/src/components/core/View';
 import LocalView from 'paraview-quake/src/components/core/LocalView';
-import LoginModal from 'paraview-quake/src/components/core/LoginModal';
-import SiteSelectModal from 'paraview-quake/src/components/core/SiteSelectModal';
 
-// import ProgressBar from 'paraview-quake/src/components/widgets/ProgressBar';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
 import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
 
@@ -42,10 +39,7 @@ export default {
     GlobalSettings,
     VtkView,
     LocalView,
-    LoginModal,
-    // ProgressBar,
     PickingTooltip,
-    SiteSelectModal,
     ToolbarTimeRange,
   },
   data() {
@@ -60,6 +54,66 @@ export default {
     };
   },
   computed: {
+    userName: {
+      get() {
+        return this.$store.getters.APP_AUTH_USER_NAME;
+      },
+      set(value) {
+        this.$store.commit('APP_AUTH_USER_NAME_SET', value);
+      },
+    },
+    userPassword: {
+      get() {
+        return this.$store.getters.APP_AUTH_USER_PASSWORD;
+      },
+      set(value) {
+        this.$store.commit('APP_AUTH_USER_PASSWORD_SET', value);
+      },
+    },
+    sitesAvailable() {
+      const siteMap = this.$store.getters.QUAKE_SITE_MAP;
+      if (siteMap) {
+        return Object.keys(siteMap).map((key) => siteMap[key]);
+      }
+      return [];
+    },
+    site: {
+      get() {
+        return this.$store.getters.QUAKE_SELECTED_SITE;
+      },
+      set(value) {
+        console.log(`Going to commit ${value} to QUAKE_SELECTED_SITE_SET`);
+        this.$store.commit('QUAKE_SELECTED_SITE_SET', value);
+      },
+    },
+    networksAvailable() {
+      const siteMap = this.$store.getters.QUAKE_SITE_MAP;
+      const selectedSite = this.$store.getters.QUAKE_SELECTED_SITE;
+      if (siteMap && selectedSite) {
+        const { networks } = siteMap[selectedSite];
+        return networks ? networks : [];
+      }
+      return [];
+    },
+    network: {
+      get() {
+        return this.$store.getters.QUAKE_SELECTED_NETWORK;
+      },
+      set(value) {
+        console.log(`Going to commit ${value} to QUAKE_SELECTED_NETWORK_SET`);
+        this.$store.commit('QUAKE_SELECTED_NETWORK_SET', value);
+      },
+    },
+    renderMode: {
+      get() {
+        return this.$store.getters.API_RENDER_MODE === 'LOCAL';
+      },
+      set(value) {
+        const mode = value ? 'LOCAL' : 'REMOTE';
+        console.log(`storing render mode: ${mode}`);
+        this.$store.commit('API_RENDER_MODE_SET', mode);
+      },
+    },
     authToken() {
       return this.$store.getters.HTTP_AUTH_TOKEN;
     },
@@ -163,5 +217,46 @@ export default {
     shortcuts.forEach(({ key }) => {
       Mousetrap.unbind(key);
     });
+  },
+  methods: {
+    performLogin() {
+      // const username = this.$store.getters.APP_AUTH_USER_NAME;
+      // const password = this.$store.getters.APP_AUTH_USER_PASSWORD;
+      // console.log(`Authenticate: username = ${username}, password = ${password}`);
+
+      this.$store
+        .dispatch('HTTP_AUTHENTICATE')
+        .then((result) => {
+          console.log('Authenticated');
+          console.log(result);
+          this.$store.commit('HTTP_AUTH_TOKEN_SET', result.data.token);
+          console.log('Stored auth token, about to dispatch HTTP_FETCH_SITES');
+          this.$store
+            .dispatch('HTTP_FETCH_SITES')
+            .then((sitesResponse) => {
+              console.log('Got sites json:');
+              console.log(sitesResponse.data);
+              this.$store.dispatch('QUAKE_UPDATE_SITES', sitesResponse.data);
+            })
+            .catch((siteError) => {
+              console.error('Error fetching sites:');
+              console.error(siteError);
+            });
+        })
+        .catch((error) => {
+          console.error('Authentication failure');
+          console.error(error);
+        });
+    },
+    selectSite() {
+      console.log('In selectSite() method');
+      if (
+        this.$store.getters.QUAKE_SELECTED_SITE &&
+        this.$store.getters.QUAKE_SELECTED_NETWORK
+      ) {
+        this.$store.commit('QUAKE_USER_ACCEPTED_SITE_SET', true);
+        this.$store.dispatch('API_INITIALIZE');
+      }
+    },
   },
 };

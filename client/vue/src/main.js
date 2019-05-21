@@ -24,6 +24,9 @@ Vue.use(Vuex);
 Vue.use(Vuetify, {
   iconfont: 'mdi',
   icons: {
+    // login
+    username: 'mdi-account',
+    password: 'mdi-lock',
     // toolbar
     connectionError: 'mdi-access-point-network-off',
     settings: 'mdi-settings',
