@@ -48,7 +48,18 @@ function createStore() {
         state.userPassword = value;
       },
     },
-    actions: {},
+    actions: {
+      APP_DEVELOPMENT_SETUP({ commit, dispatch }, token) {
+        if (token) {
+          commit('API_RENDER_MODE_SET', 'LOCAL');
+          commit('HTTP_AUTH_TOKEN_SET', token);
+          commit('QUAKE_SELECTED_SITE_SET', 'OT');
+          commit('QUAKE_SELECTED_NETWORK_SET', 'HNUG');
+          commit('QUAKE_USER_ACCEPTED_SITE_SET', true);
+          dispatch('API_INITIALIZE');
+        }
+      },
+    },
   });
 }
 

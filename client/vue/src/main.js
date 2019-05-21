@@ -68,16 +68,13 @@ const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
 const store = createStore();
 store.commit('REMOTE_CONFIG_SET', config);
 
-// #################################################
-//        Comment/Uncomment for demo/development
-// #################################################
-// store.commit('API_RENDER_MODE_SET', 'LOCAL');
-// store.commit('HTTP_AUTH_TOKEN_SET', 'be072024b881fd7735ad4865beb9f1e4ac075650');
-// store.commit('QUAKE_SELECTED_SITE_SET', 'OT');
-// store.commit('QUAKE_SELECTED_NETWORK_SET', 'HNUG');
-// store.commit('QUAKE_USER_ACCEPTED_SITE_SET', true);
-// store.dispatch('API_INITIALIZE');
-// #################################################
+// ----------------------------------------------------------------------
+// !!! To speed up development !!!
+// Provide a token to skip: auth + site-selection
+// ----------------------------------------------------------------------
+const token = null; // 'be072024b881fd7735ad4865beb9f1e4ac075650';
+store.dispatch('APP_DEVELOPMENT_SETUP', token);
+// ----------------------------------------------------------------------
 
 /* eslint-disable no-new */
 new Vue({
