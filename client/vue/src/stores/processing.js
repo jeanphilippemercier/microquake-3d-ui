@@ -6,10 +6,16 @@ export default {
     API_RENDER_MODE(state) {
       return state.mode;
     },
+    API_LOCAL_RENDERING(state) {
+      return state.mode === 'LOCAL';
+    },
   },
   mutations: {
     API_RENDER_MODE_SET(state, value) {
       state.mode = value;
+    },
+    API_LOCAL_RENDERING_SET(state, value) {
+      state.mode = value ? 'LOCAL' : 'REMOTE';
     },
   },
   actions: {

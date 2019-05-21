@@ -1,12 +1,12 @@
 import Mousetrap from 'mousetrap';
+import { mapGetters, mapMutations } from 'vuex';
 
 import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
-import VtkView from 'paraview-quake/src/components/core/View';
 import LocalView from 'paraview-quake/src/components/core/LocalView';
-
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
 import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
+import VtkView from 'paraview-quake/src/components/core/View';
 
 import shortcuts from 'paraview-quake/src/shortcuts';
 
@@ -19,6 +19,8 @@ function pushVisibilityChanges(store, visibilityMap) {
   store.dispatch('API_UPDATE_MINE_VISIBILITY');
   store.dispatch('API_UPDATE_EVENTS_VISIBILITY');
 }
+
+const EMPTY_NETWORK = { networks: [] };
 
 // ----------------------------------------------------------------------------
 // Component API
@@ -37,10 +39,10 @@ export default {
   components: {
     ControlsDrawer,
     GlobalSettings,
-    VtkView,
     LocalView,
     PickingTooltip,
     ToolbarTimeRange,
+    VtkView,
   },
   data() {
     return {
@@ -54,92 +56,39 @@ export default {
     };
   },
   computed: {
-    userName: {
-      get() {
-        return this.$store.getters.APP_AUTH_USER_NAME;
-      },
-      set(value) {
-        this.$store.commit('APP_AUTH_USER_NAME_SET', value);
-      },
+    ...mapGetters({
+      userName: 'APP_AUTH_USER_NAME',
+      userPassword: 'APP_AUTH_USER_PASSWORD',
+      selectedSite: 'QUAKE_SELECTED_SITE',
+      selectedNetwork: 'QUAKE_SELECTED_NETWORK',
+      localRendering: 'API_LOCAL_RENDERING',
+      doubleClickMode: 'QUAKE_DOUBLE_CLICK_MODE',
+
+      siteMap: 'QUAKE_SITE_MAP',
+      authToken: 'HTTP_AUTH_TOKEN',
+      siteSelected: 'QUAKE_USER_ACCEPTED_SITE',
+      client: 'REMOTE_CLIENT',
+      darkMode: 'APP_DARK_THEME',
+      busyCount: 'BUSY_COUNT',
+      errorMessage: 'REMOTE_ERROR',
+      raysInScene: 'QUAKE_RAYS_IN_SCENE',
+    }),
+    siteItems() {
+      return Object.values(this.siteMap || []);
     },
-    userPassword: {
-      get() {
-        return this.$store.getters.APP_AUTH_USER_PASSWORD;
-      },
-      set(value) {
-        this.$store.commit('APP_AUTH_USER_PASSWORD_SET', value);
-      },
-    },
-    sitesAvailable() {
-      const siteMap = this.$store.getters.QUAKE_SITE_MAP;
-      if (siteMap) {
-        return Object.keys(siteMap).map((key) => siteMap[key]);
-      }
-      return [];
-    },
-    site: {
-      get() {
-        return this.$store.getters.QUAKE_SELECTED_SITE;
-      },
-      set(value) {
-        console.log(`Going to commit ${value} to QUAKE_SELECTED_SITE_SET`);
-        this.$store.commit('QUAKE_SELECTED_SITE_SET', value);
-      },
-    },
-    networksAvailable() {
-      const siteMap = this.$store.getters.QUAKE_SITE_MAP;
-      const selectedSite = this.$store.getters.QUAKE_SELECTED_SITE;
-      if (siteMap && selectedSite) {
-        const { networks } = siteMap[selectedSite];
-        return networks ? networks : [];
-      }
-      return [];
-    },
-    network: {
-      get() {
-        return this.$store.getters.QUAKE_SELECTED_NETWORK;
-      },
-      set(value) {
-        console.log(`Going to commit ${value} to QUAKE_SELECTED_NETWORK_SET`);
-        this.$store.commit('QUAKE_SELECTED_NETWORK_SET', value);
-      },
-    },
-    renderMode: {
-      get() {
-        return this.$store.getters.API_RENDER_MODE === 'LOCAL';
-      },
-      set(value) {
-        const mode = value ? 'LOCAL' : 'REMOTE';
-        console.log(`storing render mode: ${mode}`);
-        this.$store.commit('API_RENDER_MODE_SET', mode);
-      },
-    },
-    authToken() {
-      return this.$store.getters.HTTP_AUTH_TOKEN;
-    },
-    siteSelected() {
-      return this.$store.getters.QUAKE_USER_ACCEPTED_SITE;
+    networkItems() {
+      return (
+        (this.siteMap &&
+          this.selectedSite &&
+          this.siteMap[this.selectedSite]) ||
+        EMPTY_NETWORK
+      ).networks;
     },
     remoteReady() {
-      return (
-        this.$store.getters.API_RENDER_MODE === 'REMOTE' &&
-        this.$store.getters.REMOTE_CLIENT
-      );
+      return !this.localRendering && this.client;
     },
     localReady() {
-      return this.$store.getters.API_RENDER_MODE === 'LOCAL';
-    },
-    client() {
-      return this.$store.getters.REMOTE_CLIENT;
-    },
-    darkMode() {
-      return this.$store.getters.APP_DARK_THEME;
-    },
-    busyCount() {
-      return this.$store.getters.BUSY_COUNT;
-    },
-    errorMessage() {
-      return this.$store.getters.REMOTE_ERROR;
+      return this.localRendering;
     },
     componentsVisibility: {
       get() {
@@ -167,9 +116,7 @@ export default {
         pushVisibilityChanges(this.$store, visibilityMap);
       },
     },
-    raysInScene() {
-      return this.$store.getters.QUAKE_RAYS_IN_SCENE;
-    },
+
     raysVisible: {
       get() {
         const curVal = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY.ray;
@@ -179,14 +126,6 @@ export default {
         const visibilityMap = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
         visibilityMap.ray = !visibilityMap.ray;
         pushVisibilityChanges(this.$store, visibilityMap);
-      },
-    },
-    doubleClickMode: {
-      get() {
-        return this.$store.getters.QUAKE_DOUBLE_CLICK_MODE;
-      },
-      set(value) {
-        this.$store.commit('QUAKE_DOUBLE_CLICK_MODE_SET', value);
       },
     },
     rayFilterMode: {
@@ -207,11 +146,6 @@ export default {
         this.$store.dispatch(action);
       });
     });
-
-    // // Establish websocket connection
-    // this.$store.dispatch('API_AUTHENTICATE').then(() => {
-    //   this.$store.dispatch('API_INITIALIZE');
-    // });
   },
   beforeDestroy() {
     shortcuts.forEach(({ key }) => {
@@ -219,6 +153,14 @@ export default {
     });
   },
   methods: {
+    ...mapMutations({
+      updateUserName: 'APP_AUTH_USER_NAME_SET',
+      updateUserPassword: 'APP_AUTH_USER_PASSWORD_SET',
+      updateSelectedSite: 'QUAKE_SELECTED_SITE_SET',
+      updateSelectedNetwork: 'QUAKE_SELECTED_NETWORK_SET',
+      updateLocalRendering: 'API_LOCAL_RENDERING_SET',
+      updateDoubleClickMode: 'QUAKE_DOUBLE_CLICK_MODE_SET',
+    }),
     performLogin() {
       // const username = this.$store.getters.APP_AUTH_USER_NAME;
       // const password = this.$store.getters.APP_AUTH_USER_PASSWORD;
@@ -250,10 +192,7 @@ export default {
     },
     selectSite() {
       console.log('In selectSite() method');
-      if (
-        this.$store.getters.QUAKE_SELECTED_SITE &&
-        this.$store.getters.QUAKE_SELECTED_NETWORK
-      ) {
+      if (this.selectSite && this.selectedNetwork) {
         this.$store.commit('QUAKE_USER_ACCEPTED_SITE_SET', true);
         this.$store.dispatch('API_INITIALIZE');
       }

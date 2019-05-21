@@ -1,3 +1,5 @@
+import { mapGetters } from 'vuex';
+
 import MineVisibility from 'paraview-quake/src/components/core/MineVisibility';
 import FocusPeriod from 'paraview-quake/src/components/core/FocusPeriod';
 import HistoricalPeriod from 'paraview-quake/src/components/core/HistoricalPeriod';
@@ -16,11 +18,8 @@ export default {
     HistoricalPeriod,
   },
   computed: {
-    darkMode() {
-      return this.$store.getters.APP_DARK_THEME;
-    },
-    componentsVisibility() {
-      return this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
-    },
+    ...mapGetters({
+      componentsVisibility: 'QUAKE_COMPONENTS_VISIBILITY',
+    }),
   },
 };

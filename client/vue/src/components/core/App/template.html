@@ -10,12 +10,14 @@
       <v-card-text>
         <v-text-field
           label="Username"
-          v-model="userName"
+          :value="userName"
+          @input="updateUserName"
           :prepend-icon="$vuetify.icons.username"
         />
         <v-text-field
           label="Password"
-          v-model="userPassword"
+          :value="userPassword"
+          @input="updateUserPassword"
           :prepend-icon="$vuetify.icons.password"
           type="password"
         />
@@ -39,25 +41,26 @@
       <v-card-text>
         <v-select
           label="Site"
-          v-model="site"
-          :items="sitesAvailable"
-          solo
+          :value="selectedSite"
+          @input="updateSelectedSite"
+          :items="siteItems"
         />
         <v-select
           label="Network"
-          v-model="network"
-          :items="networksAvailable"
-          solo
+          :value="selectedNetwork"
+          @input="updateSelectedNetwork"
+          :items="networkItems"
         />
       </v-card-text>
       <v-card-actions>
         <v-switch
-          v-model="renderMode"
+          :value="localRendering"
+          @input="updateLocalRendering"
           hide-details
           class="pt-0 mt-0"
           style="flex: none;"
         />
-        <div class="body-2">{{renderMode ? 'Local' : 'Remote'}} Rendering</div>
+        <div class="body-2">{{localRendering ? 'Local' : 'Remote'}} Rendering</div>
         <v-spacer />
         <v-btn @click="selectSite">
           Open
@@ -119,7 +122,8 @@
 
     <v-layout align-center justify-end v-if="authToken && siteSelected">
       <v-btn-toggle
-        v-model="doubleClickMode"
+        :value="doubleClickMode"
+        @input="updateDoubleClickMode"
         mandatory
       >
         <v-tooltip bottom>
