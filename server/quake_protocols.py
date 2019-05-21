@@ -783,13 +783,13 @@ class ParaViewQuake(pv_protocols.ParaViewWebProtocol):
 
                     # Mark this ray as either belonging to the preferred origin of the event or not
                     preferred = 0
-                    if self.preferredOrigins[event_resource_id] == ray.origin_resource_id:
+                    if self.preferredOrigins[event_resource_id] == ray.origin:
                         preferred = 1
                     prefOriginArray.SetValue(cellIdx, preferred)
 
                     # Mark this ray has being associated with an arrival or not
                     arrival = 0
-                    if ray.arrival_resource_id:
+                    if ray.arrival:
                         arrival = 1
                     arrivalArray.SetValue(cellIdx, arrival)
 

@@ -35,7 +35,7 @@ export default {
 
       return axios(request);
     },
-    HTTP_FETCH_MINES({ getters, commit, dispatch }) {
+    HTTP_FETCH_MINES({ getters }) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
       const siteCode = getters.QUAKE_SELECTED_SITE;

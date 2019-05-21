@@ -67,10 +67,10 @@ def get_events_catalog(api_base_url, access_info, start_time, end_time):
 
 def get_rays_for_event(api_base_url, access_info, event_resource_id):
     token = access_info['token']
-    url = api_base_url + "events"
-    url = '{0}/events/{1}/rays'.format(api_base_url, event_resource_id)
+    url = '{0}/v1/rays'.format(api_base_url)
     headers = {"Authentication": "Token {0}".format(token)}
-    response = requests.request("GET", url, headers=headers).json()
+    params = {"event_id": event_resource_id}
+    response = requests.request("GET", url, params=params, headers=headers).json()
 
     rays = []
     for ray_json in response:

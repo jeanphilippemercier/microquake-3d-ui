@@ -1,6 +1,6 @@
 export default {
   actions: {
-    PVW_UPDATE_ACCESS_INFORMATION({ getters }){
+    PVW_UPDATE_ACCESS_INFORMATION({ getters }) {
       const client = getters.REMOTE_CLIENT;
       if (!client) {
         return Promise.reject('No client for PVW_UPDATE_AUTH_TOKEN\n');
@@ -8,8 +8,14 @@ export default {
       const token = getters.HTTP_AUTH_TOKEN;
       const siteCode = getters.QUAKE_SELECTED_SITE;
       const networkCode = getters.QUAKE_SELECTED_NETWORK;
-      console.log(`Client sending message to server to update auth token: ${token}`)
-      return client.remote.Quake.updateAccessInformation(token, siteCode, networkCode);
+      console.log(
+        `Client sending message to server to update auth token: ${token}`
+      );
+      return client.remote.Quake.updateAccessInformation(
+        token,
+        siteCode,
+        networkCode
+      );
     },
     PVW_UPDATE_UNCERTAINTY_SCALING({ getters }, scaleFactor) {
       const client = getters.REMOTE_CLIENT;

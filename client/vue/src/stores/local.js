@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
 import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
@@ -10,7 +8,6 @@ import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
 import vtkSphereMapper from 'vtk.js/Sources/Rendering/Core/SphereMapper';
 import vtkTexture from 'vtk.js/Sources/Rendering/Core/Texture';
 import vtkXMLPolyDataReader from 'vtk.js/Sources/IO/XML/XMLPolyDataReader';
-import { VtkDataTypes } from 'vtk.js/Sources/Common/Core/DataArray/Constants';
 
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
@@ -21,7 +18,7 @@ const PIECE_HANDLERS = {
     const { url, piece, translate, renderer, getters, commit } = context;
 
     const reader = vtkXMLPolyDataReader.newInstance();
-      reader.setUrl(url).then(() => {
+    reader.setUrl(url).then(() => {
       const polydata = reader.getOutputData(0);
       const points = polydata.getPoints().getData();
 
@@ -162,7 +159,7 @@ export default {
     //-----------------------------------------------------------------------
     // Public (processing) API
     //-----------------------------------------------------------------------
-    LOCAL_INITIALIZE({ getters, commit, dispatch }) {
+    LOCAL_INITIALIZE({ dispatch }) {
       dispatch('API_FETCH_MINE').then(() => {
         // Events need to be translated by an amount which is unknown until
         // we have successfully processed the mine plan.
@@ -214,7 +211,7 @@ export default {
       const now = DateHelper.getDateFromNow(2190 - focusPeriod[1]);
       const fTime = DateHelper.getDateFromNow(2190 - focusPeriod[0]);
       const hTime = DateHelper.getDateFromNow(historicalTime);
-      const monitorEvents = focusPeriod[1] > 2160;
+      // const monitorEvents = focusPeriod[1] > 2160;
 
       const mineBounds = getters.LOCAL_MINE_BOUNDS;
       if (!mineBounds) {
@@ -248,12 +245,14 @@ export default {
         param: eventData: array of event objects retrieved from seismic-api
         param: typeFilter: 'earthquake', 'explosion', or 'all'
       */
-      function buildEventsPipeline(eventType, eventData, typeFilter='all') {
+      function buildEventsPipeline(eventType, eventData, typeFilter = 'all') {
         const translate = getters.LOCAL_MINE_TRANSLATE;
         const filteredEvents = filterEvents(eventData, typeFilter);
         const numEvents = filteredEvents.length;
 
-        console.log(`LOCAL_UPDATE_EVENTS found ${numEvents} ${eventType} (${typeFilter}) events, translating to ${translate}`);
+        console.log(
+          `LOCAL_UPDATE_EVENTS found ${numEvents} ${eventType} (${typeFilter}) events, translating to ${translate}`
+        );
 
         const polydata = vtkPolyData.newInstance();
         const points = vtkPoints.newInstance();
@@ -277,7 +276,8 @@ export default {
         const timeArray = vtkDataArray.newInstance({
           name: 'time',
           numberOfComponents: 1,
-          values: new BigUint64Array(numEvents),
+          // FIXME: Rather have long int here, if there is one
+          values: new Uint32Array(numEvents),
         });
 
         const idArray = vtkDataArray.newInstance({
@@ -315,19 +315,21 @@ export default {
               uncertaintyArray[i] = value;
             }
           } else {
-              uncertaintyArray[i] = 0.0;
+            uncertaintyArray[i] = 0.0;
           }
 
-          if (event.hasOwnProperty('uncertainty_vector_x') &&
-              event.hasOwnProperty('uncertainty_vector_y') &&
-              event.hasOwnProperty('uncertainty_vector_z')) {
+          if (
+            event.hasOwnProperty('uncertainty_vector_x') &&
+            event.hasOwnProperty('uncertainty_vector_y') &&
+            event.hasOwnProperty('uncertainty_vector_z')
+          ) {
             uncertaintyDirectionArray[3 * i] = event.uncertainty_vector_x;
-            uncertaintyDirectionArray[(3 * i) + 1] = event.uncertainty_vector_y;
-            uncertaintyDirectionArray[(3 * i) + 2] = event.uncertainty_vector_z;
+            uncertaintyDirectionArray[3 * i + 1] = event.uncertainty_vector_y;
+            uncertaintyDirectionArray[3 * i + 2] = event.uncertainty_vector_z;
           } else {
             uncertaintyDirectionArray[3 * i] = 0.0;
-            uncertaintyDirectionArray[(3 * i) + 1] = 0.0;
-            uncertaintyDirectionArray[(3 * i) + 2] = 1.0;
+            uncertaintyDirectionArray[3 * i + 1] = 0.0;
+            uncertaintyDirectionArray[3 * i + 2] = 1.0;
           }
 
           magnitudeArray[i] = event.magnitude;
@@ -377,7 +379,7 @@ export default {
         .catch((error) => {
           console.error('Encountered error retrieving events');
           console.error(error);
-        })
+        });
     },
     LOCAL_UPDATE_MINE_VISIBILITY({ getters, commit }) {
       console.log('LOCAL_UPDATE_MINE_VISIBILITY');
@@ -419,8 +421,10 @@ export default {
       //   });
       // }
     },
-    LOCAL_EVENT_PICKING({ state }, [x, y]) {
-      // console.log('LOCAL_EVENT_PICKING', state, x, y);
+    LOCAL_EVENT_PICKING({ commit, dispatch }, [x, y]) {
+      console.log(`LOCAL_EVENT_PICKING at [${x}, ${y}]`);
+      commit('QUAKE_PICKING_POSITION_SET', [x, y]);
+      dispatch('REMOTE_UPDATE_PICKING');
     },
     LOCAL_UPDATE_CENTER_OF_ROTATION({ state }, position) {
       console.log('LOCAL_UPDATE_CENTER_OF_ROTATION', state, position);
@@ -508,11 +512,18 @@ export default {
 
           minePlanJson.categories.forEach((cat) => {
             mineCategories[cat.name] = cat.label;
-            minePiecesByCategory[cat.name] = { id: cat.label, name: cat.label, children: [] };
+            minePiecesByCategory[cat.name] = {
+              id: cat.label,
+              name: cat.label,
+              children: [],
+            };
           });
 
           minePlanJson.pieces.forEach((piece) => {
-            minePiecesByCategory[piece.category].children.push({ id: piece.label, name: piece.label });
+            minePiecesByCategory[piece.category].children.push({
+              id: piece.label,
+              name: piece.label,
+            });
 
             if (piece.visibility === 1) {
               visibilityList.push(piece.label);
@@ -531,9 +542,10 @@ export default {
           // );
           // commit('QUAKE_MINE_SET', mine);
           // commit('QUAKE_MINE_VISIBILITY_SET', mineVisibility);
-        }).catch((error) => {
+        })
+        .catch((error) => {
           // console.error('Encountered error retrieving mineplan');
-          // console.error(error);
+          console.error(error);
           return Promise.reject('Encountered error retrieving mineplan');
         });
     },

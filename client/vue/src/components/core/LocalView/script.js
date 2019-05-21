@@ -1,75 +1,70 @@
 import macro from 'vtk.js/Sources/macro';
-import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
-import vtkConeSource from 'vtk.js/Sources/Filters/Sources/ConeSource';
-import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
-import vtkInteractiveOrientationWidget from 'vtk.js/Sources/Widgets/Widgets3D/InteractiveOrientationWidget';
 import vtkOpenGLRenderWindow from 'vtk.js/Sources/Rendering/OpenGL/RenderWindow';
-import vtkRenderer from 'vtk.js/Sources/Rendering/Core/Renderer';import vtkInteractorObserver from 'vtk.js/Sources/Rendering/Core/InteractorObserver';
+import vtkRenderer from 'vtk.js/Sources/Rendering/Core/Renderer';
+import vtkInteractorObserver from 'vtk.js/Sources/Rendering/Core/InteractorObserver';
 import vtkRenderWindow from 'vtk.js/Sources/Rendering/Core/RenderWindow';
 import vtkRenderWindowInteractor from 'vtk.js/Sources/Rendering/Core/RenderWindowInteractor';
 import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
-import vtkWidgetManager from 'vtk.js/Sources/Widgets/Core/WidgetManager';
-import vtkOrientationMarkerWidget from 'vtk.js/Sources/Interaction/Widgets/OrientationMarkerWidget';
 
-import { mapGetters, mapActions } from 'vuex';
+import { mapActions } from 'vuex';
 
 // ----------------------------------------------------------------------------
 // Component API
 // ----------------------------------------------------------------------------
 
-function majorAxis(vec3, idxA, idxB) {
-  const axis = [0, 0, 0];
-  const idx = Math.abs(vec3[idxA]) > Math.abs(vec3[idxB]) ? idxA : idxB;
-  const value = vec3[idx] > 0 ? 1 : -1;
-  axis[idx] = value;
-  return axis;
-}
+// function majorAxis(vec3, idxA, idxB) {
+//   const axis = [0, 0, 0];
+//   const idx = Math.abs(vec3[idxA]) > Math.abs(vec3[idxB]) ? idxA : idxB;
+//   const value = vec3[idx] > 0 ? 1 : -1;
+//   axis[idx] = value;
+//   return axis;
+// }
 
 // ----------------------------------------------------------------------------
 
-function vectorToLabel(vec3) {
-  if (vec3[0]) {
-    return vec3[0] > 0 ? '+X' : '-X';
-  }
-  if (vec3[1]) {
-    return vec3[1] > 0 ? '+Y' : '-Y';
-  }
-  if (vec3[2]) {
-    return vec3[2] > 0 ? '+Z' : '-Z';
-  }
-  return '';
-}
+// function vectorToLabel(vec3) {
+//   if (vec3[0]) {
+//     return vec3[0] > 0 ? '+X' : '-X';
+//   }
+//   if (vec3[1]) {
+//     return vec3[1] > 0 ? '+Y' : '-Y';
+//   }
+//   if (vec3[2]) {
+//     return vec3[2] > 0 ? '+Z' : '-Z';
+//   }
+//   return '';
+// }
 
 // ----------------------------------------------------------------------------
 
-function toStyle({ x, y }, height) {
-  return { top: `${height - y - 15}px`, left: `${x - 15}px` };
-}
+// function toStyle({ x, y }, height) {
+//   return { top: `${height - y - 15}px`, left: `${x - 15}px` };
+// }
 
 // ----------------------------------------------------------------------------
 
-function computeOrientation(direction, originalViewUp) {
-  let viewUp = [0, 0, 1];
-  let axis = 0;
-  let orientation = 1;
+// function computeOrientation(direction, originalViewUp) {
+//   let viewUp = [0, 0, 1];
+//   let axis = 0;
+//   let orientation = 1;
 
-  if (direction[0]) {
-    axis = 0;
-    orientation = direction[0] > 0 ? 1 : -1;
-    viewUp = majorAxis(originalViewUp, 1, 2);
-  }
-  if (direction[1]) {
-    axis = 1;
-    orientation = direction[1] > 0 ? 1 : -1;
-    viewUp = majorAxis(originalViewUp, 0, 2);
-  }
-  if (direction[2]) {
-    axis = 2;
-    orientation = direction[2] > 0 ? 1 : -1;
-    viewUp = majorAxis(originalViewUp, 0, 1);
-  }
-  return { axis, orientation, viewUp };
-}
+//   if (direction[0]) {
+//     axis = 0;
+//     orientation = direction[0] > 0 ? 1 : -1;
+//     viewUp = majorAxis(originalViewUp, 1, 2);
+//   }
+//   if (direction[1]) {
+//     axis = 1;
+//     orientation = direction[1] > 0 ? 1 : -1;
+//     viewUp = majorAxis(originalViewUp, 0, 2);
+//   }
+//   if (direction[2]) {
+//     axis = 2;
+//     orientation = direction[2] > 0 ? 1 : -1;
+//     viewUp = majorAxis(originalViewUp, 0, 1);
+//   }
+//   return { axis, orientation, viewUp };
+// }
 
 // ----------------------------------------------------------------------------
 
@@ -98,7 +93,6 @@ export default {
     this.renderWindow = vtkRenderWindow.newInstance();
     this.renderer = vtkRenderer.newInstance({ background: [0.2, 0.3, 0.4] });
     this.renderWindow.addRenderer(this.renderer);
-
 
     this.openglRenderWindow = vtkOpenGLRenderWindow.newInstance();
     this.renderWindow.addView(this.openglRenderWindow);
@@ -140,7 +134,9 @@ export default {
     // Setup interactor style to use
     // ----------------------------------------------------------------------------
 
-    this.interactor.setInteractorStyle(vtkInteractorStyleTrackballCamera.newInstance());
+    this.interactor.setInteractorStyle(
+      vtkInteractorStyleTrackballCamera.newInstance()
+    );
 
     this.$store.commit('VIEW_LOCAL_RENDERER_SET', this.renderer);
 
@@ -228,6 +224,10 @@ export default {
       },
       updateCamera({ position, focalPoint, viewUp, centerOfRotation }) {
         console.log('Need to update camera in local viewer');
+        console.log(position);
+        console.log(focalPoint);
+        console.log(viewUp);
+        console.log(centerOfRotation);
       },
     },
     mapActions({

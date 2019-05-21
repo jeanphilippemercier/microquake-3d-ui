@@ -130,7 +130,7 @@ export default {
     },
   },
   actions: {
-    REMOTE_INITIALIZE({ state, getters, commit, dispatch }) {
+    REMOTE_INITIALIZE({ state, commit, dispatch }) {
       const { config, client } = state;
       if (client && client.isConnected()) {
         client.disconnect();
