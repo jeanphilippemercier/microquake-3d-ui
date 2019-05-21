@@ -28,6 +28,13 @@ export default {
     // tooltip
     pickingPosition: [0, 0],
     pickedData: null,
+    siteMap: null,
+    // selectedSite: 'OT',
+    // selectedNetwork: 'HNUG',
+    // userAcceptedSite: true,
+    selectedSite: null,
+    selectedNetwork: null,
+    userAcceptedSite: false,
   },
   getters: {
     QUAKE_PICKING_CENTER_OF_ROTATION(state) {
@@ -84,6 +91,18 @@ export default {
     QUAKE_RAYS_IN_SCENE(state) {
       return state.raysInScene;
     },
+    QUAKE_SITE_MAP(state) {
+      return state.siteMap;
+    },
+    QUAKE_SELECTED_SITE(state) {
+      return state.selectedSite;
+    },
+    QUAKE_SELECTED_NETWORK(state) {
+      return state.selectedNetwork;
+    },
+    QUAKE_USER_ACCEPTED_SITE(state) {
+      return state.userAcceptedSite;
+    },
   },
   mutations: {
     QUAKE_PICKING_CENTER_OF_ROTATION_SET(state, value) {
@@ -137,8 +156,34 @@ export default {
     QUAKE_RAYS_IN_SCENE_SET(state, value) {
       state.raysInScene = value;
     },
+    QUAKE_SITE_MAP_SET(state, value) {
+      console.log(`Setting QUAKE_SITE_MAP to ${value}`);
+      state.siteMap = value;
+    },
+    QUAKE_SELECTED_SITE_SET(state, value) {
+      state.selectedSite = value;
+    },
+    QUAKE_SELECTED_NETWORK_SET(state, value) {
+      state.selectedNetwork = value;
+    },
+    QUAKE_USER_ACCEPTED_SITE_SET(state, value) {
+      state.userAcceptedSite = value;
+    },
   },
   actions: {
+    QUAKE_UPDATE_SITES({ commit }, sitesJson) {
+      console.log('Made it into QUAKE_UPDATE_SITES');
+      const siteMapObj = {};
+      sitesJson.forEach((siteJson) => {
+        const { name, code, networks } = siteJson;
+        const siteObj = { text: name, value: code, networks: [] };
+        networks.forEach((network) => {
+          siteObj.networks.push({ text: network.name, value: network.code });
+        });
+        siteMapObj[code] = siteObj;
+      });
+      commit('QUAKE_SITE_MAP_SET', siteMapObj);
+    },
     QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION({ state, commit }) {
       commit(
         'QUAKE_PICKING_CENTER_OF_ROTATION_SET',

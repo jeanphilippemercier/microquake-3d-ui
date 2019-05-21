@@ -14,6 +14,7 @@ export default {
   },
   actions: {
     API_INITIALIZE({ state, dispatch }) {
+      console.log(' !!! Triggering application init !!!');
       return dispatch(`${state.mode}_INITIALIZE`);
     },
     API_UPDATE_UNCERTAINTY_SCALING({ state, dispatch }) {

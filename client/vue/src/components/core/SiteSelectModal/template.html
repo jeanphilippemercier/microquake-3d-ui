@@ -1,0 +1,45 @@
+<transition name="modal">
+  <div :class="$style.modalMask">
+    <div :class="$style.modalWrapper">
+      <div :class="$style.modalContainer">
+
+        <div :class="$style.modalHeader">
+          Site Selection
+        </div>
+
+        <div :class="$style.modalBody">
+          <v-select
+            label="Site"
+            v-model="site"
+            :items="sitesAvailable"
+            solo
+          ></v-select>
+          <v-select
+            label="Network"
+            v-model="network"
+            :items="networksAvailable"
+            solo
+          ></v-select>
+          <v-layout row wrap align-center>
+        <v-flex xs10>
+          <span class="body-2">Local Rendering</span>
+        </v-flex>
+        <v-flex xs2>
+          <v-switch
+            v-model="renderMode"
+            hide-details
+            class="pt-0 mt-0"
+          />
+        </v-flex>
+      </v-layout>
+        </div>
+
+        <div :class="$style.modalFooter">
+          <v-btn :class="$style.modalDefaultButton" v-on:click="selectSite()">
+            Accept
+          </v-btn>
+        </div>
+      </div>
+    </div>
+  </div>
+</transition>

@@ -156,7 +156,7 @@ export default {
         .connect(config)
         .then((validClient) => {
           commit('REMOTE_CLIENT_SET', validClient);
-          dispatch('PVW_UPDATE_AUTH_TOKEN', getters.HTTP_AUTH_TOKEN)
+          dispatch('PVW_UPDATE_ACCESS_INFORMATION')
             .then(() => {
               dispatch('API_FETCH_MINE');
               dispatch('API_UPDATE_EVENTS');

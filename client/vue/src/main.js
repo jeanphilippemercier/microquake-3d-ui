@@ -65,11 +65,9 @@ const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
 const store = createStore();
 store.commit('REMOTE_CONFIG_SET', config);
 
-if (config.renderMode === 'local') {
-  store.commit('API_RENDER_MODE_SET', 'LOCAL');
-} else {
-  store.commit('API_RENDER_MODE_SET', 'REMOTE');
-}
+// const testingRenderMode = 'LOCAL';
+// store.commit('API_RENDER_MODE_SET', testingRenderMode);
+// store.dispatch('API_INITIALIZE');
 
 /* eslint-disable no-new */
 new Vue({

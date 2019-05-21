@@ -1,5 +1,6 @@
 <v-app :dark="darkMode">
   <login-modal v-if="!authToken"></login-modal>
+  <site-select-modal v-if="authToken && !siteSelected"></site-select-modal>
   <v-navigation-drawer
     v-model="menuVisible"
     clipped

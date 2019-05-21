@@ -17,6 +17,7 @@
 
 .modalContainer {
   width: 300px;
+  height: 300px;
   margin: 0px auto;
   padding: 20px 30px;
   background-color: #fff;
@@ -38,7 +39,7 @@
 .modalDefaultButton {
   float: right;
   position: relative;
-  top: -35px;
+  top: -15px;
 }
 
 /*

@@ -30,11 +30,21 @@ export default {
           console.log('Authenticated');
           console.log(result);
           this.$store.commit('HTTP_AUTH_TOKEN_SET', result.data.token);
-          this.$store.dispatch('API_INITIALIZE');
+          console.log('Stored auth token, about to dispatch HTTP_FETCH_SITES');
+          this.$store.dispatch('HTTP_FETCH_SITES')
+            .then((sitesResponse) => {
+              console.log('Got sites json:');
+              console.log(sitesResponse.data);
+              this.$store.dispatch('QUAKE_UPDATE_SITES', sitesResponse.data);
+            })
+            .catch((siteError) => {
+              console.error('Error fetching sites:');
+              console.error(siteError);
+            });
         })
         .catch((error) => {
-          console.log('Authentication failure');
-          console.log(error);
+          console.error('Authentication failure');
+          console.error(error);
         });
     },
   },
