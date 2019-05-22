@@ -1,116 +1,6 @@
-import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
-import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
-import vtkMatrixBuilder from 'vtk.js/Sources/Common/Core/MatrixBuilder';
-import vtkPlaneSource from 'vtk.js/Sources/Filters/Sources/PlaneSource';
-import vtkTexture from 'vtk.js/Sources/Rendering/Core/Texture';
-import vtkXMLPolyDataReader from 'vtk.js/Sources/IO/XML/XMLPolyDataReader';
-
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
-
-const PIECE_HANDLERS = {
-  vtp: (context) => {
-    const { url, piece, translate, renderer, getters } = context;
-
-    const reader = vtkXMLPolyDataReader.newInstance();
-    reader.setUrl(url).then(() => {
-      const polydata = reader.getOutputData();
-      const points = polydata.getPoints().getData();
-
-      // Apply tranformation to the points coordinates
-      vtkMatrixBuilder
-        .buildFromRadian()
-        .translate(...translate)
-        .apply(points);
-
-      polydata.getPoints().modified();
-
-      const mapper = vtkMapper.newInstance();
-      const actor = vtkActor.newInstance();
-      actor.getProperty().setInterpolationToFlat();
-
-      actor.setMapper(mapper);
-      mapper.setInputData(polydata);
-
-      renderer.addActor(actor);
-
-      renderer.resetCamera();
-      renderer.getRenderWindow().render();
-
-      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
-
-      const pipelineObject = {
-        getProp: () => actor,
-        setVisibility: (visibility) => {
-          actor.setVisibility(visibility);
-          renderer.getRenderWindow().render();
-        },
-      };
-
-      pipeline[piece.label] = pipelineObject;
-    });
-  },
-  jpg: (context) => {
-    const { url, piece, translate, renderer, getters } = context;
-
-    const origin = piece.extra_json_attributes.origin || [0, 0, 0];
-    const point1 = piece.extra_json_attributes.point1 || [0, 0, 0];
-    const point2 = piece.extra_json_attributes.point2 || [0, 0, 0];
-
-    const planeSource = vtkPlaneSource.newInstance({
-      xResolution: 1,
-      yResolution: 1,
-      origin: [
-        origin[0] + translate[0],
-        origin[1] + translate[1],
-        origin[2] + translate[2],
-      ],
-      point1: [
-        point1[0] + translate[0],
-        point1[1] + translate[1],
-        point1[2] + translate[2],
-      ],
-      point2: [
-        point2[0] + translate[0],
-        point2[1] + translate[1],
-        point2[2] + translate[2],
-      ],
-    });
-
-    const mapper = vtkMapper.newInstance();
-    const actor = vtkActor.newInstance();
-
-    // actor.getProperty().setRepresentation(Representation.WIREFRAME);
-    mapper.setInputData(planeSource.getOutputData());
-    actor.setMapper(mapper);
-
-    renderer.addActor(actor);
-    renderer.resetCamera();
-    renderer.getRenderWindow().render();
-
-    // Download and apply Texture
-    const img = new Image();
-    img.crossOrigin = 'https://3d.microquake.org';
-    img.src = url;
-
-    const texture = vtkTexture.newInstance();
-    texture.setInterpolate(true);
-    texture.setImage(img);
-    actor.addTexture(texture);
-
-    const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
-
-    const pipelineObject = {
-      getProp: () => actor,
-      setVisibility: (visibility) => {
-        actor.setVisibility(visibility);
-        renderer.getRenderWindow().render();
-      },
-    };
-
-    pipeline[piece.label] = pipelineObject;
-  },
-};
+import handlePiece from 'paraview-quake/src/pipeline/MinePieceHandler';
 
 const PIPELINE_ITEMS = {};
 
@@ -326,7 +216,7 @@ export default {
         });
     },
     LOCAL_UPDATE_MINE_VISIBILITY({ getters }) {
-      console.log('LOCAL_UPDATE_MINE_VISIBILITY');
+      // console.log('LOCAL_UPDATE_MINE_VISIBILITY');
       const mine = getters.QUAKE_MINE;
       const visibility = getters.QUAKE_MINE_VISIBILITY;
       const mineVisibility = getters.QUAKE_COMPONENTS_VISIBILITY.mine;
@@ -366,16 +256,21 @@ export default {
       // }
     },
     LOCAL_EVENT_PICKING({ commit }, [x, y]) {
+      // FIXME xxxxxxxxxxxx
+      // console.log('LOCAL_EVENT_PICKING', x, y);
       commit('QUAKE_PICKING_POSITION_SET', [x, y]);
       // dispatch('REMOTE_UPDATE_PICKING');
     },
     LOCAL_UPDATE_CENTER_OF_ROTATION({ state }, position) {
+      // FIXME xxxxxxxxxxxx
       console.log('LOCAL_UPDATE_CENTER_OF_ROTATION', state, position);
     },
     LOCAL_SHOW_RAY({ state }) {
+      // FIXME xxxxxxxxxxxx
       console.log('LOCAL_SHOW_RAY', state);
     },
     LOCAL_OPEN_EVENT({ state }) {
+      // FIXME xxxxxxxxxxxx
       console.log('LOCAL_OPEN_EVENT', state);
     },
     LOCAL_RESET_CAMERA({ getters }) {
@@ -407,6 +302,7 @@ export default {
       renderer.getRenderWindow().render();
     },
     LOCAL_ON_MINE_CHANGE({ state }, callback) {
+      // FIXME xxxxxxxxxxxx
       console.log('LOCAL_ON_MINE_CHANGE', state, callback);
     },
     LOCAL_FETCH_MINE({ commit, getters, dispatch }) {
@@ -450,7 +346,7 @@ export default {
             const url = nextPieceToLoad.file;
             const fileExtension = url.substr(url.lastIndexOf('.') + 1);
 
-            const builder = PIECE_HANDLERS[fileExtension];
+            const builder = handlePiece[fileExtension];
             const renderer = getters.VIEW_LOCAL_RENDERER;
             const context = {
               url,
@@ -517,6 +413,7 @@ export default {
         });
     },
     LOCAL_SHOW_LOCATIONS({ state }) {
+      // FIXME xxxxxxxxxxxx
       console.log('LOCAL_SHOW_LOCATIONS', state);
     },
   },
