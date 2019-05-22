@@ -37,7 +37,7 @@ $ npm run build
 ```
 $ export PV_HOME=/Applications/ParaView-5.6.0.app/Contents
 
-$ $PV_HOME/bin/pvpython ./server/pvw-quake.py --port 1234 --virtual-env ../py-env-2/ --mine $PWD/mines/OyuTolgoi --content ./client/www
+$ $PV_HOME/bin/pvpython ./server/pvw-quake.py --port 1234 --virtual-env ../py-env-2/ --mines $PWD/mines --content ./client/www
 
 ```
 
@@ -47,5 +47,5 @@ In another terminal
 $ cd client
 $ npm start
 
-$ open http://localhost:4200/
+$ open http://localhost:8080/?sessionURL=ws://localhost:1234/ws
 ```

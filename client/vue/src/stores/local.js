@@ -424,7 +424,7 @@ export default {
       console.log('LOCAL_UPDATE_MINE_VISIBILITY');
       const mine = getters.QUAKE_MINE;
       const visibility = getters.QUAKE_MINE_VISIBILITY;
-      const mineVisibility = getters.QUAKE_COMPONENTS_VISIBILITY.mine
+      const mineVisibility = getters.QUAKE_COMPONENTS_VISIBILITY.mine;
 
       function flattenMineKeys(nodeList, keysList) {
         if (!nodeList) {

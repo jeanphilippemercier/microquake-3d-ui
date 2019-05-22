@@ -123,7 +123,7 @@
     <v-layout align-center justify-end v-if="authToken && siteSelected">
       <v-btn-toggle
         :value="doubleClickMode"
-        @input="updateDoubleClickMode"
+        @change="updateDoubleClickMode"
         mandatory
       >
         <v-tooltip bottom>
