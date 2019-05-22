@@ -15,6 +15,7 @@ function createStore() {
       darkMode: false,
       userName: '',
       userPassword: '',
+      authError: {},
     },
     modules: {
       busy,
@@ -36,6 +37,9 @@ function createStore() {
       APP_AUTH_USER_PASSWORD(state) {
         return state.userPassword;
       },
+      APP_AUTH_ERROR(state) {
+        return state.authError;
+      },
     },
     mutations: {
       APP_DARK_THEME_SET(state, value) {
@@ -46,6 +50,9 @@ function createStore() {
       },
       APP_AUTH_USER_PASSWORD_SET(state, value) {
         state.userPassword = value;
+      },
+      APP_AUTH_ERROR_SET(state, value) {
+        state.authError = value;
       },
     },
     actions: {
@@ -60,17 +67,13 @@ function createStore() {
         }
       },
       APP_LOGIN({ dispatch, commit }) {
-        const log = console.log; // () => {}
         dispatch('HTTP_AUTHENTICATE')
           .then((result) => {
-            log('Authenticated');
-            log(result);
+            commit('APP_AUTH_ERROR_SET', {});
             commit('HTTP_AUTH_TOKEN_SET', result.data.access);
             console.log(`Stored auth token (${result.data.access})`);
             dispatch('HTTP_FETCH_SITES')
               .then((sitesResponse) => {
-                log('Got sites json:');
-                log(sitesResponse.data);
                 dispatch('QUAKE_UPDATE_SITES', sitesResponse.data);
               })
               .catch((siteError) => {
@@ -79,8 +82,8 @@ function createStore() {
               });
           })
           .catch((error) => {
-            console.error('Authentication failure');
-            console.error(error);
+            console.error('Authentication failure', error.response.data);
+            commit('APP_AUTH_ERROR_SET', error.response.data);
           });
       },
     },

@@ -13,6 +13,8 @@
           :value="userName"
           @input="updateUserName"
           :prepend-icon="$vuetify.icons.username"
+
+          :error-messages="loginError.username"
         />
         <v-text-field
           label="Password"
@@ -20,9 +22,14 @@
           @input="updateUserPassword"
           :prepend-icon="$vuetify.icons.password"
           type="password"
+
+          :error-messages="loginError.password"
         />
       </v-card-text>
       <v-card-actions>
+        <div>
+          {{ loginError.detail }}
+        </div>
         <v-spacer />
         <v-btn @click="login">
           Login

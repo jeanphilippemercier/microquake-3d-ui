@@ -63,6 +63,7 @@ export default {
       selectedNetwork: 'QUAKE_SELECTED_NETWORK',
       localRendering: 'API_LOCAL_RENDERING',
       doubleClickMode: 'QUAKE_DOUBLE_CLICK_MODE',
+      loginError: 'APP_AUTH_ERROR',
 
       siteMap: 'QUAKE_SITE_MAP',
       authToken: 'HTTP_AUTH_TOKEN',
