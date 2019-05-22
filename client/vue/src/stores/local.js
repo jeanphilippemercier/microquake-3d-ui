@@ -1,17 +1,12 @@
 import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
-import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
 import vtkMatrixBuilder from 'vtk.js/Sources/Common/Core/MatrixBuilder';
 import vtkPlaneSource from 'vtk.js/Sources/Filters/Sources/PlaneSource';
-import vtkPoints from 'vtk.js/Sources/Common/Core/Points';
-import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
-import vtkSphereMapper from 'vtk.js/Sources/Rendering/Core/SphereMapper';
 import vtkTexture from 'vtk.js/Sources/Rendering/Core/Texture';
 import vtkXMLPolyDataReader from 'vtk.js/Sources/IO/XML/XMLPolyDataReader';
 
 import DateHelper from 'paraview-quake/src/util/DateHelper';
-
-const UNCERTAINTY_CAP = 50.0;
+import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 
 const PIECE_HANDLERS = {
   vtp: (context) => {
@@ -19,7 +14,7 @@ const PIECE_HANDLERS = {
 
     const reader = vtkXMLPolyDataReader.newInstance();
     reader.setUrl(url).then(() => {
-      const polydata = reader.getOutputData(0);
+      const polydata = reader.getOutputData();
       const points = polydata.getPoints().getData();
 
       // Apply tranformation to the points coordinates
@@ -28,10 +23,11 @@ const PIECE_HANDLERS = {
         .translate(...translate)
         .apply(points);
 
-      polydata.getPoints().setData(points, 3);
+      polydata.getPoints().modified();
 
       const mapper = vtkMapper.newInstance();
       const actor = vtkActor.newInstance();
+      actor.getProperty().setInterpolationToFlat();
 
       actor.setMapper(mapper);
       mapper.setInputData(polydata);
@@ -85,7 +81,7 @@ const PIECE_HANDLERS = {
     const actor = vtkActor.newInstance();
 
     // actor.getProperty().setRepresentation(Representation.WIREFRAME);
-    mapper.setInputConnection(planeSource.getOutputPort());
+    mapper.setInputData(planeSource.getOutputData());
     actor.setMapper(mapper);
 
     renderer.addActor(actor);
@@ -94,14 +90,13 @@ const PIECE_HANDLERS = {
 
     // Download and apply Texture
     const img = new Image();
-    img.onload = function textureLoaded() {
-      const texture = vtkTexture.newInstance();
-      texture.setInterpolate(true);
-      texture.setImage(img);
-      actor.addTexture(texture);
-      // renderWindow.render();
-    };
+    img.crossOrigin = 'https://3d.microquake.org';
     img.src = url;
+
+    const texture = vtkTexture.newInstance();
+    texture.setInterpolate(true);
+    texture.setImage(img);
+    actor.addTexture(texture);
 
     const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
 
@@ -116,6 +111,8 @@ const PIECE_HANDLERS = {
     pipeline[piece.label] = pipelineObject;
   },
 };
+
+const PIPELINE_ITEMS = {};
 
 export default {
   state: {
@@ -135,8 +132,9 @@ export default {
     LOCAL_MINE_TRANSLATE(state) {
       return state.mineTranslate;
     },
-    LOCAL_PIPELINE_OBJECTS(state) {
-      return state.pipelineObjects;
+    LOCAL_PIPELINE_OBJECTS() {
+      console.log('PIPELINE_ITEMS', PIPELINE_ITEMS);
+      return PIPELINE_ITEMS;
     },
   },
   mutations: {
@@ -150,7 +148,7 @@ export default {
       state.mineTranslate = translate;
     },
     LOCAL_PIPELINE_OBJECTS_SET(state, objects) {
-      state.pipelineObjects = objects;
+      Object.assign(PIPELINE_ITEMS, objects);
     },
   },
   actions: {
@@ -163,9 +161,10 @@ export default {
         // we have successfully processed the mine plan.
 
         dispatch('API_UPDATE_EVENTS');
+        dispatch('LOCAL_UPDATE_PRESET', 'coolwarm');
 
-        // dispatch('API_UPDATE_SCALING');
-        // dispatch('API_UPDATE_UNCERTAINTY_SCALING');
+        dispatch('API_UPDATE_SCALING');
+        dispatch('API_UPDATE_UNCERTAINTY_SCALING');
 
         // // Dynamic monitoring of the mine
         // dispatch('API_ON_MINE_CHANGE', () => {
@@ -188,14 +187,43 @@ export default {
         // }
       });
     },
-    LOCAL_UPDATE_UNCERTAINTY_SCALING({ state }) {
-      console.log('LOCAL_UPDATE_UNCERTAINTY_SCALING', state);
+    LOCAL_UPDATE_UNCERTAINTY_SCALING({ getters }) {
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      const itemToUpdate = [pipeline.seismicEvents, pipeline.blast];
+
+      while (itemToUpdate.length) {
+        const item = itemToUpdate.pop();
+        item.setUncertaintyScalingFactor(
+          getters.QUAKE_UNCERTAINTY_SCALE_FACTOR
+        );
+        item.updateUncertaintyScaling();
+      }
+      renderer.getRenderWindow().render();
     },
-    LOCAL_UPDATE_SCALING({ state }) {
-      console.log('LOCAL_UPDATE_SCALING', state);
+    LOCAL_UPDATE_SCALING({ getters }) {
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      const itemToUpdate = [pipeline.seismicEvents, pipeline.blast];
+
+      while (itemToUpdate.length) {
+        const item = itemToUpdate.pop();
+        item.setMagnitudeRange(getters.QUAKE_MAGNITUDE_RANGE);
+        item.setScalingRange(getters.QUAKE_SCALING_RANGE);
+        item.updateScaling();
+      }
+      renderer.getRenderWindow().render();
     },
-    LOCAL_UPDATE_PRESET({ state }, preset) {
-      console.log('LOCAL_UPDATE_PRESET', state, preset);
+    LOCAL_UPDATE_PRESET({ getters, commit }, preset) {
+      commit('QUAKE_COLOR_PRESET_SET', preset);
+
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      const itemToUpdate = [pipeline.seismicEvents, pipeline.blast];
+      while (itemToUpdate.length) {
+        itemToUpdate.pop().setColorPreset(preset);
+      }
+      renderer.getRenderWindow().render();
     },
     LOCAL_UPDATE_RAY_FILTER_MODE({ state }) {
       console.log('LOCAL_UPDATE_RAY_FILTER_MODE', state);
@@ -212,199 +240,76 @@ export default {
 
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
 
-      console.log('LOCAL_UPDATE_EVENTS_VISIBILITY');
+      // console.log('LOCAL_UPDATE_EVENTS_VISIBILITY');
       keys.forEach((key) => {
         const visibility = componentsVisibility[key];
-        console.log(`stored visibility of ${key} is ${visibility}`);
+        // console.log(`stored visibility of ${key} is ${visibility}`);
         if (visibility !== undefined && key in pipeline) {
           console.log(`  Setting visibility of ${key} to ${visibility}`);
           pipeline[key].setVisibility(visibility);
         }
       });
+
+      // Handle uncertainty visibility
+      const itemToUpdate = [pipeline.seismicEvents, pipeline.blast];
+      while (itemToUpdate.length) {
+        itemToUpdate
+          .pop()
+          .updateUncertaintyVisibility(componentsVisibility['uncertainty']);
+      }
     },
     LOCAL_UPDATE_EVENTS({ getters, dispatch }) {
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const translate = getters.LOCAL_MINE_TRANSLATE;
+      const mineBounds = getters.LOCAL_MINE_BOUNDS;
+
+      const idList = [];
+
       const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
       const historicalTime = getters.QUAKE_HISTORICAL_TIME;
       const now = DateHelper.getDateFromNow(2190 - focusPeriod[1]);
       const fTime = DateHelper.getDateFromNow(2190 - focusPeriod[0]);
       const hTime = DateHelper.getDateFromNow(historicalTime);
-      // const monitorEvents = focusPeriod[1] > 2160;
 
-      const mineBounds = getters.LOCAL_MINE_BOUNDS;
       if (!mineBounds) {
         // console.error('No mine bounds set yet, cannot update events');
         return Promise.reject('No mine bounds set yet, cannot update events');
       }
-      const idList = [];
 
-      function filterEvents(eventData, typeFilter) {
-        return eventData.filter((event) => {
-          if (event.x < mineBounds[0] || event.x > mineBounds[1]) {
-            return false;
-          }
-          if (event.y < mineBounds[2] || event.y > mineBounds[3]) {
-            return false;
-          }
-          if (event.z < mineBounds[4] || event.z > mineBounds[5]) {
-            return false;
-          }
-
-          if (typeFilter !== 'all') {
-            return typeFilter === event.event_type;
-          }
-
-          return true;
+      if (!pipeline.seismicEvents) {
+        pipeline.seismicEvents = vtkSeismicEvents.newInstance({
+          translate,
+          renderer,
+          eventType: 'earthquake',
+          mineBounds,
         });
-      }
-
-      /*
-        param: eventType: 'focus' or 'historical'
-        param: eventData: array of event objects retrieved from seismic-api
-        param: typeFilter: 'earthquake', 'explosion', or 'all'
-      */
-      function buildEventsPipeline(eventType, eventData, typeFilter = 'all') {
-        const translate = getters.LOCAL_MINE_TRANSLATE;
-        const filteredEvents = filterEvents(eventData, typeFilter);
-        const numEvents = filteredEvents.length;
-
-        // One of 'seismicEvents', 'blast', or 'historicEvents'
-        let pipelineKey = 'historicEvents';
-        if (eventType === 'focus') {
-          pipelineKey = typeFilter === 'earthquake' ? 'seismicEvents' : 'blast';
-        }
-
-        console.log(
-          `LOCAL_UPDATE_EVENTS found ${numEvents} ${eventType} (${typeFilter}) events, translating to ${translate}`
-        );
-
-        const polydata = vtkPolyData.newInstance();
-        const points = vtkPoints.newInstance();
-        const pointData = new Float32Array(3 * numEvents);
-        points.setNumberOfPoints(numEvents);
-        const verts = new Uint32Array(2 * numEvents);
-
-        /*
-        magnitude                            vtkFloatArray          Float32Array
-        time                                 vtkUnsignedLongArray   BigUint64Array
-        id                                   vtkUnsignedIntArray    Uint32Array
-        uncertainty                          vtkFloatArray          Float32Array
-        direction (uncertainty_direction)    vtkFloatArray          Float32Array
-        */
-        const magnitudeArray = vtkDataArray.newInstance({
-          name: 'magnitude',
-          numberOfComponents: 1,
-          values: new Float32Array(numEvents),
+        pipeline.blast = vtkSeismicEvents.newInstance({
+          translate,
+          renderer,
+          eventType: 'explosion',
+          mineBounds,
+        });
+        pipeline.historicEvents = vtkSeismicEvents.newInstance({
+          translate,
+          renderer,
+          mineBounds,
         });
 
-        const timeArray = vtkDataArray.newInstance({
-          name: 'time',
-          numberOfComponents: 1,
-          // FIXME: Rather have long int here, if there is one
-          values: new Uint32Array(numEvents),
-        });
-
-        const idArray = vtkDataArray.newInstance({
-          name: 'id',
-          numberOfComponents: 1,
-          values: new Uint32Array(numEvents),
-        });
-
-        const uncertaintyArray = vtkDataArray.newInstance({
-          name: 'uncertainty',
-          numberOfComponents: 1,
-          values: new Float32Array(numEvents),
-        });
-
-        const uncertaintyDirectionArray = vtkDataArray.newInstance({
-          name: 'uncertainty_direction',
-          numberOfComponents: 3,
-          values: new Float32Array(numEvents * 3),
-        });
-
-        for (let i = 0; i < numEvents; ++i) {
-          const event = filteredEvents[i];
-          pointData[3 * i] = event.x + translate[0];
-          pointData[3 * i + 1] = event.y + translate[1];
-          pointData[3 * i + 2] = event.z + translate[2];
-
-          verts[2 * i] = 1;
-          verts[2 * i + 1] = i;
-
-          if (event.hasOwnProperty('uncertainty')) {
-            const value = parseFloat(event.uncertainty);
-            if (value > UNCERTAINTY_CAP) {
-              uncertaintyArray.getData()[i] = UNCERTAINTY_CAP;
-            } else {
-              uncertaintyArray.getData()[i] = value;
-            }
-          } else {
-            uncertaintyArray.getData()[i] = 0.0;
-          }
-
-          if (
-            event.hasOwnProperty('uncertainty_vector_x') &&
-            event.hasOwnProperty('uncertainty_vector_y') &&
-            event.hasOwnProperty('uncertainty_vector_z')
-          ) {
-            uncertaintyDirectionArray.getData()[3 * i] =
-              event.uncertainty_vector_x;
-            uncertaintyDirectionArray.getData()[3 * i + 1] =
-              event.uncertainty_vector_y;
-            uncertaintyDirectionArray.getData()[3 * i + 2] =
-              event.uncertainty_vector_z;
-          } else {
-            uncertaintyDirectionArray.getData()[3 * i] = 0.0;
-            uncertaintyDirectionArray.getData()[3 * i + 1] = 0.0;
-            uncertaintyDirectionArray.getData()[3 * i + 2] = 1.0;
-          }
-
-          magnitudeArray.getData()[i] = event.magnitude;
-          timeArray.getData()[i] = event.time_epoch;
-          idArray.getData()[i] = idList.length;
-
-          idList.push(event.event_resource_id);
-        }
-
-        points.setData(pointData);
-        polydata.setPoints(points);
-        polydata.getVerts().setData(verts);
-        polydata.getPointData().addArray(magnitudeArray);
-        polydata.getPointData().addArray(timeArray);
-        polydata.getPointData().addArray(idArray);
-        polydata.getPointData().addArray(uncertaintyArray);
-        polydata.getPointData().addArray(uncertaintyDirectionArray);
-
-        const renderer = getters.VIEW_LOCAL_RENDERER;
-        const mapper = vtkSphereMapper.newInstance();
-        const actor = vtkActor.newInstance();
-
-        actor.setMapper(mapper);
-        mapper.setRadius(20);
-        mapper.setInputData(polydata);
-
-        renderer.addActor(actor);
-
-        renderer.resetCamera();
-        renderer.getRenderWindow().render();
-
-        const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
-
-        const pipelineObject = {
-          getProp: () => actor,
-          setVisibility: (visibility) => {
-            actor.setVisibility(visibility);
-            renderer.getRenderWindow().render();
-          },
-        };
-
-        pipeline[pipelineKey] = pipelineObject;
+        renderer.addViewProp(pipeline.seismicEvents);
+        renderer.addViewProp(pipeline.blast);
+        renderer.addViewProp(pipeline.historicEvents);
       }
 
       // Get the events
       dispatch('HTTP_FETCH_EVENTS', [fTime, now])
         .then((response) => {
-          buildEventsPipeline('focus', response.data, 'earthquake');
-          buildEventsPipeline('focus', response.data, 'explosion');
+          const focusTS = new Date(fTime) / 10000;
+          const nowTS = new Date(now) / 10000;
+          pipeline.seismicEvents.setInput(response.data, idList);
+          pipeline.seismicEvents.updateColorRange(focusTS, nowTS);
+          pipeline.blast.setInput(response.data, idList);
+          pipeline.blast.updateColorRange(focusTS, nowTS);
         })
         .catch((error) => {
           console.error('Encountered error retrieving events');
@@ -413,14 +318,14 @@ export default {
 
       dispatch('HTTP_FETCH_EVENTS', [hTime, fTime])
         .then((response) => {
-          buildEventsPipeline('historical', response.data);
+          pipeline.historicEvents.setInput(response.data);
         })
         .catch((error) => {
           console.error('Encountered error retrieving events');
           console.error(error);
         });
     },
-    LOCAL_UPDATE_MINE_VISIBILITY({ getters, commit }) {
+    LOCAL_UPDATE_MINE_VISIBILITY({ getters }) {
       console.log('LOCAL_UPDATE_MINE_VISIBILITY');
       const mine = getters.QUAKE_MINE;
       const visibility = getters.QUAKE_MINE_VISIBILITY;
@@ -453,8 +358,6 @@ export default {
         }
       });
 
-      commit('LOCAL_PIPELINE_OBJECTS_SET', pipeline);
-
       // fillVisibilityMap(getters.QUAKE_MINE, visibilityMap);
       // if (getters.QUAKE_COMPONENTS_VISIBILITY.mine) {
       //   getters.QUAKE_MINE_VISIBILITY.forEach((name) => {
@@ -462,9 +365,9 @@ export default {
       //   });
       // }
     },
-    LOCAL_EVENT_PICKING({ commit, dispatch }, [x, y]) {
+    LOCAL_EVENT_PICKING({ commit }, [x, y]) {
       commit('QUAKE_PICKING_POSITION_SET', [x, y]);
-      dispatch('REMOTE_UPDATE_PICKING');
+      // dispatch('REMOTE_UPDATE_PICKING');
     },
     LOCAL_UPDATE_CENTER_OF_ROTATION({ state }, position) {
       console.log('LOCAL_UPDATE_CENTER_OF_ROTATION', state, position);
@@ -475,14 +378,33 @@ export default {
     LOCAL_OPEN_EVENT({ state }) {
       console.log('LOCAL_OPEN_EVENT', state);
     },
-    LOCAL_RESET_CAMERA({ state }) {
-      console.log('LOCAL_RESET_CAMERA', state);
+    LOCAL_RESET_CAMERA({ getters }) {
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      renderer.resetCamera();
+      renderer.getRenderWindow().render();
     },
-    LOCAL_RENDER({ state }) {
-      console.log('LOCAL_RENDER', state);
+    LOCAL_RENDER({ getters }) {
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      renderer.getRenderWindow().render();
     },
-    LOCAL_VIEW_UP({ state }) {
-      console.log('LOCAL_VIEW_UP', state);
+    LOCAL_VIEW_UP({ getters }) {
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const camera = renderer.getActiveCamera();
+      const vUp = camera.getViewUp();
+      let majorAxis = 0;
+      let axisIdx = -1;
+      for (let i = 0; i < 3; i++) {
+        const currentAxis = Math.abs(vUp[i]);
+        if (currentAxis > majorAxis) {
+          majorAxis = currentAxis;
+          axisIdx = i;
+        }
+      }
+
+      const viewUp = [0, 0, 0];
+      viewUp[axisIdx] = vUp[axisIdx] > 0 ? 1 : -1;
+      camera.set({ viewUp });
+      renderer.getRenderWindow().render();
     },
     LOCAL_ON_MINE_CHANGE({ state }, callback) {
       console.log('LOCAL_ON_MINE_CHANGE', state, callback);

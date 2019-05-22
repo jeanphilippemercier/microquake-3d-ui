@@ -6,7 +6,7 @@ import vtkRenderWindow from 'vtk.js/Sources/Rendering/Core/RenderWindow';
 import vtkRenderWindowInteractor from 'vtk.js/Sources/Rendering/Core/RenderWindowInteractor';
 import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
 
-import { mapActions } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 // ----------------------------------------------------------------------------
 // Component API
@@ -213,33 +213,42 @@ export default {
     //   this.viewStream.pushCamera();
     // });
   },
+  computed: {
+    ...mapGetters({
+      pickingCenter: 'QUAKE_PICKING_CENTER_OF_ROTATION',
+    }),
+  },
   data() {
     return {
       orientationTooltip: '',
       tooltipStyle: { top: 0, left: 0 },
     };
   },
-  methods: Object.assign(
-    {
-      onResize() {
-        console.log('Need to resize local viewer');
-      },
-      updateCamera({ position, focalPoint, viewUp, centerOfRotation }) {
-        console.log('Need to update camera in local viewer');
-        console.log(position);
-        console.log(focalPoint);
-        console.log(viewUp);
-        console.log(centerOfRotation);
-      },
-    },
-    mapActions({
+  methods: {
+    ...mapActions({
       resetCamera: 'API_RESET_CAMERA',
       render: 'API_RENDER',
       snapViewUp: 'API_VIEW_UP',
       updateOrientation: 'VIEW_UPDATE_ORIENTATION',
       togglePickCenter: 'QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION',
-    })
-  ),
+    }),
+
+    onResize() {
+      if (this.openglRenderWindow) {
+        const { width, height } = this.$el
+          .querySelector('.js-renderer')
+          .getBoundingClientRect();
+        this.openglRenderWindow.setSize(width, height);
+      }
+    },
+    updateCamera({ position, focalPoint, viewUp, centerOfRotation }) {
+      console.log('Need to update camera in local viewer');
+      console.log(position);
+      console.log(focalPoint);
+      console.log(viewUp);
+      console.log(centerOfRotation);
+    },
+  },
   beforeDestroy() {
     if (this.renderWindow) {
       this.renderWindow.delete();

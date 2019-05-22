@@ -1,3 +1,5 @@
+import { mapGetters } from 'vuex';
+
 function storeItem(key, value) {
   window.localStorage.setItem(
     `paraview.quake.config.${key.name}`,
@@ -150,6 +152,9 @@ export default {
     },
   },
   computed: {
+    ...mapGetters({
+      localRendering: 'API_LOCAL_RENDERING',
+    }),
     hasChanges() {
       let changeDetected = false;
       Object.values(KEYS).forEach(({ variable, defaultValue }) => {

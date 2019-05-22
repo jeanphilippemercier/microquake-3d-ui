@@ -73,7 +73,9 @@ store.commit('REMOTE_CONFIG_SET', config);
 // Provide a token to skip: auth + site-selection
 // ----------------------------------------------------------------------
 // const token = null; // paste token from browser console after authenticating
-// store.dispatch('APP_DEVELOPMENT_SETUP', token);
+const token =
+  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNTU4NTU2MDYyLCJqdGkiOiI4YmUzYmMzYmIxMjM0MTljODZmNGI3YmZlNzY4ZDllZCIsInVzZXJfaWQiOjEyM30.Gmbj7Oz8xhY33np4kqrFm3dKGcq61pgYW3OiNEcr05U';
+store.dispatch('APP_DEVELOPMENT_SETUP', token);
 // ----------------------------------------------------------------------
 
 /* eslint-disable no-new */

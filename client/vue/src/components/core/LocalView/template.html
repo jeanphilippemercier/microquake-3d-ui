@@ -1,5 +1,5 @@
 <v-container :class="$style.container" fluid fill-height v-resize="onResize">
-  <!-- <v-container :class="$style.floatToolbar" fluid >
+  <v-container :class="$style.floatToolbar" fluid >
     <v-layout column >
       <v-tooltip left>
         <span :class="$style.noSelect">Reset camera</span>
@@ -43,6 +43,6 @@
     :class="$style.tootip"
     :style="tooltipStyle"
     v-show="orientationTooltip"
-  >{{ orientationTooltip }}</div> -->
+  >{{ orientationTooltip }}</div>
   <div :class="[$style.renderer, 'js-renderer']" />
 </v-container>
