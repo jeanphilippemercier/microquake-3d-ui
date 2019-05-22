@@ -29,7 +29,7 @@ export default {
 
       const request = {
         method: 'post',
-        url: `${baseUrl}/token-auth`,
+        url: `${baseUrl}/token/`,
         data: { username, password },
       };
 
@@ -45,7 +45,7 @@ export default {
         method: 'get',
         url: `${baseUrl}/v1/mineplan`,
         headers: {
-          Authentication: `Token ${authToken}`,
+          Authorization: `Bearer: ${authToken}`,
         },
         params: {
           site_code: siteCode,
@@ -63,7 +63,7 @@ export default {
         method: 'get',
         url: `${baseUrl}/v1/catalog`,
         headers: {
-          Authentication: `Token ${authToken}`,
+          Authorization: `Bearer: ${authToken}`,
         },
         params: {
           start_time: startTime,
@@ -81,7 +81,7 @@ export default {
         method: 'get',
         url: `${baseUrl}/v1/sites`,
         headers: {
-          Authentication: `Token ${authToken}`,
+          Authorization: `Bearer: ${authToken}`,
         },
       };
 

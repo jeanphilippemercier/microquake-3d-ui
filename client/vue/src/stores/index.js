@@ -65,8 +65,8 @@ function createStore() {
           .then((result) => {
             log('Authenticated');
             log(result);
-            commit('HTTP_AUTH_TOKEN_SET', result.data.token);
-            log('Stored auth token, about to dispatch HTTP_FETCH_SITES');
+            commit('HTTP_AUTH_TOKEN_SET', result.data.access);
+            console.log(`Stored auth token (${result.data.access})`);
             dispatch('HTTP_FETCH_SITES')
               .then((sitesResponse) => {
                 log('Got sites json:');

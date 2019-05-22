@@ -310,12 +310,12 @@ export default {
           if (event.hasOwnProperty('uncertainty')) {
             const value = parseFloat(event.uncertainty);
             if (value > UNCERTAINTY_CAP) {
-              uncertaintyArray[i] = UNCERTAINTY_CAP;
+              uncertaintyArray.getData()[i] = UNCERTAINTY_CAP;
             } else {
-              uncertaintyArray[i] = value;
+              uncertaintyArray.getData()[i] = value;
             }
           } else {
-            uncertaintyArray[i] = 0.0;
+            uncertaintyArray.getData()[i] = 0.0;
           }
 
           if (
@@ -323,18 +323,21 @@ export default {
             event.hasOwnProperty('uncertainty_vector_y') &&
             event.hasOwnProperty('uncertainty_vector_z')
           ) {
-            uncertaintyDirectionArray[3 * i] = event.uncertainty_vector_x;
-            uncertaintyDirectionArray[3 * i + 1] = event.uncertainty_vector_y;
-            uncertaintyDirectionArray[3 * i + 2] = event.uncertainty_vector_z;
+            uncertaintyDirectionArray.getData()[3 * i] =
+              event.uncertainty_vector_x;
+            uncertaintyDirectionArray.getData()[3 * i + 1] =
+              event.uncertainty_vector_y;
+            uncertaintyDirectionArray.getData()[3 * i + 2] =
+              event.uncertainty_vector_z;
           } else {
-            uncertaintyDirectionArray[3 * i] = 0.0;
-            uncertaintyDirectionArray[3 * i + 1] = 0.0;
-            uncertaintyDirectionArray[3 * i + 2] = 1.0;
+            uncertaintyDirectionArray.getData()[3 * i] = 0.0;
+            uncertaintyDirectionArray.getData()[3 * i + 1] = 0.0;
+            uncertaintyDirectionArray.getData()[3 * i + 2] = 1.0;
           }
 
-          magnitudeArray[i] = event.magnitude;
-          timeArray[i] = event.time_epoch;
-          idArray[i] = idList.length;
+          magnitudeArray.getData()[i] = event.magnitude;
+          timeArray.getData()[i] = event.time_epoch;
+          idArray.getData()[i] = idList.length;
 
           idList.push(event.event_resource_id);
         }
