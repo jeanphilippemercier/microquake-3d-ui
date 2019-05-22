@@ -416,5 +416,18 @@ export default {
       // FIXME xxxxxxxxxxxx
       console.log('LOCAL_SHOW_LOCATIONS', state);
     },
+    LOCAL_UPDATE_SELECTION_DATA({ getters, commit }, selection) {
+      if (!selection) {
+        commit('QUAKE_PICKED_DATA_SET', null);
+      } else {
+        const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+        commit(
+          'QUAKE_PICKED_DATA_SET',
+          pipeline.seismicEvents.getSelectionData(selection) ||
+            pipeline.blast.getSelectionData(selection) ||
+            pipeline.historicEvents.getSelectionData(selection)
+        );
+      }
+    },
   },
 };

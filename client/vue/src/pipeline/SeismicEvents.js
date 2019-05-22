@@ -6,8 +6,10 @@ import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
 import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
 import vtkProp3D from 'vtk.js/Sources/Rendering/Core/Prop3D';
-import vtkSphereMapper from 'vtk.js/Sources/Rendering/Core/SphereMapper';
+// import vtkSphereMapper from 'vtk.js/Sources/Rendering/Core/SphereMapper';
 import vtkStickMapper from 'vtk.js/Sources/Rendering/Core/StickMapper';
+import vtkGlyph3DMapper from 'vtk.js/Sources/Rendering/Core/Glyph3DMapper';
+import vtkSphereSource from 'vtk.js/Sources/Filters/Sources/SphereSource';
 
 import {
   ColorMode,
@@ -19,6 +21,7 @@ import {
 // ----------------------------------------------------------------------------
 
 const UNCERTAINTY_CAP = 50.0;
+const TIME_RATIO = 10000000000;
 
 function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
   return eventsData.filter((event) => {
@@ -120,22 +123,44 @@ function vtkSeismicEvents(publicAPI, model) {
   model.mapper =
     model.eventType === 'all'
       ? vtkMapper.newInstance()
-      : vtkSphereMapper.newInstance({
+      : // vtkGlyph3DMapper.newInstance({
+        //     colorByArrayName: 'time',
+        //     colorMode: ColorMode.MAP_SCALARS,
+        //     scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
+        //     scalarVisibility: true,
+        //     lookupTable: model.lookupTable,
+        //     useLookupTableScalarRange: true,
+        //   });
+        vtkGlyph3DMapper.newInstance({
           colorByArrayName: 'time',
           colorMode: ColorMode.MAP_SCALARS,
           scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
           scalarVisibility: true,
           lookupTable: model.lookupTable,
           useLookupTableScalarRange: true,
+          orient: false,
+          scaling: true,
+          scaleArray: 'adjustedMagnitude',
+          scaleMode: vtkGlyph3DMapper.ScaleModes.SCALE_BY_MAGNITUDE,
         });
+
   model.actor = vtkActor.newInstance();
   model.actor.setMapper(model.mapper);
-  model.mapper.setInputData(model.polydata);
+  model.mapper.setInputData(model.polydata, 0);
 
-  if (model.mapper.setScaleArray) {
-    model.mapper.setRadius(50);
-    model.mapper.setScaleArray('adjustedMagnitude');
+  if (model.eventType !== 'all') {
+    const sphere = vtkSphereSource.newInstance({
+      radius: 0.5,
+      thetaResolution: 60,
+      phiResolution: 60,
+    });
+    model.mapper.setInputData(sphere.getOutputData(), 1);
   }
+
+  // if (model.mapper.setScaleArray) {
+  //   model.mapper.setRadius(50);
+  //   model.mapper.setScaleArray('adjustedMagnitude');
+  // }
 
   // Uncertainty
   model.uncertaintyActor = vtkActor.newInstance({ visibility: false });
@@ -162,6 +187,7 @@ function vtkSeismicEvents(publicAPI, model) {
   // --------------------------------------------------------------------------
 
   publicAPI.setInput = (eventsData, idList = []) => {
+    model.lastIdList = idList;
     const filteredEvents = filterEvents(
       model.mineBounds,
       eventsData,
@@ -210,7 +236,7 @@ function vtkSeismicEvents(publicAPI, model) {
           : event.uncertainty_vector_z;
 
       magnitudeArray[i] = event.magnitude;
-      timeArray[i] = event.time_epoch / 10000000000;
+      timeArray[i] = event.time_epoch / TIME_RATIO;
       idArray[i] = idList.length;
 
       idList.push(event.event_resource_id);
@@ -317,6 +343,30 @@ function vtkSeismicEvents(publicAPI, model) {
     }
   };
 
+  publicAPI.getSelectionData = (selection) => {
+    const { prop, compositeID } = selection;
+    if (model.actor === prop) {
+      const worldPosition = [
+        model.polydata.getPoints().getData()[compositeID * 3 + 0],
+        model.polydata.getPoints().getData()[compositeID * 3 + 1],
+        model.polydata.getPoints().getData()[compositeID * 3 + 2],
+      ];
+      const id = model.idArray.getData()[compositeID];
+      const magnitude = model.magnitudeArray.getData()[compositeID];
+      const time = model.timeArray.getData()[compositeID];
+      const uncertainty = model.uncertaintyArray.getData()[compositeID];
+      return {
+        id,
+        magnitude,
+        time: time * TIME_RATIO,
+        uncertainty,
+        event_resource_id: model.lastIdList[id],
+        worldPosition,
+      };
+    }
+    return null;
+  };
+
   publicAPI.setPointSize = model.actor.getProperty().setPointSize;
 
   // Init
@@ -328,6 +378,7 @@ function vtkSeismicEvents(publicAPI, model) {
 // ----------------------------------------------------------------------------
 
 const DEFAULT_VALUES = {
+  lastIdList: null,
   renderer: null,
   translate: [0, 0, 0],
   mineBounds: [-1, 1, -1, 1, -1, 1],

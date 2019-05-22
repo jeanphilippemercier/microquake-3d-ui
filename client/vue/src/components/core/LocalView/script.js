@@ -1,3 +1,5 @@
+import { mapGetters, mapActions } from 'vuex';
+
 import macro from 'vtk.js/Sources/macro';
 import vtkOpenGLRenderWindow from 'vtk.js/Sources/Rendering/OpenGL/RenderWindow';
 import vtkRenderer from 'vtk.js/Sources/Rendering/Core/Renderer';
@@ -5,83 +7,9 @@ import vtkInteractorObserver from 'vtk.js/Sources/Rendering/Core/InteractorObser
 import vtkRenderWindow from 'vtk.js/Sources/Rendering/Core/RenderWindow';
 import vtkRenderWindowInteractor from 'vtk.js/Sources/Rendering/Core/RenderWindowInteractor';
 import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
+import vtkOpenGLHardwareSelector from 'vtk.js/Sources/Rendering/OpenGL/HardwareSelector';
 
-import { mapGetters, mapActions } from 'vuex';
-
-// ----------------------------------------------------------------------------
-// Component API
-// ----------------------------------------------------------------------------
-
-// function majorAxis(vec3, idxA, idxB) {
-//   const axis = [0, 0, 0];
-//   const idx = Math.abs(vec3[idxA]) > Math.abs(vec3[idxB]) ? idxA : idxB;
-//   const value = vec3[idx] > 0 ? 1 : -1;
-//   axis[idx] = value;
-//   return axis;
-// }
-
-// ----------------------------------------------------------------------------
-
-// function vectorToLabel(vec3) {
-//   if (vec3[0]) {
-//     return vec3[0] > 0 ? '+X' : '-X';
-//   }
-//   if (vec3[1]) {
-//     return vec3[1] > 0 ? '+Y' : '-Y';
-//   }
-//   if (vec3[2]) {
-//     return vec3[2] > 0 ? '+Z' : '-Z';
-//   }
-//   return '';
-// }
-
-// ----------------------------------------------------------------------------
-
-// function toStyle({ x, y }, height) {
-//   return { top: `${height - y - 15}px`, left: `${x - 15}px` };
-// }
-
-// ----------------------------------------------------------------------------
-
-// function computeOrientation(direction, originalViewUp) {
-//   let viewUp = [0, 0, 1];
-//   let axis = 0;
-//   let orientation = 1;
-
-//   if (direction[0]) {
-//     axis = 0;
-//     orientation = direction[0] > 0 ? 1 : -1;
-//     viewUp = majorAxis(originalViewUp, 1, 2);
-//   }
-//   if (direction[1]) {
-//     axis = 1;
-//     orientation = direction[1] > 0 ? 1 : -1;
-//     viewUp = majorAxis(originalViewUp, 0, 2);
-//   }
-//   if (direction[2]) {
-//     axis = 2;
-//     orientation = direction[2] > 0 ? 1 : -1;
-//     viewUp = majorAxis(originalViewUp, 0, 1);
-//   }
-//   return { axis, orientation, viewUp };
-// }
-
-// ----------------------------------------------------------------------------
-
-function vtkCacheMousePosition(publicAPI, model, initialValues) {
-  Object.assign(model, { position: { x: 0, y: 0 } }, initialValues);
-  vtkInteractorObserver.extend(publicAPI, model, initialValues);
-  macro.get(publicAPI, model, ['position']);
-
-  publicAPI.handleMouseMove = (e) => {
-    model.position = e.position;
-  };
-}
-
-vtkCacheMousePosition.newInstance = macro.newInstance(
-  vtkCacheMousePosition,
-  'vtkCacheMousePosition'
-);
+import { FieldAssociations } from 'vtk.js/Sources/Common/DataModel/DataSet/Constants';
 
 // ----------------------------------------------------------------------------
 
@@ -108,21 +36,6 @@ export default {
     const { width, height } = container.getBoundingClientRect();
     this.openglRenderWindow.setSize(width, height);
 
-    // const coneSource = vtkConeSource.newInstance({ height: 1.0 });
-
-    // const mapper = vtkMapper.newInstance();
-    // mapper.setInputConnection(coneSource.getOutputPort());
-
-    // const actor = vtkActor.newInstance();
-    // actor.setMapper(mapper);
-
-    // // ----------------------------------------------------------------------------
-    // // Add the actor to the renderer and set the camera based on it
-    // // ----------------------------------------------------------------------------
-
-    // this.renderer.addActor(actor);
-    // this.renderer.resetCamera();
-
     // ----------------------------------------------------------------------------
     // Setup an interactor to handle mouse events
     // ----------------------------------------------------------------------------
@@ -140,78 +53,46 @@ export default {
       vtkInteractorStyleTrackballCamera.newInstance()
     );
 
+    // ----------------------------------------------------------------------------
+    // Setup Picking
+    // ----------------------------------------------------------------------------
+
+    this.subscriptions = [];
+    this.pickingAvailable = null;
+    this.selector = vtkOpenGLHardwareSelector.newInstance();
+    this.selector.setFieldAssociation(
+      FieldAssociations.FIELD_ASSOCIATION_POINTS
+    );
+    this.selector.attach(this.openglRenderWindow, this.renderer);
+
+    this.subscriptions.push(
+      this.interactor.onStartAnimation(() => {
+        this.pickingAvailable = false;
+      })
+    );
+    this.subscriptions.push(
+      this.interactor.onEndAnimation(() => {
+        this.captureBuffer();
+      })
+    );
+
+    this.subscriptions.push(
+      this.interactor.onMouseMove(({ position }) => {
+        if (!this.pickingAvailable) {
+          return;
+        }
+        this.updateSelectionFromXY(
+          Math.round(position.x),
+          Math.round(position.y)
+        );
+
+        this.updateSelectionData(this.getSelectedData());
+      })
+    );
+
+    // ----------------------------------------------------------------------------
+
     this.$store.commit('VIEW_LOCAL_RENDERER_SET', this.renderer);
-
-    // this.camera = this.renderer.getCamera();
-
-    // // Bind user input
-    // this.mousePositionCache = vtkCacheMousePosition.newInstance();
-    // this.mousePositionCache.setInteractor(this.interactor);
-
-    // // Add orientation widget
-    // const orientationWidget = this.view.getReferenceByName('orientationWidget');
-    // this.widgetManager = vtkWidgetManager.newInstance({
-    //   pickingEnabled: false,
-    // });
-    // this.widgetManager.setRenderer(orientationWidget.getRenderer());
-    // if (this.$store.getters.VIEW_ADVANCED_ORIENTATION_WIDGET) {
-    //   this.widgetManager.enablePicking();
-    // } else {
-    //   this.widgetManager.disablePicking();
-    // }
-    // orientationWidget.setViewportCorner(
-    //   vtkOrientationMarkerWidget.Corners.BOTTOM_RIGHT
-    // );
-
-    // const bounds = [-0.51, 0.51, -0.51, 0.51, -0.51, 0.51];
-    // this.widget = vtkInteractiveOrientationWidget.newInstance();
-    // this.widget.placeWidget(bounds);
-    // this.widget.setBounds(bounds);
-    // this.widget.setPlaceFactor(1);
-    // this.widget.getWidgetState().onModified(() => {
-    //   const state = this.widget.getWidgetState();
-    //   if (!state.getActive()) {
-    //     this.orientationTooltip = '';
-    //     return;
-    //   }
-    //   const direction = state.getDirection();
-    //   const { axis, orientation, viewUp } = computeOrientation(
-    //     direction,
-    //     this.camera.getViewUp()
-    //   );
-    //   this.orientationTooltip = `Reset camera ${orientation > 0 ? '+' : '-'}${
-    //     'XYZ'[axis]
-    //   }/${vectorToLabel(viewUp)}`;
-    //   this.tooltipStyle = toStyle(
-    //     this.mousePositionCache.getPosition(),
-    //     this.openglRenderWindow.getSize()[1]
-    //   );
-    // });
-
-    // // Manage user interaction
-    // this.viewWidget = this.widgetManager.addWidget(this.widget);
-    // this.viewWidget.onOrientationChange(({ direction }) => {
-    //   this.updateOrientation(
-    //     computeOrientation(direction, this.camera.getViewUp())
-    //   );
-    // });
-
-    // // Initial config
-    // this.updateQuality();
-    // this.updateRatio();
-    // this.client.imageStream.setServerAnimationFPS(this.maxFPS);
-
-    // // Expose viewProxy to store (for camera update...)
-    // this.$store.commit('VIEW_PROXY_SET', this.view);
-
-    // // Expose widgetManager to store (for enable/disable picking)
-    // this.$store.commit('VIEW_WIDGET_MANAGER_SET', this.widgetManager);
-
-    // // Link server side camera to local
-    // this.$store.dispatch('API_RESET_CAMERA').then((cameraInfo) => {
-    //   this.updateCamera(cameraInfo);
-    //   this.viewStream.pushCamera();
-    // });
   },
   computed: {
     ...mapGetters({
@@ -231,6 +112,7 @@ export default {
       snapViewUp: 'API_VIEW_UP',
       updateOrientation: 'VIEW_UPDATE_ORIENTATION',
       togglePickCenter: 'QUAKE_TOGGLE_PICKING_CENTER_OF_ROTATION',
+      updateSelectionData: 'LOCAL_UPDATE_SELECTION_DATA',
     }),
 
     onResize() {
@@ -241,15 +123,40 @@ export default {
         this.openglRenderWindow.setSize(width, height);
       }
     },
-    updateCamera({ position, focalPoint, viewUp, centerOfRotation }) {
-      console.log('Need to update camera in local viewer');
-      console.log(position);
-      console.log(focalPoint);
-      console.log(viewUp);
-      console.log(centerOfRotation);
+    captureBuffer() {
+      const [w, h] = this.openglRenderWindow.getSize();
+      this.selector.setArea(0, 0, w, h);
+      this.selector.releasePixBuffers();
+      this.pickingAvailable = this.selector.captureBuffers();
+    },
+    updateSelectionFromXY(x, y) {
+      if (this.pickingAvailable) {
+        this.selections = this.selector.generateSelection(x, y, x, y);
+      }
+    },
+    updateSelectionFromMouseEvent(event) {
+      const { pageX, pageY } = event;
+      const {
+        top,
+        left,
+        height,
+      } = this.openGLRenderWindow.getCanvas().getBoundingClientRect();
+      const x = pageX - left;
+      const y = height - (pageY - top);
+      this.updateSelectionFromXY(x, y);
+    },
+    getSelectedData() {
+      if (!this.selections || !this.selections.length) {
+        this.previousSelectedData = null;
+        return null;
+      }
+      return this.selections[0].getProperties();
     },
   },
   beforeDestroy() {
+    while (this.subscriptions.length) {
+      this.subscriptions.pop().unsubscribe();
+    }
     if (this.renderWindow) {
       this.renderWindow.delete();
     }
