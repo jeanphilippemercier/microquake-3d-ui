@@ -72,7 +72,7 @@ store.commit('REMOTE_CONFIG_SET', config);
 // !!! To speed up development !!!
 // Provide a token to skip: auth + site-selection
 // ----------------------------------------------------------------------
-// const token = null; // 'be072024b881fd7735ad4865beb9f1e4ac075650';
+// const token = null; // paste token from browser console after authenticating
 // store.dispatch('APP_DEVELOPMENT_SETUP', token);
 // ----------------------------------------------------------------------
 

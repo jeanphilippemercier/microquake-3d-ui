@@ -15,7 +15,7 @@ const UNCERTAINTY_CAP = 50.0;
 
 const PIECE_HANDLERS = {
   vtp: (context) => {
-    const { url, piece, translate, renderer, getters, commit } = context;
+    const { url, piece, translate, renderer, getters } = context;
 
     const reader = vtkXMLPolyDataReader.newInstance();
     reader.setUrl(url).then(() => {
@@ -52,11 +52,10 @@ const PIECE_HANDLERS = {
       };
 
       pipeline[piece.label] = pipelineObject;
-      commit('LOCAL_PIPELINE_OBJECTS_SET', pipeline);
     });
   },
   jpg: (context) => {
-    const { url, piece, translate, renderer, getters, commit } = context;
+    const { url, piece, translate, renderer, getters } = context;
 
     const origin = piece.extra_json_attributes.origin || [0, 0, 0];
     const point1 = piece.extra_json_attributes.point1 || [0, 0, 0];
@@ -115,7 +114,6 @@ const PIECE_HANDLERS = {
     };
 
     pipeline[piece.label] = pipelineObject;
-    commit('LOCAL_PIPELINE_OBJECTS_SET', pipeline);
   },
 };
 
@@ -163,9 +161,9 @@ export default {
       dispatch('API_FETCH_MINE').then(() => {
         // Events need to be translated by an amount which is unknown until
         // we have successfully processed the mine plan.
+
         dispatch('API_UPDATE_EVENTS');
 
-        // // dispatch('API_UPDATE_EVENTS');
         // dispatch('API_UPDATE_SCALING');
         // dispatch('API_UPDATE_UNCERTAINTY_SCALING');
 
@@ -202,8 +200,27 @@ export default {
     LOCAL_UPDATE_RAY_FILTER_MODE({ state }) {
       console.log('LOCAL_UPDATE_RAY_FILTER_MODE', state);
     },
-    LOCAL_UPDATE_EVENTS_VISIBILITY({ state }) {
-      console.log('LOCAL_UPDATE_EVENTS_VISIBILITY', state);
+    LOCAL_UPDATE_EVENTS_VISIBILITY({ getters }) {
+      const componentsVisibility = getters.QUAKE_COMPONENTS_VISIBILITY;
+      const keys = [
+        'seismicEvents',
+        'blast',
+        'historicEvents',
+        'ray',
+        'uncertainty',
+      ];
+
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+
+      console.log('LOCAL_UPDATE_EVENTS_VISIBILITY');
+      keys.forEach((key) => {
+        const visibility = componentsVisibility[key];
+        console.log(`stored visibility of ${key} is ${visibility}`);
+        if (visibility !== undefined && key in pipeline) {
+          console.log(`  Setting visibility of ${key} to ${visibility}`);
+          pipeline[key].setVisibility(visibility);
+        }
+      });
     },
     LOCAL_UPDATE_EVENTS({ getters, dispatch }) {
       const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
@@ -249,6 +266,12 @@ export default {
         const translate = getters.LOCAL_MINE_TRANSLATE;
         const filteredEvents = filterEvents(eventData, typeFilter);
         const numEvents = filteredEvents.length;
+
+        // One of 'seismicEvents', 'blast', or 'historicEvents'
+        let pipelineKey = 'historicEvents';
+        if (eventType === 'focus') {
+          pipelineKey = typeFilter === 'earthquake' ? 'seismicEvents' : 'blast';
+        }
 
         console.log(
           `LOCAL_UPDATE_EVENTS found ${numEvents} ${eventType} (${typeFilter}) events, translating to ${translate}`
@@ -362,6 +385,19 @@ export default {
         renderer.addActor(actor);
 
         renderer.resetCamera();
+        renderer.getRenderWindow().render();
+
+        const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+
+        const pipelineObject = {
+          getProp: () => actor,
+          setVisibility: (visibility) => {
+            actor.setVisibility(visibility);
+            renderer.getRenderWindow().render();
+          },
+        };
+
+        pipeline[pipelineKey] = pipelineObject;
       }
 
       // Get the events
@@ -388,6 +424,7 @@ export default {
       console.log('LOCAL_UPDATE_MINE_VISIBILITY');
       const mine = getters.QUAKE_MINE;
       const visibility = getters.QUAKE_MINE_VISIBILITY;
+      const mineVisibility = getters.QUAKE_COMPONENTS_VISIBILITY.mine
 
       function flattenMineKeys(nodeList, keysList) {
         if (!nodeList) {
@@ -403,11 +440,12 @@ export default {
 
       const allMineKeys = [];
       flattenMineKeys(mine, allMineKeys);
+
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
 
       allMineKeys.forEach((mineKey) => {
         if (mineKey in pipeline) {
-          if (visibility.indexOf(mineKey) >= 0) {
+          if (mineVisibility && visibility.indexOf(mineKey) >= 0) {
             pipeline[mineKey].setVisibility(true);
           } else {
             pipeline[mineKey].setVisibility(false);
@@ -522,16 +560,21 @@ export default {
           });
 
           minePlanJson.pieces.forEach((piece) => {
-            minePiecesByCategory[piece.category].children.push({
-              id: piece.label,
-              name: piece.label,
-            });
+            // Suddenly pieces with category 'tester' started showing up
+            // without having previously been mentioned in json description
+            // under "categories".
+            if (piece.category in mineCategories) {
+              minePiecesByCategory[piece.category].children.push({
+                id: piece.label,
+                name: piece.label,
+              });
 
-            if (piece.visibility === 1) {
-              visibilityList.push(piece.label);
+              if (piece.visibility === 1) {
+                visibilityList.push(piece.label);
+              }
+
+              piecesToLoad.push(piece);
             }
-
-            piecesToLoad.push(piece);
           });
 
           loadNextPiece();
