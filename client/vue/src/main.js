@@ -35,7 +35,7 @@ Vue.use(Vuetify, {
     quakeTrace: 'mdi-pulse',
     rays: 'mdi-wan',
     historicalEvents: 'mdi-history',
-    uncertainty: 'mdi-help-network-outline',
+    uncertainty: 'mdi-vector-curve',
     blasts: 'mdi-bomb',
 
     // global settings

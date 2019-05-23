@@ -345,7 +345,7 @@ function vtkSeismicEvents(publicAPI, model) {
 
   publicAPI.getSelectionData = (selection) => {
     const { prop, compositeID } = selection;
-    if (model.actor === prop) {
+    if (model.actor === prop || model.uncertaintyActor === prop) {
       const worldPosition = [
         model.polydata.getPoints().getData()[compositeID * 3 + 0],
         model.polydata.getPoints().getData()[compositeID * 3 + 1],
