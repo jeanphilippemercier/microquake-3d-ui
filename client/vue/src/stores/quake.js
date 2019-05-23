@@ -6,6 +6,7 @@ const PREFERRED_ORIGIN_MAP = {};
 export default {
   state: {
     eventStatus: 'accepted',
+    sensorChildren: [{ id: 'stations', name: 'Stations' }],
     refreshRate: 10,
     pickingCenterOfRotation: false,
     rayMapping: {},
@@ -49,6 +50,10 @@ export default {
       return state.pickingCenterOfRotation;
     },
     QUAKE_MINE(state) {
+      const sensors = state.mine.find((n) => n.id === 'Sensors');
+      if (sensors) {
+        sensors.children = state.sensorChildren;
+      }
       return state.mine;
     },
     QUAKE_MINE_VISIBILITY(state) {

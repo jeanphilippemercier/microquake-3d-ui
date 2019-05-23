@@ -9,6 +9,7 @@ import URLHelper from 'paraview-quake/src/util/URLHelper';
 import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 import vtkRays from 'paraview-quake/src/pipeline/Rays';
 import vtkLocations from 'paraview-quake/src/pipeline/Locations';
+import vtkStations from 'paraview-quake/src/pipeline/Stations';
 
 const PIPELINE_ITEMS = {};
 
@@ -31,7 +32,6 @@ export default {
       return state.mineTranslate;
     },
     LOCAL_PIPELINE_OBJECTS() {
-      console.log('PIPELINE_ITEMS', PIPELINE_ITEMS);
       return PIPELINE_ITEMS;
     },
   },
@@ -66,6 +66,7 @@ export default {
       dispatch('API_FETCH_MINE').then(() => {
         // Events need to be translated by an amount which is unknown until
         // we have successfully processed the mine plan.
+        const translate = getters.LOCAL_MINE_TRANSLATE;
 
         dispatch('API_UPDATE_EVENTS');
         dispatch('LOCAL_UPDATE_PRESET', 'coolwarm');
@@ -73,8 +74,9 @@ export default {
         dispatch('API_UPDATE_SCALING');
         dispatch('API_UPDATE_UNCERTAINTY_SCALING');
 
-        // Link renderer to the rays
+        // Link renderer to the rays and configure offset
         const renderer = getters.VIEW_LOCAL_RENDERER;
+        pipeline.ray.setTranslate(translate);
         pipeline.ray.setRenderer(renderer);
         renderer.addViewProp(pipeline.ray);
 
@@ -83,8 +85,8 @@ export default {
         //   dispatch('API_FETCH_MINE');
         // });
 
-        const config = getters.REMOTE_CONFIG;
         // Handle locations in url
+        const config = getters.REMOTE_CONFIG;
         if (config.locations) {
           commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
             mine: true,
@@ -97,6 +99,13 @@ export default {
           dispatch('API_UPDATE_EVENTS_VISIBILITY');
           dispatch('API_SHOW_LOCATIONS', config.locations);
         }
+
+        // Handle stations locations
+        dispatch('HTTP_FETCH_STATIONS').then(({ data }) => {
+          pipeline.stations = vtkStations.newInstance({ renderer, translate });
+          pipeline.stations.setInput(data);
+          renderer.addViewProp(pipeline.stations);
+        });
       });
     },
     LOCAL_UPDATE_UNCERTAINTY_SCALING({ getters }) {
@@ -445,9 +454,8 @@ export default {
             -bounds[5],
           ];
           commit('LOCAL_MINE_TRANSLATE_SET', translate);
-          getters.LOCAL_PIPELINE_OBJECTS.ray.setTranslate(translate);
 
-          const visibilityList = [];
+          const visibilityList = ['stations'];
           const mineCategories = {};
           const minePiecesByCategory = {};
           const piecesToLoad = [];

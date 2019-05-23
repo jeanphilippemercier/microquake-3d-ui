@@ -103,5 +103,19 @@ export default {
 
       return axios(request);
     },
+    HTTP_FETCH_STATIONS({ getters }) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/inventory/stations`,
+        headers: {
+          Authorization: `Bearer: ${authToken}`,
+        },
+      };
+
+      return axios(request);
+    },
   },
 };
