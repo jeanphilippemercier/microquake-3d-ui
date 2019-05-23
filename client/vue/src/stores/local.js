@@ -205,6 +205,8 @@ export default {
           renderer,
           mineBounds,
         });
+        pipeline.historicEvents.setOpacity(0.6);
+        pipeline.historicEvents.setPointSize(3);
 
         renderer.addViewProp(pipeline.seismicEvents);
         renderer.addViewProp(pipeline.blast);

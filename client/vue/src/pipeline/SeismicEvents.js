@@ -368,10 +368,11 @@ function vtkSeismicEvents(publicAPI, model) {
     return null;
   };
 
+  // forwarding API
   publicAPI.setPointSize = model.actor.getProperty().setPointSize;
-
-  // Init
-  publicAPI.setPointSize(3);
+  publicAPI.getPointSize = model.actor.getProperty().getPointSize;
+  publicAPI.setOpacity = model.actor.getProperty().setOpacity;
+  publicAPI.getOpacity = model.actor.getProperty().getOpacity;
 }
 
 // ----------------------------------------------------------------------------
