@@ -27,20 +27,9 @@ const UNIT_CYLINDER_SOURCE = vtkCylinderSource.newInstance({
 
 const UNCERTAINTY_CAP = 50.0;
 const TIME_RATIO = 10000000000;
-let printFields = true;
 
 function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
-  const eventTypes = new Set();
-  const filteredList = eventsData.filter((event) => {
-    if (printFields) {
-      printFields = false;
-      console.log('Event keys');
-      Object.keys(event).forEach((k) => {
-        console.log('  ', k, event[k]);
-      });
-    }
-    eventTypes.add(event.event_type);
-
+  return eventsData.filter((event) => {
     if (event.x < mineBounds[0] || event.x > mineBounds[1]) {
       return false;
     }
@@ -57,11 +46,6 @@ function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
 
     return true;
   });
-
-  console.log('Event types');
-  eventTypes.forEach(console.log);
-
-  return filteredList;
 }
 
 // ----------------------------------------------------------------------------
@@ -201,7 +185,7 @@ function vtkSeismicEvents(publicAPI, model) {
   // Public API
   // --------------------------------------------------------------------------
 
-  publicAPI.setInput = (eventsData, idList = []) => {
+  publicAPI.setInput = (eventsData, preferedOrigins = {}, idList = []) => {
     model.lastIdList = idList;
     const filteredEvents = filterEvents(
       model.mineBounds,
@@ -255,6 +239,7 @@ function vtkSeismicEvents(publicAPI, model) {
       idArray[i] = idList.length;
 
       idList.push(event.event_resource_id);
+      preferedOrigins[event.event_resource_id] = event.preferred_origin_id;
     }
     // ------------------------------------------------------------------------
 

@@ -1,5 +1,8 @@
 import PRESETS from 'paraview-quake/src/presets';
 
+const RAY_DATA = {};
+const PREFERRED_ORIGIN_MAP = {};
+
 export default {
   state: {
     eventStatus: 'accepted',
@@ -108,6 +111,12 @@ export default {
     QUAKE_USER_ACCEPTED_SITE(state) {
       return state.userAcceptedSite;
     },
+    QUAKE_RAY_DATA() {
+      return RAY_DATA;
+    },
+    QUAKE_PREFERRED_ORIGIN_MAP() {
+      return PREFERRED_ORIGIN_MAP;
+    },
   },
   mutations: {
     QUAKE_FOCUS_EVENT_STATUS_SET(state, value) {
@@ -179,6 +188,9 @@ export default {
     },
     QUAKE_USER_ACCEPTED_SITE_SET(state, value) {
       state.userAcceptedSite = value;
+    },
+    QUAKE_RAY_DATA_SET(state, { id, data }) {
+      RAY_DATA[id] = data;
     },
   },
   actions: {

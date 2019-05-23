@@ -144,7 +144,6 @@ export default {
         return this.$store.getters.QUAKE_FOCUS_EVENT_STATUS;
       },
       set(value) {
-        console.log(value);
         this.$store.commit('QUAKE_FOCUS_EVENT_STATUS_SET', value);
         this.$store.dispatch('API_UPDATE_EVENTS');
       },

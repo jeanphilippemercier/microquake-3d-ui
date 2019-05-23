@@ -7,6 +7,7 @@ import URLHelper from 'paraview-quake/src/util/URLHelper';
 
 /* eslint-disable import/no-named-as-default-member */
 import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
+import vtkRays from 'paraview-quake/src/pipeline/Rays';
 
 const PIPELINE_ITEMS = {};
 
@@ -51,7 +52,16 @@ export default {
     //-----------------------------------------------------------------------
     // Public (processing) API
     //-----------------------------------------------------------------------
-    LOCAL_INITIALIZE({ dispatch }) {
+    LOCAL_INITIALIZE({ getters, dispatch }) {
+      // Initialize ray handler
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      const raysDataMap = getters.QUAKE_RAY_DATA;
+      const preferredOrigins = getters.QUAKE_PREFERRED_ORIGIN_MAP;
+      pipeline.ray = vtkRays.newInstance({
+        raysDataMap,
+        preferredOrigins,
+      });
+
       dispatch('API_FETCH_MINE').then(() => {
         // Events need to be translated by an amount which is unknown until
         // we have successfully processed the mine plan.
@@ -61,6 +71,11 @@ export default {
 
         dispatch('API_UPDATE_SCALING');
         dispatch('API_UPDATE_UNCERTAINTY_SCALING');
+
+        // Link renderer to the rays
+        const renderer = getters.VIEW_LOCAL_RENDERER;
+        pipeline.ray.setRenderer(renderer);
+        renderer.addViewProp(pipeline.ray);
 
         // // Dynamic monitoring of the mine
         // dispatch('API_ON_MINE_CHANGE', () => {
@@ -121,8 +136,35 @@ export default {
       }
       renderer.getRenderWindow().render();
     },
-    LOCAL_UPDATE_RAY_FILTER_MODE({ state }) {
-      console.log('LOCAL_UPDATE_RAY_FILTER_MODE', state);
+    LOCAL_UPDATE_RAY_FILTER_MODE({ getters }) {
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+
+      switch (getters.QUAKE_RAY_FILTER_MODE) {
+        case 0:
+          // Preferred origin + arrival
+          pipeline.ray.enablePieces(['sOriginArrival', 'pOriginArrival']);
+          break;
+        case 1:
+          // Preferred origin
+          pipeline.ray.enablePieces([
+            'sOriginArrival',
+            'pOriginArrival',
+            'sOrigin',
+            'pOrigin',
+          ]);
+          break;
+        default:
+          // All rays, already set
+          pipeline.ray.enablePieces([
+            'sOriginArrival',
+            'pOriginArrival',
+            'sOrigin',
+            'pOrigin',
+            'sAll',
+            'pAll',
+          ]);
+          break;
+      }
     },
     LOCAL_UPDATE_EVENTS_VISIBILITY({ getters }) {
       const componentsVisibility = getters.QUAKE_COMPONENTS_VISIBILITY;
@@ -136,7 +178,7 @@ export default {
 
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
 
-      // console.log('LOCAL_UPDATE_EVENTS_VISIBILITY');
+      // Handle pipeline visibility (mine plan + sensor + ray)
       keys.forEach((key) => {
         const visibility = componentsVisibility[key];
         // console.log(`stored visibility of ${key} is ${visibility}`);
@@ -160,6 +202,7 @@ export default {
       const translate = getters.LOCAL_MINE_TRANSLATE;
       const mineBounds = getters.LOCAL_MINE_BOUNDS;
       const eventStatusFilter = getters.QUAKE_FOCUS_EVENT_STATUS;
+      const prefOriginMap = getters.QUAKE_PREFERRED_ORIGIN_MAP;
 
       const idList = [];
 
@@ -219,9 +262,9 @@ export default {
         .then((response) => {
           const focusTS = new Date(fTime) / 10000;
           const nowTS = new Date(now) / 10000;
-          pipeline.seismicEvents.setInput(response.data, idList);
+          pipeline.seismicEvents.setInput(response.data, prefOriginMap, idList);
           pipeline.seismicEvents.updateColorRange(focusTS, nowTS);
-          pipeline.blast.setInput(response.data, idList);
+          pipeline.blast.setInput(response.data, prefOriginMap, idList);
           pipeline.blast.updateColorRange(focusTS, nowTS);
         })
         .catch((error) => {
@@ -231,7 +274,7 @@ export default {
 
       dispatch('HTTP_FETCH_EVENTS', [hTime, fTime, eventStatusFilter])
         .then((response) => {
-          pipeline.historicEvents.setInput(response.data);
+          pipeline.historicEvents.setInput(response.data, prefOriginMap);
         })
         .catch((error) => {
           console.error('Encountered error retrieving events');
@@ -287,9 +330,55 @@ export default {
       const interactor = getters.VIEW_LOCAL_INTERACTOR;
       interactor.getInteractorStyle().setCenterOfRotation(position);
     },
-    LOCAL_SHOW_RAY({ state }) {
-      // FIXME xxxxxxxxxxxx
-      console.log('LOCAL_SHOW_RAY', state);
+    LOCAL_SHOW_RAY({ getters, commit, dispatch }) {
+      const raysDataMap = getters.QUAKE_RAY_DATA;
+      if (getters.QUAKE_PICKED_DATA) {
+        const id = getters.QUAKE_PICKED_DATA.event_resource_id;
+        if (raysDataMap[id]) {
+          const hasRays = raysDataMap[id].length > 0;
+          commit('QUAKE_RAYS_IN_SCENE_SET', hasRays);
+          getters.LOCAL_PIPELINE_OBJECTS.ray.setInput(id);
+          // Auto show the rays
+          if (hasRays && !getters.QUAKE_COMPONENTS_VISIBILITY.ray) {
+            const newVizibility = Object.assign(
+              {},
+              getters.QUAKE_COMPONENTS_VISIBILITY,
+              { ray: true }
+            );
+            commit('QUAKE_COMPONENTS_VISIBILITY_SET', newVizibility);
+            dispatch('LOCAL_UPDATE_EVENTS_VISIBILITY');
+          }
+          dispatch('LOCAL_UPDATE_RAY_FILTER_MODE');
+          return;
+        }
+        dispatch('HTTP_FETCH_RAYS', id).then(({ data }) => {
+          const nbRays = data.length;
+          commit(
+            'QUAKE_RAY_MAPPING_SET',
+            Object.assign({}, getters.QUAKE_RAY_MAPPING, {
+              [id]: nbRays,
+            })
+          );
+          const hasRays = nbRays > 0;
+          commit('QUAKE_RAYS_IN_SCENE_SET', hasRays);
+          commit('QUAKE_RAY_DATA_SET', { id, data });
+
+          // Activate given ID
+          getters.LOCAL_PIPELINE_OBJECTS.ray.setInput(id);
+
+          // Auto show the rays
+          if (hasRays && !getters.QUAKE_COMPONENTS_VISIBILITY.ray) {
+            const newVizibility = Object.assign(
+              {},
+              getters.QUAKE_COMPONENTS_VISIBILITY,
+              { ray: true }
+            );
+            commit('QUAKE_COMPONENTS_VISIBILITY_SET', newVizibility);
+            dispatch('LOCAL_UPDATE_EVENTS_VISIBILITY');
+          }
+          dispatch('LOCAL_UPDATE_RAY_FILTER_MODE');
+        });
+      }
     },
     LOCAL_OPEN_EVENT({ getters }) {
       if (getters.QUAKE_PICKED_DATA) {
@@ -355,6 +444,7 @@ export default {
             -bounds[5],
           ];
           commit('LOCAL_MINE_TRANSLATE_SET', translate);
+          getters.LOCAL_PIPELINE_OBJECTS.ray.setTranslate(translate);
 
           const visibilityList = [];
           const mineCategories = {};

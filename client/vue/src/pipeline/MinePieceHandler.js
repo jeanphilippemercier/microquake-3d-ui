@@ -27,6 +27,10 @@ function vtp({ url, piece, translate, renderer, getters }) {
     const mapper = vtkMapper.newInstance();
     const actor = vtkActor.newInstance();
     actor.getProperty().setInterpolationToFlat();
+    actor.getProperty().set({
+      ambient: 1.0,
+      diffuse: 0.0,
+    });
 
     actor.setMapper(mapper);
     mapper.setInputData(polydata);

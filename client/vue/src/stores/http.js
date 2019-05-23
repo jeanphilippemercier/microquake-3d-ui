@@ -88,5 +88,20 @@ export default {
 
       return axios(request);
     },
+    HTTP_FETCH_RAYS({ getters }, event_id) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/rays`,
+        headers: {
+          Authorization: `Bearer: ${authToken}`,
+        },
+        params: { event_id },
+      };
+
+      return axios(request);
+    },
   },
 };
