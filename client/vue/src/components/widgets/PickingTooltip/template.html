@@ -12,7 +12,7 @@
           <v-icon color="#333">{{ $vuetify.icons.quakeTrace }}</v-icon>
         </v-flex>
         <v-flex xs4>
-          {{ pickedData.magnitude.toFixed(2) }}
+          {{ (pickedData.magnitude || 0).toFixed(2) }}
         </v-flex>
         <v-flex xs2 :class="$style.center">
           <v-icon color="#333">{{ $vuetify.icons.pickedTime }}</v-icon>
@@ -24,13 +24,13 @@
           <v-icon color="#333">{{ $vuetify.icons.pickedPosition }}</v-icon>
         </v-flex>
         <v-flex xs4>
-          {{ pickedData.worldPosition[2].toFixed(2) }} m
+          {{ (pickedData.worldPosition[2] || 0).toFixed(2) }} m
         </v-flex>
         <v-flex xs2 :class="$style.center" v-show="pickedData.uncertainty > 0">
           <v-icon color="#333">{{ $vuetify.icons.uncertainty }}</v-icon>
         </v-flex>
         <v-flex xs4 v-show="pickedData.uncertainty > 0">
-          {{ pickedData.uncertainty.toFixed(2) }}
+          {{ (pickedData.uncertainty || 0).toFixed(2) }}
         </v-flex>
         <v-flex xs2 :class="$style.center" v-show="rayCount !== undefined">
           <v-icon color="#333">{{ $vuetify.icons.rays }}</v-icon>

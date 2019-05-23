@@ -47,11 +47,17 @@ function getHoursFromNow(strDate) {
 }
 
 function formatEpochTime(epoch) {
+  if (Number.isNaN(epoch)) {
+    return 'N/A';
+  }
   const isoStr = new Date(epoch / 1000000).toISOString().split('T');
   return `${isoStr[1].split('.')[0]}`;
 }
 
 function formatEpochDate(epoch) {
+  if (Number.isNaN(epoch)) {
+    return 'N/A';
+  }
   const isoStr = new Date(epoch / 1000000).toISOString().split('T');
   return `${isoStr[0].replace(/-/g, '/')}`;
 }
