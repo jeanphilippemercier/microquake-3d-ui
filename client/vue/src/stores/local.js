@@ -1,6 +1,8 @@
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import handlePiece from 'paraview-quake/src/pipeline/MinePieceHandler';
 import URLHelper from 'paraview-quake/src/util/URLHelper';
+
+/* eslint-disable import/no-named-as-default-member */
 import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 
 const PIPELINE_ITEMS = {};
