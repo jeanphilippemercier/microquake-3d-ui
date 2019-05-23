@@ -54,6 +54,7 @@ export default {
     advancedOrientation: true,
     inAnimation: false,
     localRenderer: null,
+    localInteractor: null,
   },
   getters: {
     VIEW_STATS(state) {
@@ -91,6 +92,9 @@ export default {
     },
     VIEW_LOCAL_RENDERER(state) {
       return state.localRenderer;
+    },
+    VIEW_LOCAL_INTERACTOR(state) {
+      return state.localInteractor;
     },
   },
   mutations: {
@@ -132,6 +136,9 @@ export default {
     },
     VIEW_LOCAL_RENDERER_SET(state, renderer) {
       state.localRenderer = renderer;
+    },
+    VIEW_LOCAL_INTERACTOR_SET(state, interactor) {
+      state.localInteractor = interactor;
     },
   },
   actions: {

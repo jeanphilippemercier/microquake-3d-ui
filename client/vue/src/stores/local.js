@@ -256,14 +256,13 @@ export default {
       // }
     },
     LOCAL_EVENT_PICKING({ commit }, [x, y]) {
-      // FIXME xxxxxxxxxxxx
-      // console.log('LOCAL_EVENT_PICKING', x, y);
+      // Picking in local mode is handled in the view...
       commit('QUAKE_PICKING_POSITION_SET', [x, y]);
-      // dispatch('REMOTE_UPDATE_PICKING');
     },
-    LOCAL_UPDATE_CENTER_OF_ROTATION({ state }, position) {
-      // FIXME xxxxxxxxxxxx
-      console.log('LOCAL_UPDATE_CENTER_OF_ROTATION', state, position);
+    LOCAL_UPDATE_CENTER_OF_ROTATION({ getters, commit }, position) {
+      commit('QUAKE_PICKING_CENTER_OF_ROTATION_SET', false);
+      const interactor = getters.VIEW_LOCAL_INTERACTOR;
+      interactor.getInteractorStyle().setCenterOfRotation(position);
     },
     LOCAL_SHOW_RAY({ state }) {
       // FIXME xxxxxxxxxxxx

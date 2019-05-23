@@ -1,13 +1,12 @@
 import { mapGetters, mapActions } from 'vuex';
 
-import macro from 'vtk.js/Sources/macro';
+import InteractionPresets from 'vtk.js/Sources/Interaction/Style/InteractorStyleManipulator/Presets';
+import vtkInteractorStyleManipulator from 'vtk.js/Sources/Interaction/Style/InteractorStyleManipulator';
+import vtkOpenGLHardwareSelector from 'vtk.js/Sources/Rendering/OpenGL/HardwareSelector';
 import vtkOpenGLRenderWindow from 'vtk.js/Sources/Rendering/OpenGL/RenderWindow';
 import vtkRenderer from 'vtk.js/Sources/Rendering/Core/Renderer';
-import vtkInteractorObserver from 'vtk.js/Sources/Rendering/Core/InteractorObserver';
 import vtkRenderWindow from 'vtk.js/Sources/Rendering/Core/RenderWindow';
 import vtkRenderWindowInteractor from 'vtk.js/Sources/Rendering/Core/RenderWindowInteractor';
-import vtkInteractorStyleTrackballCamera from 'vtk.js/Sources/Interaction/Style/InteractorStyleTrackballCamera';
-import vtkOpenGLHardwareSelector from 'vtk.js/Sources/Rendering/OpenGL/HardwareSelector';
 
 import { FieldAssociations } from 'vtk.js/Sources/Common/DataModel/DataSet/Constants';
 
@@ -49,9 +48,9 @@ export default {
     // Setup interactor style to use
     // ----------------------------------------------------------------------------
 
-    this.interactor.setInteractorStyle(
-      vtkInteractorStyleTrackballCamera.newInstance()
-    );
+    this.interactorStyle3D = vtkInteractorStyleManipulator.newInstance();
+    InteractionPresets.applyPreset('3D', this.interactorStyle3D);
+    this.interactor.setInteractorStyle(this.interactorStyle3D);
 
     // ----------------------------------------------------------------------------
     // Setup Picking
@@ -93,6 +92,7 @@ export default {
     // ----------------------------------------------------------------------------
 
     this.$store.commit('VIEW_LOCAL_RENDERER_SET', this.renderer);
+    this.$store.commit('VIEW_LOCAL_INTERACTOR_SET', this.interactor);
   },
   computed: {
     ...mapGetters({
