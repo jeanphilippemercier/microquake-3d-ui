@@ -8,6 +8,7 @@ import URLHelper from 'paraview-quake/src/util/URLHelper';
 /* eslint-disable import/no-named-as-default-member */
 import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 import vtkRays from 'paraview-quake/src/pipeline/Rays';
+import vtkLocations from 'paraview-quake/src/pipeline/Locations';
 
 const PIPELINE_ITEMS = {};
 
@@ -52,7 +53,7 @@ export default {
     //-----------------------------------------------------------------------
     // Public (processing) API
     //-----------------------------------------------------------------------
-    LOCAL_INITIALIZE({ getters, dispatch }) {
+    LOCAL_INITIALIZE({ getters, commit, dispatch }) {
       // Initialize ray handler
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
       const raysDataMap = getters.QUAKE_RAY_DATA;
@@ -82,20 +83,20 @@ export default {
         //   dispatch('API_FETCH_MINE');
         // });
 
-        // const config = getters.REMOTE_CONFIG;
-        // // Handle locations in url
-        // if (config.locations) {
-        //   commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
-        //     mine: true,
-        //     seismicEvents: false,
-        //     blast: false,
-        //     historicEvents: false,
-        //     ray: false,
-        //     uncertainty: false,
-        //   });
-        //   dispatch('API_UPDATE_EVENTS_VISIBILITY');
-        //   dispatch('API_SHOW_LOCATIONS', config.locations);
-        // }
+        const config = getters.REMOTE_CONFIG;
+        // Handle locations in url
+        if (config.locations) {
+          commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
+            mine: true,
+            seismicEvents: false,
+            blast: false,
+            historicEvents: false,
+            ray: false,
+            uncertainty: false,
+          });
+          dispatch('API_UPDATE_EVENTS_VISIBILITY');
+          dispatch('API_SHOW_LOCATIONS', config.locations);
+        }
       });
     },
     LOCAL_UPDATE_UNCERTAINTY_SCALING({ getters }) {
@@ -533,9 +534,14 @@ export default {
           return Promise.reject('Encountered error retrieving mineplan');
         });
     },
-    LOCAL_SHOW_LOCATIONS({ state }) {
-      // FIXME xxxxxxxxxxxx
-      console.log('LOCAL_SHOW_LOCATIONS', state);
+    LOCAL_SHOW_LOCATIONS({ getters }, xyz) {
+      console.log('LOCAL_SHOW_LOCATIONS', xyz);
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const translate = getters.LOCAL_MINE_TRANSLATE;
+      const locations = vtkLocations.newInstance({ renderer, translate });
+      locations.setRadius(5);
+      locations.setInput(xyz);
+      renderer.addViewProp(locations);
     },
     LOCAL_UPDATE_SELECTION_DATA({ getters, commit }, selection) {
       if (!selection) {

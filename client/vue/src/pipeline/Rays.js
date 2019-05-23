@@ -7,11 +7,14 @@ import vtkProp3D from 'vtk.js/Sources/Rendering/Core/Prop3D';
 // ----------------------------------------------------------------------------
 // Helpers methods
 // ----------------------------------------------------------------------------
+
 function pointCount(a, b) {
   const aNumber = Number.isFinite(a) ? a : a.length;
   const bNumber = Number.isFinite(b) ? b : b.length;
   return aNumber + bNumber;
 }
+
+// ----------------------------------------------------------------------------
 
 function updatePolyData(polydata, xyzCells) {
   const nbCells = xyzCells.length;
