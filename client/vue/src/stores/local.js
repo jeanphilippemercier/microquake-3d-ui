@@ -280,7 +280,11 @@ export default {
     },
     LOCAL_RESET_CAMERA({ getters }) {
       const renderer = getters.VIEW_LOCAL_RENDERER;
+      const interactor = getters.VIEW_LOCAL_INTERACTOR;
       renderer.resetCamera();
+      const fp = renderer.getActiveCamera().getFocalPoint();
+      interactor.getInteractorStyle().setCenterOfRotation(fp);
+
       renderer.getRenderWindow().render();
     },
     LOCAL_RENDER({ getters }) {
