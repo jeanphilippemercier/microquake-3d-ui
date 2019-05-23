@@ -27,9 +27,20 @@ const UNIT_CYLINDER_SOURCE = vtkCylinderSource.newInstance({
 
 const UNCERTAINTY_CAP = 50.0;
 const TIME_RATIO = 10000000000;
+let printFields = true;
 
 function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
-  return eventsData.filter((event) => {
+  const eventTypes = new Set();
+  const filteredList = eventsData.filter((event) => {
+    if (printFields) {
+      printFields = false;
+      console.log('Event keys');
+      Object.keys(event).forEach((k) => {
+        console.log('  ', k, event[k]);
+      });
+    }
+    eventTypes.add(event.event_type);
+
     if (event.x < mineBounds[0] || event.x > mineBounds[1]) {
       return false;
     }
@@ -46,6 +57,11 @@ function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
 
     return true;
   });
+
+  console.log('Event types');
+  eventTypes.forEach(console.log);
+
+  return filteredList;
 }
 
 // ----------------------------------------------------------------------------

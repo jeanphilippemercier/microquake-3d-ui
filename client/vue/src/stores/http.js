@@ -55,7 +55,7 @@ export default {
 
       return axios(request);
     },
-    HTTP_FETCH_EVENTS({ getters }, [startTime, endTime]) {
+    HTTP_FETCH_EVENTS({ getters }, [startTime, endTime, status]) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
 
@@ -68,6 +68,7 @@ export default {
         params: {
           start_time: startTime,
           end_time: endTime,
+          status,
         },
       };
 

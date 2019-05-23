@@ -159,6 +159,7 @@ export default {
       const renderer = getters.VIEW_LOCAL_RENDERER;
       const translate = getters.LOCAL_MINE_TRANSLATE;
       const mineBounds = getters.LOCAL_MINE_BOUNDS;
+      const eventStatusFilter = getters.QUAKE_FOCUS_EVENT_STATUS;
 
       const idList = [];
 
@@ -214,7 +215,7 @@ export default {
       }
 
       // Get the events
-      dispatch('HTTP_FETCH_EVENTS', [fTime, now])
+      dispatch('HTTP_FETCH_EVENTS', [fTime, now, eventStatusFilter])
         .then((response) => {
           const focusTS = new Date(fTime) / 10000;
           const nowTS = new Date(now) / 10000;
@@ -228,7 +229,7 @@ export default {
           console.error(error);
         });
 
-      dispatch('HTTP_FETCH_EVENTS', [hTime, fTime])
+      dispatch('HTTP_FETCH_EVENTS', [hTime, fTime, eventStatusFilter])
         .then((response) => {
           pipeline.historicEvents.setInput(response.data);
         })

@@ -35,7 +35,12 @@
       min-width="290px"
     >
       <div slot="activator" class="pt-1">{{ focusDateLabels[0] }}</div>
-      <v-date-picker v-model="minDate" no-title scrollable @input="minDateMenu = false" />
+      <v-date-picker
+        v-model="minDate"
+        no-title
+        scrollable
+        @input="minDateMenu = false"
+      />
     </v-menu>
     <v-menu
       ref="menu"
@@ -48,7 +53,12 @@
       min-width="290px"
     >
       <div slot="activator" class="pt-1">{{ focusDateLabels[1] }}</div>
-      <v-date-picker v-model="maxDate" no-title scrollable @input="maxDateMenu = false" />
+      <v-date-picker
+        v-model="maxDate"
+        no-title
+        scrollable
+        @input="maxDateMenu = false"
+      />
     </v-menu>
   </v-layout>
 </v-container>

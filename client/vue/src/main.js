@@ -37,6 +37,8 @@ Vue.use(Vuetify, {
     historicalEvents: 'mdi-history',
     uncertainty: 'mdi-vector-curve',
     blasts: 'mdi-bomb',
+    accepted: 'mdi-check-circle',
+    rejected: 'mdi-close-circle',
 
     // global settings
     undo: 'mdi-undo',

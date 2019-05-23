@@ -129,6 +129,25 @@
 
     <v-layout align-center justify-end v-if="authToken && siteSelected">
       <v-btn-toggle
+        v-model="eventStatusFilter"
+        mandatory
+        class="mr-4"
+      >
+        <v-tooltip bottom>
+          <span>Show only accepted events</span>
+          <v-btn flat slot="activator" value="accepted">
+            <v-icon>{{ $vuetify.icons.accepted }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show only rejected events</span>
+          <v-btn flat slot="activator" value="rejected">
+            <v-icon>{{ $vuetify.icons.rejected }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+      </v-btn-toggle>
+
+      <v-btn-toggle
         :value="doubleClickMode"
         @change="updateDoubleClickMode"
         mandatory
