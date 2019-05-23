@@ -1,6 +1,7 @@
 import DateHelper from 'paraview-quake/src/util/DateHelper';
-import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 import handlePiece from 'paraview-quake/src/pipeline/MinePieceHandler';
+import URLHelper from 'paraview-quake/src/util/URLHelper';
+import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 
 const PIPELINE_ITEMS = {};
 
@@ -268,9 +269,14 @@ export default {
       // FIXME xxxxxxxxxxxx
       console.log('LOCAL_SHOW_RAY', state);
     },
-    LOCAL_OPEN_EVENT({ state }) {
-      // FIXME xxxxxxxxxxxx
-      console.log('LOCAL_OPEN_EVENT', state);
+    LOCAL_OPEN_EVENT({ getters }) {
+      if (getters.QUAKE_PICKED_DATA) {
+        const url = URLHelper.getWaveformURLForEvent(
+          getters.QUAKE_PICKED_DATA.event_resource_id
+        );
+        const win = window.open(url, '_blank');
+        win.focus();
+      }
     },
     LOCAL_RESET_CAMERA({ getters }) {
       const renderer = getters.VIEW_LOCAL_RENDERER;
