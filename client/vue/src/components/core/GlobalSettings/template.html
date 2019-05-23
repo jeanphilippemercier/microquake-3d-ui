@@ -135,7 +135,7 @@
         </v-flex>
       </v-layout>
     </v-container>
-    <v-container fluid grid-list-md class="pa-0">
+    <v-container fluid grid-list-md class="pa-0" v-if="!localRendering">
       <v-layout row wrap align-center>
         <v-flex xs10>
           <span class="body-2">Active Orientation Cube</span>
@@ -145,6 +145,24 @@
             v-model="advancedOrientation"
             hide-details
             class="pt-0 mt-0"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs5>
+          <span class="body-2">Live refresh rate</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="refreshRate"
+            :min="1"
+            :max="30"
+            :step="1"
           />
         </v-flex>
       </v-layout>

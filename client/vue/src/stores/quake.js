@@ -2,6 +2,7 @@ import PRESETS from 'paraview-quake/src/presets';
 
 export default {
   state: {
+    refreshRate: 10,
     pickingCenterOfRotation: false,
     rayMapping: {},
     raysInScene: false,
@@ -34,6 +35,9 @@ export default {
     userAcceptedSite: false,
   },
   getters: {
+    QUAKE_LIVE_REFRESH_RATE(state) {
+      return state.refreshRate;
+    },
     QUAKE_PICKING_CENTER_OF_ROTATION(state) {
       return state.pickingCenterOfRotation;
     },
@@ -102,6 +106,9 @@ export default {
     },
   },
   mutations: {
+    QUAKE_LIVE_REFRESH_RATE_SET(state, value) {
+      state.refreshRate = value;
+    },
     QUAKE_PICKING_CENTER_OF_ROTATION_SET(state, value) {
       state.pickingCenterOfRotation = value;
     },

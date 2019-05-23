@@ -103,6 +103,13 @@ const KEYS = {
     defaultValue: 80,
     variable: 'interactiveQuality',
   },
+  REFRESH_RATE: {
+    name: 'refreshRate',
+    set: numberSet,
+    get: numberGet,
+    defaultValue: 10,
+    variable: 'refreshRate',
+  },
 };
 
 // function purgeLocalStorage() {
@@ -283,6 +290,18 @@ export default {
       },
       set(value) {
         this.wrapSet('VIEW_MOUSE_THROTTLE_SET', 'MOUSE_THROTTLE', value);
+      },
+    },
+    refreshRate: {
+      get() {
+        return this.wrapGet(
+          'QUAKE_LIVE_REFRESH_RATE',
+          'QUAKE_LIVE_REFRESH_RATE_SET',
+          'REFRESH_RATE'
+        );
+      },
+      set(value) {
+        this.wrapSet('QUAKE_LIVE_REFRESH_RATE_SET', 'REFRESH_RATE', value);
       },
     },
     showRenderingStats: {
