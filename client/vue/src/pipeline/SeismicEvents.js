@@ -6,15 +6,20 @@ import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import vtkMapper from 'vtk.js/Sources/Rendering/Core/Mapper';
 import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
 import vtkProp3D from 'vtk.js/Sources/Rendering/Core/Prop3D';
-// import vtkSphereMapper from 'vtk.js/Sources/Rendering/Core/SphereMapper';
-import vtkStickMapper from 'vtk.js/Sources/Rendering/Core/StickMapper';
 import vtkGlyph3DMapper from 'vtk.js/Sources/Rendering/Core/Glyph3DMapper';
-import vtkSphereSource from 'vtk.js/Sources/Filters/Sources/SphereSource';
+
+import vtkCylinderSource from 'vtk.js/Sources/Filters/Sources/CylinderSource';
 
 import {
   ColorMode,
   ScalarMode,
 } from 'vtk.js/Sources/Rendering/Core/Mapper/Constants';
+
+const UNIT_CYLINDER_SOURCE = vtkCylinderSource.newInstance({
+  height: 1.0,
+  radius: 0.1,
+  resolution: 60,
+});
 
 // ----------------------------------------------------------------------------
 // Global methods
@@ -118,69 +123,63 @@ function vtkSeismicEvents(publicAPI, model) {
   // pipeline
   // --------------------------------------------------------------------------
 
+  model.actors = [];
   model.lookupTable = vtkColorTransferFunction.newInstance();
 
-  model.mapper =
-    model.eventType === 'all'
-      ? vtkMapper.newInstance()
-      : // vtkGlyph3DMapper.newInstance({
-        //     colorByArrayName: 'time',
-        //     colorMode: ColorMode.MAP_SCALARS,
-        //     scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
-        //     scalarVisibility: true,
-        //     lookupTable: model.lookupTable,
-        //     useLookupTableScalarRange: true,
-        //   });
-        vtkGlyph3DMapper.newInstance({
-          colorByArrayName: 'time',
-          colorMode: ColorMode.MAP_SCALARS,
-          scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
-          scalarVisibility: true,
-          lookupTable: model.lookupTable,
-          useLookupTableScalarRange: true,
-          orient: false,
-          scaling: true,
-          scaleArray: 'adjustedMagnitude',
-          scaleMode: vtkGlyph3DMapper.ScaleModes.SCALE_BY_MAGNITUDE,
-        });
+  // Regular rendering
+
+  model.mapper = vtkMapper.newInstance();
+
+  if (model.glyph) {
+    model.mapper = vtkGlyph3DMapper.newInstance({
+      colorByArrayName: 'time',
+      colorMode: ColorMode.MAP_SCALARS,
+      scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
+      scalarVisibility: true,
+      lookupTable: model.lookupTable,
+      useLookupTableScalarRange: true,
+      orient: false,
+      scaling: true,
+      scaleArray: 'adjustedMagnitude',
+      scaleMode: vtkGlyph3DMapper.ScaleModes.SCALE_BY_MAGNITUDE,
+    });
+    model.mapper.setInputData(model.glyph, 1);
+  }
 
   model.actor = vtkActor.newInstance();
   model.actor.setMapper(model.mapper);
-  model.mapper.setInputData(model.polydata, 0);
+  model.mapper.setInputData(model.polydata);
 
-  if (model.eventType !== 'all') {
-    const sphere = vtkSphereSource.newInstance({
-      radius: 0.5,
-      thetaResolution: 60,
-      phiResolution: 60,
-    });
-    model.mapper.setInputData(sphere.getOutputData(), 1);
-  }
-
-  // if (model.mapper.setScaleArray) {
-  //   model.mapper.setRadius(50);
-  //   model.mapper.setScaleArray('adjustedMagnitude');
-  // }
+  model.actors.push(model.actor);
 
   // Uncertainty
-  model.uncertaintyActor = vtkActor.newInstance({ visibility: false });
-  model.uncertaintyMapper = vtkStickMapper.newInstance({
-    orientationArray: 'uncertainty_direction',
-    scaleArray: 'adjustedUncertainty',
-    colorByArrayName: 'time',
-    colorMode: ColorMode.MAP_SCALARS,
-    scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
-    scalarVisibility: true,
-    length: 1,
-    radius: 0.02,
-    lookupTable: model.lookupTable,
-    useLookupTableScalarRange: true,
-  });
-  model.uncertaintyActor.setMapper(model.uncertaintyMapper);
-  model.uncertaintyMapper.setInputData(model.polydata);
 
-  // All actors
-  model.actors = [model.actor, model.uncertaintyActor];
+  if (model.glyph) {
+    model.uncertaintyActor = vtkActor.newInstance({ visibility: false });
+    model.uncertaintyMapper = vtkGlyph3DMapper.newInstance({
+      orient: true,
+      orientationArray: 'uncertainty_direction',
+      scaling: true,
+      scaleArray: 'adjustedUncertainty',
+      scaleMode: vtkGlyph3DMapper.ScaleModes.SCALE_BY_MAGNITUDE,
+      colorByArrayName: 'time',
+      colorMode: ColorMode.MAP_SCALARS,
+      scalarMode: ScalarMode.USE_POINT_FIELD_DATA,
+      scalarVisibility: true,
+      lookupTable: model.lookupTable,
+      useLookupTableScalarRange: true,
+    });
+    model.uncertaintyMapper.setOrientationModeToDirection();
+    model.uncertaintyMapper.setInputData(
+      UNIT_CYLINDER_SOURCE.getOutputData(),
+      1
+    );
+
+    model.uncertaintyActor.setMapper(model.uncertaintyMapper);
+    model.uncertaintyMapper.setInputData(model.polydata);
+
+    model.actors.push(model.uncertaintyActor);
+  }
 
   // --------------------------------------------------------------------------
   // Public API
@@ -282,7 +281,9 @@ function vtkSeismicEvents(publicAPI, model) {
 
   publicAPI.updateUncertaintyVisibility = (v) => {
     model.actor.setVisibility(model.visibility && !v);
-    model.uncertaintyActor.setVisibility(model.visibility && v);
+    if (model.uncertaintyActor) {
+      model.uncertaintyActor.setVisibility(model.visibility && v);
+    }
     publicAPI.render();
   };
 
@@ -378,6 +379,7 @@ function vtkSeismicEvents(publicAPI, model) {
 // ----------------------------------------------------------------------------
 
 const DEFAULT_VALUES = {
+  glyph: null,
   lastIdList: null,
   renderer: null,
   translate: [0, 0, 0],
@@ -402,6 +404,7 @@ export function extend(publicAPI, model, initialValues = {}) {
 
   macro.setGet(publicAPI, model, [
     'eventType',
+    'glyph',
     'renderer',
     'scalingFactor',
     'uncertaintyScalingFactor',

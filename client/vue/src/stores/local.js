@@ -1,3 +1,6 @@
+import vtkSphereSource from 'vtk.js/Sources/Filters/Sources/SphereSource';
+import vtkCubeSource from 'vtk.js/Sources/Filters/Sources/CubeSource';
+
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import handlePiece from 'paraview-quake/src/pipeline/MinePieceHandler';
 import URLHelper from 'paraview-quake/src/util/URLHelper';
@@ -171,18 +174,32 @@ export default {
       }
 
       if (!pipeline.seismicEvents) {
+        const sphereSource = vtkSphereSource.newInstance({
+          radius: 0.5,
+          thetaResolution: 60,
+          phiResolution: 60,
+        });
         pipeline.seismicEvents = vtkSeismicEvents.newInstance({
           translate,
           renderer,
           eventType: 'earthquake',
           mineBounds,
+          glyph: sphereSource.getOutputData(),
+        });
+
+        const cubeSource = vtkCubeSource.newInstance({
+          xLength: 0.8,
+          yLength: 0.8,
+          zLength: 0.8,
         });
         pipeline.blast = vtkSeismicEvents.newInstance({
           translate,
           renderer,
           eventType: 'explosion',
           mineBounds,
+          glyph: cubeSource.getOutputData(),
         });
+
         pipeline.historicEvents = vtkSeismicEvents.newInstance({
           translate,
           renderer,
