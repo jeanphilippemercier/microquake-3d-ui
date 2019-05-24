@@ -87,16 +87,16 @@ function vtkStations(publicAPI, model) {
       xyz[i * 3] = station.location_x + model.translate[0];
       xyz[i * 3 + 1] = station.location_y + model.translate[1];
       xyz[i * 3 + 2] = station.location_z + model.translate[2];
-      status[i] = Math.random();
+      status[i] = 0; // 0:dead / 1:alive
 
       const {
         orientation_x,
         orientation_y,
         orientation_z,
       } = station.components.pop();
-      orientation[i * 3] = orientation_x;
-      orientation[i * 3 + 1] = orientation_y;
-      orientation[i * 3 + 2] = orientation_z;
+      orientation[i * 3] = orientation_x || 0;
+      orientation[i * 3 + 1] = orientation_y || 0;
+      orientation[i * 3 + 2] = orientation_z || 1;
     }
     model.polydata.getPoints().setData(xyz, 3);
     model.polydata
