@@ -208,13 +208,13 @@ The `www/` directory needs to be built and will require other system dependencie
 
 **OPTIONAL**:
 Building the web client can be achieved by running the following set of commands:
-1) `cd ${EXTERNAL}/repos/microquake-3d-ui/client/vue`
+1) `cd ${EXTERNAL}/repos/microquake-3d-ui/client`
 2) `npm i`
 3) `npm run build`
 
 ```
 mkdir -p ${EXTERNAL}/apps/quake/www
-cp -r ${EXTERNAL}/repos/microquake-3d-ui/client/www/* ${EXTERNAL}/apps/quake/www/
+cp -r ${EXTERNAL}/repos/microquake-3d-ui/www/* ${EXTERNAL}/apps/quake/www/
 ```
 
 ## Run Micro-quake Docker image
@@ -261,14 +261,4 @@ And you can access it by pointing your browser to `http://localhost:9000` for re
 
 ## Running the application
 
-Add `?renderMode=local` to the location url to invoke the application in local rendering mode.
-
 Authenticate by entering `test` and `test@seismic` in the username and password fields when prompted.
-
-At the moment, and until CORS issues are resolved, the local rendering mode needs to be run in a browser with web security disabled.  On linux:
-
-```
-/opt/google/chrome/chrome --disable-web-security --user-data-dir ~/chromeTemp
-```
-
-Depending on where you have chrome installed.

@@ -45,13 +45,13 @@ build:
   stage: build
   image: node:10
   script:
-  - cd client/vue
+  - cd client
   - npm install
   - npm run build
   artifacts:
     expire_in: 2 months
     paths:
-    - client/www
+    - www
 
 docker:
   image: docker:stable
