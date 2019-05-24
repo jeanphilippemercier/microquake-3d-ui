@@ -97,6 +97,11 @@ function vtkStations(publicAPI, model) {
       orientation[i * 3] = orientation_x || 0;
       orientation[i * 3 + 1] = orientation_y || 0;
       orientation[i * 3 + 2] = orientation_z || 1;
+
+      // Check station signal_quality
+      if (station.signal_quality) {
+        status[i] = station.signal_quality.integrity;
+      }
     }
     model.polydata.getPoints().setData(xyz, 3);
     model.polydata
