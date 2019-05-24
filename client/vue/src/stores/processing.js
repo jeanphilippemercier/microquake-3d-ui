@@ -1,6 +1,6 @@
 export default {
   state: {
-    mode: 'REMOTE',
+    mode: 'LOCAL',
   },
   getters: {
     API_RENDER_MODE(state) {
