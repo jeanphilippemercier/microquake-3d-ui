@@ -282,6 +282,8 @@ export default {
           pipeline.seismicEvents.updateColorRange(focusTS, nowTS);
           pipeline.blast.setInput(response.data, prefOriginMap, idList);
           pipeline.blast.updateColorRange(focusTS, nowTS);
+
+          dispatch('QUAKE_UPDATE_CATALOGUE', response.data);
         })
         .catch((error) => {
           console.error('Encountered error retrieving events');
@@ -595,6 +597,14 @@ export default {
       setTimeout(() => {
         dispatch('LOCAL_LIVE_UPDATE');
       }, timeout);
+    },
+    LOCAL_ACTIVATE_EVENT({ getters }, resourceId) {
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      if (pipeline.seismicEvents) {
+        const id = pipeline.seismicEvents.getLastIdList().indexOf(resourceId);
+        pipeline.seismicEvents.activate(id);
+        pipeline.blast.activate(id);
+      }
     },
   },
 };

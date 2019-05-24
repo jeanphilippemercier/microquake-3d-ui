@@ -21,6 +21,8 @@ const UNIT_CYLINDER_SOURCE = vtkCylinderSource.newInstance({
   resolution: 60,
 });
 
+const ACTIVE_CELLS = new Uint8Array([2, 0, 1, 2, 2, 3, 2, 4, 5]);
+
 // ----------------------------------------------------------------------------
 // Global methods
 // ----------------------------------------------------------------------------
@@ -180,6 +182,23 @@ function vtkSeismicEvents(publicAPI, model) {
 
     model.actors.push(model.uncertaintyActor);
   }
+
+  // Active part
+  model.activePolydata = vtkPolyData.newInstance();
+  model.activePolydata.getPoints().setData(new Float32Array(6 * 3), 3);
+  model.activePolydata.getLines().setData(ACTIVE_CELLS);
+
+  model.activeMapper = vtkMapper.newInstance();
+  model.activeActor = vtkActor.newInstance();
+  model.activeActor.setMapper(model.activeMapper);
+  model.activeMapper.setInputData(model.activePolydata);
+
+  model.activeActor.setVisibility(false);
+  model.activeActor.getProperty().set({
+    ambient: 1.0,
+    diffuse: 0.0,
+  });
+  model.actors.push(model.activeActor);
 
   // --------------------------------------------------------------------------
   // Public API
@@ -369,6 +388,47 @@ function vtkSeismicEvents(publicAPI, model) {
     return null;
   };
 
+  publicAPI.activate = (id) => {
+    const ids = model.idArray.getData();
+    const inRange = id >= ids[0] && id <= ids[ids.length - 1];
+    if (inRange) {
+      const idx = id - ids[0];
+      const xyzs = model.polydata.getPoints().getData();
+      const x = xyzs[idx * 3];
+      const y = xyzs[idx * 3 + 1];
+      const z = xyzs[idx * 3 + 2];
+      const outPoints = model.activePolydata.getPoints();
+      const outXYZs = outPoints.getData();
+
+      outXYZs[0] = model.mineBounds[0] + model.translate[0];
+      outXYZs[1] = y;
+      outXYZs[2] = z;
+      outXYZs[3] = model.mineBounds[1] + model.translate[0];
+      outXYZs[4] = y;
+      outXYZs[5] = z;
+
+      outXYZs[6] = x;
+      outXYZs[7] = model.mineBounds[2] + model.translate[1];
+      outXYZs[8] = z;
+      outXYZs[9] = x;
+      outXYZs[10] = model.mineBounds[3] + model.translate[1];
+      outXYZs[11] = z;
+
+      outXYZs[12] = x;
+      outXYZs[13] = y;
+      outXYZs[14] = model.mineBounds[4] + model.translate[2];
+      outXYZs[15] = x;
+      outXYZs[16] = y;
+      outXYZs[17] = model.mineBounds[5] + model.translate[2];
+
+      outPoints.modified();
+      model.activePolydata.modified();
+    }
+    console.log(inRange);
+    model.activeActor.setVisibility(inRange);
+    publicAPI.render();
+  };
+
   // forwarding API
   publicAPI.setPointSize = model.actor.getProperty().setPointSize;
   publicAPI.getPointSize = model.actor.getProperty().getPointSize;
@@ -410,6 +470,7 @@ export function extend(publicAPI, model, initialValues = {}) {
     'renderer',
     'scalingFactor',
     'uncertaintyScalingFactor',
+    'lastIdList',
   ]);
   macro.setGetArray(publicAPI, model, ['translate'], 3);
   macro.setGetArray(publicAPI, model, ['mineBounds'], 6);

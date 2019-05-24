@@ -1,0 +1,18 @@
+<v-container fluid grid-list-md class="py-0 px-1">
+  <v-layout>
+    <v-flex>
+      <v-treeview
+        :active.sync="active"
+        :items="catalogue"
+        open-on-click
+        activatable
+      >
+        <template v-slot:prepend="{ item }">
+          <v-icon
+            v-text="$vuetify.icons[item.type]"
+          ></v-icon>
+        </template>
+      </v-treeview>
+    </v-flex>
+  </v-layout>
+</v-container>

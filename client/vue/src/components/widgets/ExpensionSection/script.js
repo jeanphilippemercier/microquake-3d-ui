@@ -3,7 +3,7 @@ export default {
   props: {
     id: {
       type: String,
-      default: 'mine',
+      default: '',
     },
     title: {
       type: String,
@@ -18,6 +18,9 @@ export default {
   },
   computed: {
     style() {
+      if (!this.id) {
+        return { opacity: 1 };
+      }
       let visible = false;
       this.id.split(',').forEach((v) => {
         visible = visible || this.$store.getters.QUAKE_COMPONENTS_VISIBILITY[v];

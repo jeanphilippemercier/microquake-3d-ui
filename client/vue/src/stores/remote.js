@@ -340,5 +340,8 @@ export default {
     REMOTE_SHOW_LOCATIONS({ dispatch }, locations) {
       return dispatch('PVW_SHOW_LOCATIONS', locations);
     },
+    REMOTE_ACTIVATE_EVENT() {
+      console.log('not implemented');
+    },
   },
 };

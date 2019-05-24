@@ -74,5 +74,8 @@ export default {
     API_SHOW_LOCATIONS({ state, dispatch }, locations) {
       return dispatch(`${state.mode}_SHOW_LOCATIONS`, locations);
     },
+    API_ACTIVATE_EVENT({ state, dispatch }, id) {
+      return dispatch(`${state.mode}_ACTIVATE_EVENT`, id);
+    },
   },
 };

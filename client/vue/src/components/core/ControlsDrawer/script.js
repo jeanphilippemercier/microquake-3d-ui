@@ -1,5 +1,6 @@
 import { mapGetters } from 'vuex';
 
+import Catalogue from 'paraview-quake/src/components/core/Catalogue';
 import MineVisibility from 'paraview-quake/src/components/core/MineVisibility';
 import FocusPeriod from 'paraview-quake/src/components/core/FocusPeriod';
 import HistoricalPeriod from 'paraview-quake/src/components/core/HistoricalPeriod';
@@ -12,6 +13,7 @@ export default {
     return {};
   },
   components: {
+    Catalogue,
     ExpensionSection,
     MineVisibility,
     FocusPeriod,

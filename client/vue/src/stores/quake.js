@@ -1,10 +1,20 @@
 import PRESETS from 'paraview-quake/src/presets';
+import DateHelper from 'paraview-quake/src/util/DateHelper';
 
 const RAY_DATA = {};
 const PREFERRED_ORIGIN_MAP = {};
+const TYPES = {
+  earthquake: 'seismicEvents',
+  explosion: 'blasts',
+};
+
+function byName(a, b) {
+  return b.name.localeCompare(a.name);
+}
 
 export default {
   state: {
+    catalogue: [],
     eventStatus: 'accepted',
     sensorChildren: [{ id: 'stations', name: 'Stations' }],
     refreshRate: 10,
@@ -122,6 +132,9 @@ export default {
     QUAKE_PREFERRED_ORIGIN_MAP() {
       return PREFERRED_ORIGIN_MAP;
     },
+    QUAKE_CATALOGUE(state) {
+      return state.catalogue;
+    },
   },
   mutations: {
     QUAKE_FOCUS_EVENT_STATUS_SET(state, value) {
@@ -197,6 +210,9 @@ export default {
     QUAKE_RAY_DATA_SET(state, { id, data }) {
       RAY_DATA[id] = data;
     },
+    QUAKE_CATALOGUE_SET(state, catalogue) {
+      state.catalogue = catalogue;
+    },
   },
   actions: {
     QUAKE_UPDATE_SITES({ commit }, sitesJson) {
@@ -217,6 +233,63 @@ export default {
         'QUAKE_PICKING_CENTER_OF_ROTATION_SET',
         !state.pickingCenterOfRotation
       );
+    },
+    QUAKE_UPDATE_CATALOGUE({ commit }, events) {
+      const catalogue = [];
+      const nodeMap = {};
+
+      for (let i = 0; i < events.length; i++) {
+        const event = events[i];
+
+        const hours = DateHelper.formatEpochTime(event.time_epoch);
+        const [year, month, day] = DateHelper.formatEpochDate(
+          event.time_epoch
+        ).split('/');
+        let currentKey = null;
+        let parentNode = null;
+
+        // Year
+        currentKey = `${year}`;
+        if (!nodeMap[currentKey]) {
+          const node = { name: `${year}`, id: currentKey, children: [] };
+          catalogue.push(node);
+          catalogue.sort(byName);
+          nodeMap[node.id] = node;
+        }
+        parentNode = nodeMap[currentKey];
+
+        // Month
+        currentKey = [year, month].join('/');
+        if (!nodeMap[currentKey]) {
+          const node = { name: `${month}`, id: currentKey, children: [] };
+          parentNode.children.push(node);
+          parentNode.children.sort(byName);
+          nodeMap[node.id] = node;
+        }
+        parentNode = nodeMap[currentKey];
+
+        // Day
+        currentKey = [year, month, day].join('/');
+        if (!nodeMap[currentKey]) {
+          const node = { name: `${day}`, id: currentKey, children: [] };
+          parentNode.children.push(node);
+          parentNode.children.sort(byName);
+          nodeMap[node.id] = node;
+        }
+        parentNode = nodeMap[currentKey];
+
+        // child
+        currentKey = event.event_resource_id;
+        const node = {
+          name: hours,
+          id: currentKey,
+          type: TYPES[event.event_type],
+        };
+        parentNode.children.push(node);
+        parentNode.children.sort(byName);
+      }
+
+      commit('QUAKE_CATALOGUE_SET', catalogue);
     },
   },
 };

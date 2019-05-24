@@ -39,6 +39,7 @@ Vue.use(Vuetify, {
     blasts: 'mdi-bomb',
     accepted: 'mdi-check-circle',
     rejected: 'mdi-close-circle',
+    catalogue: 'mdi-file-tree',
 
     // global settings
     undo: 'mdi-undo',
