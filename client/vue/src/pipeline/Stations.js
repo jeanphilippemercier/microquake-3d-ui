@@ -6,7 +6,6 @@ import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
 import vtkProp3D from 'vtk.js/Sources/Rendering/Core/Prop3D';
 import vtkGlyph3DMapper from 'vtk.js/Sources/Rendering/Core/Glyph3DMapper';
-// import vtkSphereMapper from 'vtk.js/Sources/Rendering/Core/SphereMapper';
 
 import vtkConeSource from 'vtk.js/Sources/Filters/Sources/ConeSource';
 
@@ -29,7 +28,7 @@ function vtkStations(publicAPI, model) {
   model.actors = [];
 
   model.lookupTable = vtkColorTransferFunction.newInstance();
-  model.lookupTable.applyColorMap(vtkColorMaps.getPresetByName('coolwarm'));
+  model.lookupTable.applyColorMap(vtkColorMaps.getPresetByName('Grayscale'));
 
   model.polydata = vtkPolyData.newInstance();
   model.polydata.getPointData().addArray(
