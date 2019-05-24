@@ -106,6 +106,12 @@ export default {
           pipeline.stations.setInput(data);
           renderer.addViewProp(pipeline.stations);
         });
+
+        // Triger live update
+        const timeout = getters.QUAKE_LIVE_REFRESH_RATE * 60 * 1000; // minutes => ms
+        setTimeout(() => {
+          dispatch('LOCAL_LIVE_UPDATE');
+        }, timeout);
       });
     },
     LOCAL_UPDATE_UNCERTAINTY_SCALING({ getters }) {
@@ -563,6 +569,32 @@ export default {
             pipeline.historicEvents.getSelectionData(selection)
         );
       }
+    },
+    LOCAL_LIVE_UPDATE({ getters, commit, dispatch }) {
+      // Fetch events only when listening till "now"
+      if (getters.QUAKE_FOCUS_PERIOD[1] > 2160) {
+        dispatch('LOCAL_UPDATE_EVENTS');
+      }
+
+      // Fetch mine update
+      dispatch('HTTP_FETCH_MINES').then((response) => {
+        const minePlanJson = response.data[0];
+        commit('LOCAL_MINE_PLAN_SET', minePlanJson);
+
+        // fetch any missing piece
+        // FIXME: @scott
+      });
+
+      // Fetch stations for status
+      dispatch('HTTP_FETCH_STATIONS').then(({ data }) => {
+        getters.LOCAL_PIPELINE_OBJECTS.stations.setInput(data);
+      });
+
+      // Reschedule ourself
+      const timeout = getters.QUAKE_LIVE_REFRESH_RATE * 60 * 1000; // minutes => ms
+      setTimeout(() => {
+        dispatch('LOCAL_LIVE_UPDATE');
+      }, timeout);
     },
   },
 };
