@@ -284,6 +284,7 @@ export default {
           name: hours,
           id: currentKey,
           type: TYPES[event.event_type],
+          magnitude: event.magnitude,
         };
         parentNode.children.push(node);
         parentNode.children.sort(byName);
