@@ -27,6 +27,7 @@ const EMPTY_NETWORK = { networks: [] };
 // ----------------------------------------------------------------------------
 
 const VISIBILITY_ICON_INDEX_MAPPING = [
+  'catalogue',
   'mine',
   'seismicEvents',
   'blast',
@@ -94,9 +95,7 @@ export default {
     componentsVisibility: {
       get() {
         const visibilityMap = this.$store.getters.QUAKE_COMPONENTS_VISIBILITY;
-        return VISIBILITY_ICON_INDEX_MAPPING.map((v, i) =>
-          visibilityMap[v] ? i : -1
-        );
+        return Object.keys(visibilityMap).filter((k) => visibilityMap[k]);
       },
       set(value) {
         const visibilityMap = Object.assign(
@@ -109,10 +108,7 @@ export default {
         });
 
         for (let i = 0; i < value.length; i++) {
-          const key = VISIBILITY_ICON_INDEX_MAPPING[value[i]];
-          if (key) {
-            visibilityMap[key] = true;
-          }
+          visibilityMap[value[i]] = true;
         }
         pushVisibilityChanges(this.$store, visibilityMap);
       },

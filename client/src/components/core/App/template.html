@@ -226,33 +226,39 @@
         class="mr-2"
       >
         <v-tooltip bottom>
+          <span>Show/Hide Catalogue</span>
+          <v-btn flat slot="activator" value="catalogue">
+            <v-icon>{{ $vuetify.icons.catalogue }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
           <span>Show/Hide Mine</span>
-          <v-btn flat slot="activator">
+          <v-btn flat slot="activator" value="mine">
             <v-icon>{{ $vuetify.icons.mines }}</v-icon>
           </v-btn>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Seismic events</span>
-          <v-btn flat slot="activator">
+          <v-btn flat slot="activator" value="seismicEvents">
             <v-icon>{{ $vuetify.icons.seismicEvents }}</v-icon>
           </v-btn>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Blast</span>
-          <v-btn flat slot="activator">
+          <v-btn flat slot="activator" value="blast">
             <v-icon>{{ $vuetify.icons.blasts }}</v-icon>
           </v-btn>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Historical events</span>
-          <v-btn flat slot="activator">
+          <v-btn flat slot="activator" value="historicEvents">
             <v-icon>{{ $vuetify.icons.historicalEvents }}</v-icon>
           </v-btn>
         </v-tooltip>
         <v-divider vertical />
         <v-tooltip bottom>
           <span>Show/Hide Uncertainty</span>
-          <v-btn flat slot="activator">
+          <v-btn flat slot="activator" value="uncertainty">
             <v-icon>{{ $vuetify.icons.uncertainty }}</v-icon>
           </v-btn>
         </v-tooltip>

@@ -1,17 +1,36 @@
 <div :class="$style.noSelectChildren">
-  <expension-section id="mine" title="Mine" :icon="$vuetify.icons.mines">
+  <expension-section
+    v-show="!showCatalogue"
+    id="mine"
+    title="Mine"
+    :icon="$vuetify.icons.mines"
+  >
     <mine-visibility />
   </expension-section>
 
-  <expension-section id="seismicEvents,blast" title="Focus period" :icon="$vuetify.icons.seismicEvents">
+  <expension-section
+    v-show="!showCatalogue"
+    id="seismicEvents,blast"
+    title="Focus period"
+    :icon="$vuetify.icons.seismicEvents"
+  >
     <focus-period />
   </expension-section>
 
-  <expension-section id="historicEvents" title="Historical period" :icon="$vuetify.icons.historicalEvents">
+  <expension-section
+    v-show="!showCatalogue"
+    id="historicEvents"
+    title="Historical period"
+    :icon="$vuetify.icons.historicalEvents"
+  >
     <historical-period />
   </expension-section>
 
-  <expension-section title="Catalogue" :icon="$vuetify.icons.catalogue">
+  <expension-section
+    v-show="showCatalogue"
+    title="Catalogue"
+    :icon="$vuetify.icons.catalogue"
+  >
     <catalogue />
   </expension-section>
 </div>

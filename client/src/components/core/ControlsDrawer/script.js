@@ -23,5 +23,8 @@ export default {
     ...mapGetters({
       componentsVisibility: 'QUAKE_COMPONENTS_VISIBILITY',
     }),
+    showCatalogue() {
+      return this.componentsVisibility.catalogue;
+    },
   },
 };
