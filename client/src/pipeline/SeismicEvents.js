@@ -424,7 +424,6 @@ function vtkSeismicEvents(publicAPI, model) {
       outPoints.modified();
       model.activePolydata.modified();
     }
-    console.log(inRange);
     model.activeActor.setVisibility(inRange);
     publicAPI.render();
   };
