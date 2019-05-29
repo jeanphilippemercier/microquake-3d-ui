@@ -11,6 +11,7 @@ export default {
     ...mapGetters({
       darkMode: 'APP_DARK_THEME',
       catalogue: 'QUAKE_CATALOGUE',
+      labelTypeMapping: 'QUAKE_TYPE_MAPPING',
     }),
   },
   methods: {

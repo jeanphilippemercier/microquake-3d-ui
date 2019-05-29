@@ -14,6 +14,15 @@ function byName(a, b) {
 
 export default {
   state: {
+    typeMapping: {
+      thunder: 'L',
+      'controlled explosion': 'OB',
+      'anthropogenic event': 'SE',
+      'other event': 'N',
+      'quarry blast': 'OP',
+      explosion: 'B',
+      earthquake: 'E',
+    },
     catalogue: [],
     eventStatus: 'accepted',
     sensorChildren: [{ id: 'stations', name: 'Stations' }],
@@ -135,6 +144,9 @@ export default {
     QUAKE_CATALOGUE(state) {
       return state.catalogue;
     },
+    QUAKE_TYPE_MAPPING(state) {
+      return state.typeMapping;
+    },
   },
   mutations: {
     QUAKE_FOCUS_EVENT_STATUS_SET(state, value) {
@@ -213,6 +225,9 @@ export default {
     QUAKE_CATALOGUE_SET(state, catalogue) {
       state.catalogue = catalogue;
     },
+    QUAKE_TYPE_MAPPING_SET(state, value) {
+      state.typeMapping = value;
+    },
   },
   actions: {
     QUAKE_UPDATE_SITES({ commit }, sitesJson) {
@@ -283,7 +298,7 @@ export default {
         const node = {
           name: hours,
           id: currentKey,
-          type: TYPES[event.event_type],
+          type: TYPES[event.event_type] || event.event_type,
           magnitude: event.magnitude,
         };
         parentNode.children.push(node);

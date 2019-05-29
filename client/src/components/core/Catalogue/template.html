@@ -8,6 +8,11 @@
         activatable
       >
         <template v-slot:prepend="{ item }">
+          <div
+            class="mr-2"
+            style="width: 24px; text-align: center;"
+            v-if="!$vuetify.icons[item.type] && item.type"
+          >{{ labelTypeMapping[item.type] || item.type }}</div>
           <v-icon
             v-if="!!$vuetify.icons[item.type]"
             v-text="$vuetify.icons[item.type]"
