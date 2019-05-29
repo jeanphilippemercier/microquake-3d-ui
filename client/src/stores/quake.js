@@ -195,11 +195,11 @@ export default {
       state.raysInScene = value;
     },
     QUAKE_SITE_MAP_SET(state, value) {
-      console.log(`Setting QUAKE_SITE_MAP to ${value}`);
       state.siteMap = value;
     },
     QUAKE_SELECTED_SITE_SET(state, value) {
       state.selectedSite = value;
+      DateHelper.setTimeZone(state.siteMap[value].timezone);
     },
     QUAKE_SELECTED_NETWORK_SET(state, value) {
       state.selectedNetwork = value;
@@ -219,8 +219,8 @@ export default {
       console.log('Made it into QUAKE_UPDATE_SITES');
       const siteMapObj = {};
       sitesJson.forEach((siteJson) => {
-        const { name, code, networks } = siteJson;
-        const siteObj = { text: name, value: code, networks: [] };
+        const { name, code, networks, timezone } = siteJson;
+        const siteObj = { text: name, value: code, networks: [], timezone };
         networks.forEach((network) => {
           siteObj.networks.push({ text: network.name, value: network.code });
         });

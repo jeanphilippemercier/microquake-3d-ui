@@ -225,7 +225,7 @@ function vtkSeismicEvents(publicAPI, model) {
     const coords = new Float32Array(size * 3);
     const idArray = new Uint32Array(size);
     const magnitudeArray = new Float32Array(size);
-    const timeArray = new Uint32Array(size);
+    const timeArray = new Float64Array(size);
     const uncertaintyArray = new Float32Array(size);
     const uncertaintyDirectionArray = new Float32Array(size * 3);
     // ------------------------------------------------------------------------

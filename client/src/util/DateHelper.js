@@ -4,6 +4,8 @@ const TIME_UNITS = [
   { label: 'day', labelPlurial: 'days', base: 24 },
 ];
 
+let OFFSET_IN_MS = 0;
+
 function pad(number) {
   if (number < 10) {
     return `0${number}`;
@@ -50,7 +52,9 @@ function formatEpochTime(epoch) {
   if (Number.isNaN(epoch)) {
     return 'N/A';
   }
-  const isoStr = new Date(epoch / 1000000).toISOString().split('T');
+  const isoStr = new Date(OFFSET_IN_MS + epoch / 1000000)
+    .toISOString()
+    .split('T');
   return `${isoStr[1].split('.')[0]}`;
 }
 
@@ -58,8 +62,19 @@ function formatEpochDate(epoch) {
   if (Number.isNaN(epoch)) {
     return 'N/A';
   }
-  const isoStr = new Date(epoch / 1000000).toISOString().split('T');
+  const isoStr = new Date(OFFSET_IN_MS + epoch / 1000000)
+    .toISOString()
+    .split('T');
   return `${isoStr[0].replace(/-/g, '/')}`;
+}
+
+function setTimeZone(strOffset) {
+  const [hours, min] = strOffset.split(':').map(Number);
+  const sign = hours < 0 ? -1 : +1;
+  OFFSET_IN_MS = 0;
+  OFFSET_IN_MS += min * 60000;
+  OFFSET_IN_MS += Math.abs(hours) * 60 * 60000;
+  OFFSET_IN_MS *= sign;
 }
 
 export default {
@@ -68,4 +83,5 @@ export default {
   formatEpochTime,
   formatEpochDate,
   getHoursFromNow,
+  setTimeZone,
 };

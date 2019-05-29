@@ -9,7 +9,9 @@
       >
         <template v-slot:prepend="{ item }">
           <v-icon
+            v-if="!!$vuetify.icons[item.type]"
             v-text="$vuetify.icons[item.type]"
+            class="mr-2"
           />
         </template>
         <template v-slot:label="{ item }" >
