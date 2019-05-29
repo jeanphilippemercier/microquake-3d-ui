@@ -31,6 +31,16 @@
             </div>
           </v-layout>
         </template>
+        <template v-slot:append="{ item }" >
+          <v-btn
+            icon
+            small
+            v-if="item.open"
+            @click="open(item.id)"
+          >
+            <v-icon small>{{ $vuetify.icons.waveform}}</v-icon>
+          </v-btn>
+        </template>
       </v-treeview>
     </v-flex>
   </v-layout>

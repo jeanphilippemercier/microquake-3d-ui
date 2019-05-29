@@ -60,6 +60,9 @@ Vue.use(Vuetify, {
     pickedDate: 'mdi-calendar',
     pickedTime: 'mdi-clock-outline',
     pickedPosition: 'mdi-crosshairs-gps',
+
+    // catalogue
+    waveform: 'mdi-open-in-new',
   },
 });
 

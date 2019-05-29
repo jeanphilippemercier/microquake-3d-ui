@@ -300,6 +300,7 @@ export default {
           id: currentKey,
           type: TYPES[event.event_type] || event.event_type,
           magnitude: event.magnitude,
+          open: true,
         };
         parentNode.children.push(node);
         parentNode.children.sort(byName);
