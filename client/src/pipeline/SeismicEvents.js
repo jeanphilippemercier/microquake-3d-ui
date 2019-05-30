@@ -428,6 +428,13 @@ function vtkSeismicEvents(publicAPI, model) {
     publicAPI.render();
   };
 
+  publicAPI.updateGlyph = (g) => {
+    if (model.glyph) {
+      model.glyph = g;
+      model.mapper.setInputData(model.glyph, 1);
+    }
+  };
+
   // forwarding API
   publicAPI.setPointSize = model.actor.getProperty().setPointSize;
   publicAPI.getPointSize = model.actor.getProperty().getPointSize;

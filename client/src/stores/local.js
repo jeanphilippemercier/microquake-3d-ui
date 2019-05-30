@@ -1,5 +1,6 @@
-import vtkSphereSource from 'vtk.js/Sources/Filters/Sources/SphereSource';
 import vtkCubeSource from 'vtk.js/Sources/Filters/Sources/CubeSource';
+import vtkSphereSource from 'vtk.js/Sources/Filters/Sources/SphereSource';
+import vtkXMLPolyDataReader from 'vtk.js/Sources/IO/XML/XMLPolyDataReader';
 
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import handlePiece from 'paraview-quake/src/pipeline/MinePieceHandler';
@@ -13,6 +14,11 @@ import vtkStations from 'paraview-quake/src/pipeline/Stations';
 
 const PIPELINE_ITEMS = {};
 let LIVE_TIMEOUT = 0;
+
+const vtpReader = vtkXMLPolyDataReader.newInstance();
+const BLAST_GLYPH = vtpReader.setUrl('/blast.vtp').then(() => {
+  return vtpReader.getOutputData();
+});
 
 export default {
   state: {
@@ -258,6 +264,7 @@ export default {
           mineBounds,
           glyph: cubeSource.getOutputData(),
         });
+        BLAST_GLYPH.then(pipeline.blast.updateGlyph);
 
         pipeline.historicEvents = vtkSeismicEvents.newInstance({
           translate,
