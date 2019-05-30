@@ -5,6 +5,7 @@ const TIME_UNITS = [
 ];
 
 let OFFSET_IN_MS = 0;
+const UTC_OFFSET = (new Date()).getTimezoneOffset() * 60000;
 
 function pad(number) {
   if (number < 10) {
@@ -14,12 +15,14 @@ function pad(number) {
 }
 
 function getDateFromNow(nbHours = 0) {
-  const timeStamp = nbHours < 24 ? new Date() : new Date(Date.now() - nbHours * 3600000);
-  const year = timeStamp.getFullYear();
-  const month = pad(timeStamp.getMonth() + 1);
-  const day = pad(timeStamp.getDate());
-  const hours = pad(timeStamp.getHours());
-  const minutes = pad(timeStamp.getMinutes());
+  const localTS = nbHours < 24 ? new Date() : new Date(Date.now() - nbHours * 3600000);
+  const utcTS = new Date(localTS + UTC_OFFSET);
+
+  const year = utcTS.getFullYear();
+  const month = pad(utcTS.getMonth() + 1);
+  const day = pad(utcTS.getDate());
+  const hours = pad(utcTS.getHours());
+  const minutes = pad(utcTS.getMinutes());
 
   return `${year}-${month}-${day}T${hours}:${minutes}:00.0`;
 }

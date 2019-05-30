@@ -212,7 +212,7 @@ function vtkSeismicEvents(publicAPI, model) {
       model.eventType
     );
     const size = filteredEvents.length;
-    console.log(`update ${model.eventType} ${size} ${model.mineBounds}`);
+    console.log(`update ${model.eventType} ${size}`);
 
     // ------------------------------------------------------------------------
     // Allocate + fill arrays
