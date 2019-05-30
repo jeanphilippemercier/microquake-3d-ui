@@ -1,6 +1,7 @@
 export default {
   state: {
     mode: 'LOCAL',
+    activeEvent: null,
   },
   getters: {
     API_RENDER_MODE(state) {
@@ -8,6 +9,9 @@ export default {
     },
     API_LOCAL_RENDERING(state) {
       return state.mode === 'LOCAL';
+    },
+    API_ACTIVE_EVENT(state) {
+      return state.activeEvent;
     },
   },
   mutations: {
@@ -17,10 +21,12 @@ export default {
     API_LOCAL_RENDERING_SET(state, value) {
       state.mode = value ? 'LOCAL' : 'REMOTE';
     },
+    API_ACTIVE_EVENT_SET(state, value) {
+      state.activeEvent = value;
+    },
   },
   actions: {
     API_INITIALIZE({ state, dispatch }) {
-      console.log(' !!! Triggering application init !!!');
       return dispatch(`${state.mode}_INITIALIZE`);
     },
     API_UPDATE_UNCERTAINTY_SCALING({ state, dispatch }) {
@@ -74,8 +80,12 @@ export default {
     API_SHOW_LOCATIONS({ state, dispatch }, locations) {
       return dispatch(`${state.mode}_SHOW_LOCATIONS`, locations);
     },
-    API_ACTIVATE_EVENT({ state, dispatch }, id) {
+    API_ACTIVATE_EVENT({ state, commit, dispatch }, id) {
+      commit('API_ACTIVE_EVENT_SET', id);
       return dispatch(`${state.mode}_ACTIVATE_EVENT`, id);
+    },
+    API_LIVE_UPDATE({ state, dispatch }) {
+      return dispatch(`${state.mode}_LIVE_UPDATE`);
     },
   },
 };

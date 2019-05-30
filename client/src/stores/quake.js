@@ -14,6 +14,7 @@ function byName(a, b) {
 
 export default {
   state: {
+    liveMode: false,
     typeMapping: {
       thunder: 'L',
       'controlled explosion': 'OB',
@@ -59,6 +60,9 @@ export default {
     userAcceptedSite: false,
   },
   getters: {
+    QUAKE_LIVE_MODE(state) {
+      return state.liveMode;
+    },
     QUAKE_FOCUS_EVENT_STATUS(state) {
       return state.eventStatus;
     },
@@ -149,6 +153,9 @@ export default {
     },
   },
   mutations: {
+    QUAKE_LIVE_MODE_SET(state, value) {
+      state.liveMode = value;
+    },
     QUAKE_FOCUS_EVENT_STATUS_SET(state, value) {
       state.eventStatus = value;
     },
@@ -231,7 +238,6 @@ export default {
   },
   actions: {
     QUAKE_UPDATE_SITES({ commit }, sitesJson) {
-      console.log('Made it into QUAKE_UPDATE_SITES');
       const siteMapObj = {};
       sitesJson.forEach((siteJson) => {
         const { name, code, networks, timezone } = siteJson;
@@ -249,7 +255,7 @@ export default {
         !state.pickingCenterOfRotation
       );
     },
-    QUAKE_UPDATE_CATALOGUE({ commit }, events) {
+    QUAKE_UPDATE_CATALOGUE({ getters, commit, dispatch }, events) {
       const catalogue = [];
       const nodeMap = {};
 
@@ -309,6 +315,20 @@ export default {
       }
 
       commit('QUAKE_CATALOGUE_SET', catalogue);
+
+      if (getters.QUAKE_LIVE_MODE) {
+        // Activate most recent event
+        dispatch(
+          'API_ACTIVATE_EVENT',
+          catalogue[0].children[0].children[0].children[0].id
+        );
+      }
+    },
+    QUAKE_UPDATE_LIVE_MODE({ getters, commit, dispatch }) {
+      if (getters.QUAKE_LIVE_MODE) {
+        commit('QUAKE_FOCUS_PERIOD_SET', [2190 - 72, 2190]);
+        dispatch('API_LIVE_UPDATE');
+      }
     },
   },
 };

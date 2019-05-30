@@ -167,6 +167,20 @@
         </v-flex>
       </v-layout>
     </v-container>
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs10>
+          <span class="body-2">Live mode</span>
+        </v-flex>
+        <v-flex xs2>
+          <v-switch
+            v-model="liveMode"
+            hide-details
+            class="pt-0 mt-0"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
   </v-card>
 
 </v-container>

@@ -14,7 +14,7 @@ function pad(number) {
 }
 
 function getDateFromNow(nbHours = 0) {
-  const timeStamp = new Date(Date.now() - nbHours * 3600000);
+  const timeStamp = nbHours < 24 ? new Date() : new Date(Date.now() - nbHours * 3600000);
   const year = timeStamp.getFullYear();
   const month = pad(timeStamp.getMonth() + 1);
   const day = pad(timeStamp.getDate());

@@ -3,17 +3,21 @@ import URLHelper from 'paraview-quake/src/util/URLHelper';
 
 export default {
   name: 'Catalogue',
-  data() {
-    return {
-      active: [],
-    };
-  },
   computed: {
     ...mapGetters({
       darkMode: 'APP_DARK_THEME',
       catalogue: 'QUAKE_CATALOGUE',
       labelTypeMapping: 'QUAKE_TYPE_MAPPING',
+      activeEvent: 'API_ACTIVE_EVENT',
     }),
+    active: {
+      get() {
+        return [this.activeEvent];
+      },
+      set(v) {
+        this.updateActiveEvent(v[0]);
+      },
+    },
   },
   methods: {
     ...mapActions({
@@ -24,11 +28,6 @@ export default {
       const url = URLHelper.getWaveformURLForEvent(id);
       const win = window.open(url, '_blank');
       win.focus();
-    },
-  },
-  watch: {
-    active(v) {
-      this.updateActiveEvent(v[0]);
     },
   },
 };

@@ -40,6 +40,13 @@ function rangeGet(v) {
 }
 
 const KEYS = {
+  LIVE_MODE: {
+    name: 'livemode',
+    set: booleanSet,
+    get: booleanGet,
+    defaultValue: false,
+    variable: 'liveMode',
+  },
   DARK_MODE: {
     name: 'darkmode',
     set: booleanSet,
@@ -157,6 +164,9 @@ export default {
     advancedOrientation() {
       this.$store.dispatch('VIEW_TOGGLE_WIDGET_MANAGER');
     },
+    liveMode() {
+      this.$store.dispatch('QUAKE_UPDATE_LIVE_MODE');
+    },
   },
   computed: {
     ...mapGetters({
@@ -181,6 +191,18 @@ export default {
       },
       set(value) {
         return this.wrapSet('APP_DARK_THEME_SET', 'DARK_MODE', value);
+      },
+    },
+    liveMode: {
+      get() {
+        return this.wrapGet(
+          'QUAKE_LIVE_MODE',
+          'QUAKE_LIVE_MODE_SET',
+          'LIVE_MODE'
+        );
+      },
+      set(value) {
+        return this.wrapSet('QUAKE_LIVE_MODE_SET', 'LIVE_MODE', value);
       },
     },
     advancedOrientation: {

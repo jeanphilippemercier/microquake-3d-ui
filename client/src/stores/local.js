@@ -12,6 +12,7 @@ import vtkLocations from 'paraview-quake/src/pipeline/Locations';
 import vtkStations from 'paraview-quake/src/pipeline/Stations';
 
 const PIPELINE_ITEMS = {};
+let LIVE_TIMEOUT = 0;
 
 export default {
   state: {
@@ -112,6 +113,7 @@ export default {
         setTimeout(() => {
           dispatch('LOCAL_LIVE_UPDATE');
         }, timeout);
+        dispatch('QUAKE_UPDATE_LIVE_MODE');
       });
     },
     LOCAL_UPDATE_UNCERTAINTY_SCALING({ getters }) {
@@ -197,9 +199,7 @@ export default {
       // Handle pipeline visibility (mine plan + sensor + ray)
       keys.forEach((key) => {
         const visibility = componentsVisibility[key];
-        // console.log(`stored visibility of ${key} is ${visibility}`);
         if (visibility !== undefined && key in pipeline) {
-          console.log(`  Setting visibility of ${key} to ${visibility}`);
           pipeline[key].setVisibility(visibility);
         }
       });
@@ -229,7 +229,6 @@ export default {
       const hTime = DateHelper.getDateFromNow(historicalTime);
 
       if (!mineBounds) {
-        // console.error('No mine bounds set yet, cannot update events');
         return Promise.reject('No mine bounds set yet, cannot update events');
       }
 
@@ -300,7 +299,6 @@ export default {
         });
     },
     LOCAL_UPDATE_MINE_VISIBILITY({ getters }) {
-      // console.log('LOCAL_UPDATE_MINE_VISIBILITY');
       const mine = getters.QUAKE_MINE;
       const visibility = getters.QUAKE_MINE_VISIBILITY;
       const mineVisibility = getters.QUAKE_COMPONENTS_VISIBILITY.mine;
@@ -452,7 +450,6 @@ export default {
 
           const bounds = minePlanJson.boundaries;
           commit('LOCAL_MINE_BOUNDS_SET', bounds);
-          console.log(`Just set mine bounds to ${bounds}`);
 
           // Translate x, y to the center of the bounds, translate z so the ground
           // shows up as 0.
@@ -476,8 +473,8 @@ export default {
 
           function loadNextPiece() {
             if (piecesToLoad.length <= 0) {
-              console.log('Finished loading pieces');
               pushVisibilities();
+              dispatch('LOCAL_RESET_CAMERA');
               return;
             }
             const nextPieceToLoad = piecesToLoad.pop();
@@ -545,13 +542,12 @@ export default {
           // commit('QUAKE_MINE_VISIBILITY_SET', mineVisibility);
         })
         .catch((error) => {
-          // console.error('Encountered error retrieving mineplan');
+          console.error('Encountered error retrieving mineplan');
           console.error(error);
           return Promise.reject('Encountered error retrieving mineplan');
         });
     },
     LOCAL_SHOW_LOCATIONS({ getters }, xyz) {
-      console.log('LOCAL_SHOW_LOCATIONS', xyz);
       const renderer = getters.VIEW_LOCAL_RENDERER;
       const translate = getters.LOCAL_MINE_TRANSLATE;
       const locations = vtkLocations.newInstance({ renderer, translate });
@@ -573,6 +569,11 @@ export default {
       }
     },
     LOCAL_LIVE_UPDATE({ getters, commit, dispatch }) {
+      if (LIVE_TIMEOUT) {
+        clearTimeout(LIVE_TIMEOUT);
+        LIVE_TIMEOUT = 0;
+      }
+
       // Fetch events only when listening till "now"
       if (getters.QUAKE_FOCUS_PERIOD[1] > 2160) {
         dispatch('LOCAL_UPDATE_EVENTS');
@@ -592,9 +593,11 @@ export default {
         getters.LOCAL_PIPELINE_OBJECTS.stations.setInput(data);
       });
 
-      // Reschedule ourself
-      const timeout = getters.QUAKE_LIVE_REFRESH_RATE * 60 * 1000; // minutes => ms
-      setTimeout(() => {
+      // Reschedule ourself minutes => ms
+      const timeout = getters.QUAKE_LIVE_MODE
+        ? 30000 // 30s
+        : getters.QUAKE_LIVE_REFRESH_RATE * 60 * 1000;
+      LIVE_TIMEOUT = setTimeout(() => {
         dispatch('LOCAL_LIVE_UPDATE');
       }, timeout);
     },
