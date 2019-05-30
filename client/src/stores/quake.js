@@ -299,9 +299,11 @@ export default {
           name: hours,
           id: currentKey,
           type: TYPES[event.event_type] || event.event_type,
-          magnitude: event.magnitude,
           open: true,
         };
+        if (event.magnitude > -999) {
+          node.magnitude = event.magnitude;
+        }
         parentNode.children.push(node);
         parentNode.children.sort(byName);
       }

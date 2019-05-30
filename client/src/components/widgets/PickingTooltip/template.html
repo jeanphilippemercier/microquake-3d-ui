@@ -9,10 +9,15 @@
            {{ dateHelper.formatEpochDate(pickedData.time) }}
         </v-flex>
         <v-flex xs2 :class="$style.center">
-          <v-icon color="#333">{{ $vuetify.icons.quakeTrace }}</v-icon>
+          <v-icon
+            color="#333"
+            v-if="pickedData.magnitude > -999"
+          >{{ $vuetify.icons.quakeTrace }}</v-icon>
         </v-flex>
         <v-flex xs4>
-          {{ (pickedData.magnitude || 0).toFixed(2) }}
+          <span v-if="pickedData.magnitude > -999">
+            {{ (pickedData.magnitude || 0).toFixed(2) }}
+          </span>
         </v-flex>
         <v-flex xs2 :class="$style.center">
           <v-icon color="#333">{{ $vuetify.icons.pickedTime }}</v-icon>
