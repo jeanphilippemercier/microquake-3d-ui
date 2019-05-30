@@ -1,5 +1,19 @@
 import axios from 'axios';
 
+function busy(dispatch, promise) {
+  dispatch('BUSY_START');
+  return promise.then(
+    (a) => {
+      dispatch('BUSY_END');
+      return a;
+    },
+    (a) => {
+      dispatch('BUSY_END');
+      return a;
+    }
+  );
+}
+
 export default {
   state: {
     baseUrl: 'https://api.microquake.org/api',
@@ -22,7 +36,7 @@ export default {
     },
   },
   actions: {
-    HTTP_AUTHENTICATE({ getters }) {
+    HTTP_AUTHENTICATE({ getters, dispatch }) {
       const baseUrl = getters.HTTP_BASE_URL;
       const username = getters.APP_AUTH_USER_NAME;
       const password = getters.APP_AUTH_USER_PASSWORD;
@@ -33,9 +47,9 @@ export default {
         data: { username, password },
       };
 
-      return axios(request);
+      return busy(dispatch, axios(request));
     },
-    HTTP_FETCH_MINES({ getters }) {
+    HTTP_FETCH_MINES({ getters, dispatch }) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
       const siteCode = getters.QUAKE_SELECTED_SITE;
@@ -53,9 +67,9 @@ export default {
         },
       };
 
-      return axios(request);
+      return busy(dispatch, axios(request));
     },
-    HTTP_FETCH_EVENTS({ getters }, [startTime, endTime, status]) {
+    HTTP_FETCH_EVENTS({ getters, dispatch }, [startTime, endTime, status]) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
 
@@ -72,9 +86,9 @@ export default {
         },
       };
 
-      return axios(request);
+      return busy(dispatch, axios(request));
     },
-    HTTP_FETCH_SITES({ getters }) {
+    HTTP_FETCH_SITES({ getters, dispatch }) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
 
@@ -86,9 +100,9 @@ export default {
         },
       };
 
-      return axios(request);
+      return busy(dispatch, axios(request));
     },
-    HTTP_FETCH_RAYS({ getters }, event_id) {
+    HTTP_FETCH_RAYS({ getters, dispatch }, event_id) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
 
@@ -101,9 +115,9 @@ export default {
         params: { event_id },
       };
 
-      return axios(request);
+      return busy(dispatch, axios(request));
     },
-    HTTP_FETCH_STATIONS({ getters }) {
+    HTTP_FETCH_STATIONS({ getters, dispatch }) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
 
@@ -115,7 +129,7 @@ export default {
         },
       };
 
-      return axios(request);
+      return busy(dispatch, axios(request));
     },
   },
 };

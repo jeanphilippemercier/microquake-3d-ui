@@ -19,4 +19,12 @@ export default {
       state.count = value;
     },
   },
+  actions: {
+    BUSY_START({ state }) {
+      state.count++;
+    },
+    BUSY_END({ state }) {
+      state.count--;
+    },
+  },
 };
