@@ -18,7 +18,7 @@ function getDateFromNow(nbHours = 0) {
   console.log('getDateFromNow', nbHours, UTC_OFFSET);
   const localTS =
     nbHours < 24 ? new Date() : new Date(Date.now() - nbHours * 3600000);
-  const utcTS = new Date(localTS + UTC_OFFSET);
+  const utcTS = new Date(localTS.getTime() + UTC_OFFSET);
   console.log('localTS', localTS);
   console.log('utcTS', utcTS);
 
