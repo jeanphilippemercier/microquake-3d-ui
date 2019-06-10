@@ -15,9 +15,12 @@ function pad(number) {
 }
 
 function getDateFromNow(nbHours = 0) {
+  console.log('getDateFromNow', nbHours, UTC_OFFSET);
   const localTS =
     nbHours < 24 ? new Date() : new Date(Date.now() - nbHours * 3600000);
   const utcTS = new Date(localTS + UTC_OFFSET);
+  console.log('localTS', localTS);
+  console.log('utcTS', utcTS);
 
   const year = utcTS.getFullYear();
   const month = pad(utcTS.getMonth() + 1);
@@ -46,39 +49,47 @@ function getShortTimeLabel(value) {
 }
 
 function getHoursFromNow(strDate) {
+  console.log('getHoursFromNow', strDate);
   const deltaHours = Math.round(
     (Date.now() - new Date(`${strDate}T00:00:00.0`)) / 3600000
   );
+  console.log('deltaHours', deltaHours);
   return deltaHours;
 }
 
 function formatEpochTime(epoch) {
+  console.log('formatEpochTime', epoch);
   if (Number.isNaN(epoch)) {
     return 'N/A';
   }
   const isoStr = new Date(OFFSET_IN_MS + epoch / 1000000)
     .toISOString()
     .split('T');
+  console.log('isoStr', isoStr);
   return `${isoStr[1].split('.')[0]}`;
 }
 
 function formatEpochDate(epoch) {
+  console.log('formatEpochDate', epoch);
   if (Number.isNaN(epoch)) {
     return 'N/A';
   }
   const isoStr = new Date(OFFSET_IN_MS + epoch / 1000000)
     .toISOString()
     .split('T');
+  console.log('isoStr', isoStr);
   return `${isoStr[0].replace(/-/g, '/')}`;
 }
 
 function setTimeZone(strOffset) {
+  console.log('setTimeZone', strOffset);
   const [hours, min] = strOffset.split(':').map(Number);
   const sign = hours < 0 ? -1 : +1;
   OFFSET_IN_MS = 0;
   OFFSET_IN_MS += min * 60000;
   OFFSET_IN_MS += Math.abs(hours) * 60 * 60000;
   OFFSET_IN_MS *= sign;
+  console.log('OFFSET_IN_MS', OFFSET_IN_MS);
 }
 
 export default {
