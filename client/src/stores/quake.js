@@ -218,7 +218,12 @@ export default {
     },
     QUAKE_SELECTED_SITE_SET(state, value) {
       state.selectedSite = value;
-      DateHelper.setTimeZone(state.siteMap[value].timezone);
+      DateHelper.setTimeZone(
+        (state.siteMap &&
+          state.siteMap[value] &&
+          state.siteMap[value].timezone) ||
+          '+08:00'
+      );
     },
     QUAKE_SELECTED_NETWORK_SET(state, value) {
       state.selectedNetwork = value;

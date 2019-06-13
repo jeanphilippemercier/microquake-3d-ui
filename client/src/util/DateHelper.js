@@ -18,15 +18,23 @@ function getDateFromNow(nbHours = 0) {
   const localTS =
     nbHours < 24 ? new Date() : new Date(Date.now() - nbHours * 3600000);
   const utcTS = new Date(localTS.getTime() + UTC_OFFSET);
-  console.log('utcTS', utcTS);
 
-  const year = utcTS.getFullYear();
-  const month = pad(utcTS.getMonth() + 1);
-  const day = pad(utcTS.getDate());
-  const hours = pad(utcTS.getHours());
-  const minutes = pad(utcTS.getMinutes());
+  return dateToString(utcTS);
+}
+
+function dateToString(date) {
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
 
   return `${year}-${month}-${day}T${hours}:${minutes}:00.0`;
+}
+
+function toMineTime(str) {
+  const mineDate = new Date(OFFSET_IN_MS + new Date(str).getTime());
+  return dateToString(mineDate);
 }
 
 function getShortTimeLabel(value) {
@@ -89,4 +97,5 @@ export default {
   formatEpochDate,
   getHoursFromNow,
   setTimeZone,
+  toMineTime,
 };

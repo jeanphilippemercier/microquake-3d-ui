@@ -34,7 +34,7 @@
       full-width
       min-width="290px"
     >
-      <div slot="activator" class="pt-1">{{ focusDateLabels[0] }}</div>
+      <div slot="activator" class="pt-1">{{ toMineTime(focusDateLabels[0]) }}</div>
       <v-date-picker
         v-model="minDate"
         no-title
@@ -52,7 +52,7 @@
       full-width
       min-width="290px"
     >
-      <div slot="activator" class="pt-1">{{ focusDateLabels[1] }}</div>
+      <div slot="activator" class="pt-1">{{ toMineTime(focusDateLabels[1]) }}</div>
       <v-date-picker
         v-model="maxDate"
         no-title

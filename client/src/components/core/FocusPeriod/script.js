@@ -97,5 +97,6 @@ export default {
     updateFocusPeriod() {
       this.$store.dispatch('API_UPDATE_EVENTS');
     },
+    toMineTime: DateHelper.toMineTime,
   },
 };
