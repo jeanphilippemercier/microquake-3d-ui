@@ -218,7 +218,7 @@ export default {
           .updateUncertaintyVisibility(componentsVisibility['uncertainty']);
       }
     },
-    LOCAL_UPDATE_EVENTS({ getters, dispatch }) {
+    LOCAL_UPDATE_EVENTS({ getters, commit, dispatch }) {
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
       const renderer = getters.VIEW_LOCAL_RENDERER;
       const translate = getters.LOCAL_MINE_TRANSLATE;
@@ -282,6 +282,8 @@ export default {
       // Get the events
       dispatch('HTTP_FETCH_EVENTS', [fTime, now, eventStatusFilter])
         .then((response) => {
+          commit('QUAKE_REFRESH_COUNT_SET', getters.QUAKE_REFRESH_COUNT + 1);
+
           const focusTS = new Date(fTime) / 10000;
           const nowTS = new Date(now) / 10000;
           pipeline.seismicEvents.setInput(response.data, prefOriginMap, idList);

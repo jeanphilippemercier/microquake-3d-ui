@@ -47,6 +47,8 @@ export default {
       );
     },
     focusDateLabels() {
+      // need to dynamically update date label
+      this.$store.getters.QUAKE_REFRESH_COUNT;
       return this.focusPeriod.map((v) =>
         DateHelper.getDateFromNow(this.sliderMax - v)
       );

@@ -15,6 +15,7 @@ function byName(a, b) {
 export default {
   state: {
     liveMode: false,
+    refreshCount: 0,
     typeMapping: {
       thunder: 'L',
       'controlled explosion': 'OB',
@@ -60,6 +61,9 @@ export default {
     userAcceptedSite: false,
   },
   getters: {
+    QUAKE_REFRESH_COUNT(state) {
+      return state.refreshCount;
+    },
     QUAKE_LIVE_MODE(state) {
       return state.liveMode;
     },
@@ -153,6 +157,9 @@ export default {
     },
   },
   mutations: {
+    QUAKE_REFRESH_COUNT_SET(state, value) {
+      state.refreshCount = value;
+    },
     QUAKE_LIVE_MODE_SET(state, value) {
       state.liveMode = value;
     },
