@@ -82,8 +82,11 @@ function vtkStations(publicAPI, model) {
     const orientation = new Float32Array(nbStations * 3);
     const status = new Float32Array(nbStations);
 
+    model.tooltips = [];
+
     for (let i = 0; i < nbStations; i++) {
       const station = stations[i];
+      console.log(station);
       xyz[i * 3] = station.location_x + model.translate[0];
       xyz[i * 3 + 1] = station.location_y + model.translate[1];
       xyz[i * 3 + 2] = station.location_z + model.translate[2];
@@ -102,6 +105,9 @@ function vtkStations(publicAPI, model) {
       if (station.signal_quality) {
         status[i] = station.signal_quality.integrity;
       }
+
+      // Fill tooltip
+      model.tooltips.push(station);
     }
     model.polydata.getPoints().setData(xyz, 3);
     model.polydata
@@ -131,6 +137,25 @@ function vtkStations(publicAPI, model) {
       model.renderer.getRenderWindow().render();
     }
   };
+
+  publicAPI.getSelectionData = (selection) => {
+    const { prop, compositeID } = selection;
+    if (model.actor === prop) {
+      const worldPosition = [
+        model.polydata.getPoints().getData()[compositeID * 3 + 0],
+        model.polydata.getPoints().getData()[compositeID * 3 + 1],
+        model.polydata.getPoints().getData()[compositeID * 3 + 2],
+      ];
+      const station = model.tooltips[compositeID];
+      return Object.assign(
+        {
+          worldPosition,
+        },
+        station
+      );
+    }
+    return null;
+  };
 }
 
 // ----------------------------------------------------------------------------
@@ -140,6 +165,7 @@ function vtkStations(publicAPI, model) {
 const DEFAULT_VALUES = {
   renderer: null,
   translate: [0, 0, 0],
+  tooltips: [],
   actors: [],
 };
 

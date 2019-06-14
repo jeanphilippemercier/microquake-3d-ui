@@ -577,7 +577,8 @@ export default {
           'QUAKE_PICKED_DATA_SET',
           pipeline.seismicEvents.getSelectionData(selection) ||
             pipeline.blast.getSelectionData(selection) ||
-            pipeline.historicEvents.getSelectionData(selection)
+            pipeline.historicEvents.getSelectionData(selection) ||
+            pipeline.stations.getSelectionData(selection)
         );
       }
     },

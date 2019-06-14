@@ -1,7 +1,15 @@
 <div :class="$style.container">
   <div :class="tooltipClass" :style="stylePosition">
     <v-container v-if="pickedData" fluid grid-list-md class="pa-1">
-      <v-layout row wrap align-center>
+      <v-layout row wrap align-center v-if="pickedData.name">
+        <v-flex xs12 class="px-3">
+          {{ pickedData.manufacturer }}
+          {{ pickedData.code }}
+          :
+          {{ pickedData.name }}
+        </v-flex>
+      </v-layout>
+      <v-layout row wrap align-center v-if="!pickedData.name" style="width: 250px;">
         <v-flex xs2 :class="$style.center">
           <v-icon color="#333">{{ $vuetify.icons.pickedDate }}</v-icon>
         </v-flex>
