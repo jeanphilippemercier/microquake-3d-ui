@@ -29,5 +29,9 @@ export default {
       const win = window.open(url, '_blank');
       win.focus();
     },
+    showRays(event_resource_id) {
+      this.$store.commit('QUAKE_PICKED_DATA_SET', { event_resource_id });
+      this.$store.dispatch('API_SHOW_RAY');
+    },
   },
 };

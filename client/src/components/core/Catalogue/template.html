@@ -12,33 +12,36 @@
             class="mr-2"
             style="width: 24px; text-align: center;"
             v-if="!$vuetify.icons[item.type] && item.type"
-          >{{ labelTypeMapping[item.type] || item.type }}</div>
+          >
+            {{ labelTypeMapping[item.type] || item.type }}
+          </div>
           <v-icon
             v-if="!!$vuetify.icons[item.type]"
             v-text="$vuetify.icons[item.type]"
             class="mr-2"
           />
         </template>
-        <template v-slot:label="{ item }" >
-          <v-layout>
-            <div class="mr-1">{{ item.name }}</div>
+        <template v-slot:label="{ item }">
+          <v-layout align-center>
+            <div class="pr-1">{{ item.name }}</div>
+            <v-btn
+              icon
+              small
+              v-if="item.open"
+              @click="open(item.id)"
+            >
+              <v-icon small class="px-0">
+                {{ $vuetify.icons.quakeTrace }}
+              </v-icon>
+            </v-btn>
             <div v-if="item.magnitude !== undefined">
-              <v-icon
-                v-text="$vuetify.icons.quakeTrace"
-                class="mx-2 px-0"
-              />
               {{ item.magnitude.toFixed(3) }}
             </div>
           </v-layout>
         </template>
-        <template v-slot:append="{ item }" >
-          <v-btn
-            icon
-            small
-            v-if="item.open"
-            @click="open(item.id)"
-          >
-            <v-icon small>{{ $vuetify.icons.waveform}}</v-icon>
+        <template v-slot:append="{ item }">
+          <v-btn icon small v-if="item.open" @click="showRays(item.id)">
+            <v-icon small>{{ $vuetify.icons.rays}}</v-icon>
           </v-btn>
         </template>
       </v-treeview>
