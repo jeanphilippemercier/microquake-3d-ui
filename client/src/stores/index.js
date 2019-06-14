@@ -69,6 +69,9 @@ function createStore() {
       APP_LOGIN({ dispatch, commit }) {
         dispatch('HTTP_AUTHENTICATE')
           .then((result) => {
+            if (!result.data) {
+              throw result;
+            }
             commit('APP_AUTH_ERROR_SET', {});
             commit('HTTP_AUTH_TOKEN_SET', result.data.access);
             console.log(`Stored auth token (${result.data.access})`);
