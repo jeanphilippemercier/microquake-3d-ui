@@ -292,6 +292,10 @@ export default {
           pipeline.blast.updateColorRange(focusTS, nowTS);
 
           dispatch('QUAKE_UPDATE_CATALOGUE', response.data);
+
+          if (getters.QUAKE_LIVE_MODE && focusPeriod[0] < 2100) {
+            dispatch('LOCAL_UPDATE_EVENTS');
+          }
         })
         .catch((error) => {
           console.error('Encountered error retrieving events');
