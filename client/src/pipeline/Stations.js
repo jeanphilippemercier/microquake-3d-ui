@@ -18,6 +18,8 @@ import {
 // vtkStations methods
 // ----------------------------------------------------------------------------
 
+
+
 function vtkStations(publicAPI, model) {
   // Set our className
   model.classHierarchy.push('vtkStations');
@@ -71,6 +73,22 @@ function vtkStations(publicAPI, model) {
   model.actor.setMapper(model.mapper);
 
   model.actors.push(model.actor);
+  
+  // --------------------------------------------------------------------------
+  // Inner helpers 
+  // --------------------------------------------------------------------------
+
+  /// pick station component suitable to define orientation
+  function getOrientationRef(components) {
+    
+    // filter out component without code
+    const fcs = ( components || [] ).filter(comp => Boolean(comp.code));
+
+    // sort component by orientation_z in desc order
+    fcs.sort((c0, c1) => c1.orientation_z - c0.orientation_z);
+
+    return fcs[0] || {orientation_x: 0, orientation_y: 0, orientation_z: 1};
+  }
 
   // --------------------------------------------------------------------------
   // Public API
@@ -96,10 +114,11 @@ function vtkStations(publicAPI, model) {
         orientation_x,
         orientation_y,
         orientation_z,
-      } = station.components.pop();
-      orientation[i * 3] = orientation_x || 0;
-      orientation[i * 3 + 1] = orientation_y || 0;
-      orientation[i * 3 + 2] = orientation_z || 1;
+      } = getOrientationRef(station.components);
+      orientation[i * 3] = orientation_x;
+      orientation[i * 3 + 1] = orientation_y;
+      orientation[i * 3 + 2] = orientation_z;
+      console.log("station", {name: station.name, orientation_z: orientation_z});
 
       // Check station signal_quality
       if (station.signal_quality) {
