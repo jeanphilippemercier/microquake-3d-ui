@@ -23,6 +23,8 @@ base:
   only:
     changes:
       - docker/**/*
+  before_script:
+  - apk add --update git openssh-client
   script:
   - git submodule update --init --recursive
   - cd docker
@@ -52,6 +54,8 @@ docker:
   - name: docker:18-dind
     entrypoint:
     - dockerd-entrypoint.sh
+  before_script:
+  - apk add --update git openssh-client
   script:
   - git submodule update --init --recursive
   - docker login -u deploy -p $CI_JOB_TOKEN $CI_REGISTRY
