@@ -1,0 +1,295 @@
+<v-app :dark="darkMode">
+  <v-dialog
+    :value="!authToken"
+    hide-overlay
+    persistent
+    width="400"
+  >
+    <v-card class="pa-3">
+      <v-card-title class="headline">Application Authentication</v-card-title>
+      <v-card-text>
+        <v-text-field
+          label="Username"
+          :value="userName"
+          @input="updateUserName"
+          :prepend-icon="$vuetify.icons.username"
+
+          :error-messages="loginError.username"
+        />
+        <v-text-field
+          label="Password"
+          :value="userPassword"
+          @input="updateUserPassword"
+          :prepend-icon="$vuetify.icons.password"
+          type="password"
+
+          :error-messages="loginError.password"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <div>
+          {{ loginError.detail }}
+        </div>
+        <v-spacer />
+        <v-btn @click="login">
+          Login
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog
+    :value="authToken && !siteSelected"
+    hide-overlay
+    persistent
+    width="400"
+  >
+    <v-card class="pa-3">
+      <v-card-title class="headline">Site Selection</v-card-title>
+      <v-card-text>
+        <v-select
+          label="Site"
+          :value="selectedSite"
+          @input="updateSelectedSite"
+          :items="siteItems"
+        />
+        <v-select
+          label="Network"
+          :value="selectedNetwork"
+          @input="updateSelectedNetwork"
+          :items="networkItems"
+        />
+      </v-card-text>
+      <v-card-actions>
+      <!--
+        <v-switch
+          :value="localRendering"
+          @change="updateLocalRendering"
+          hide-details
+          class="pt-0 mt-0"
+          style="flex: none;"
+        />
+        <div class="body-2">{{localRendering ? 'Local' : 'Remote'}} Rendering</div>
+      -->
+        <v-spacer />
+        <v-btn @click="selectSite">
+          Open
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-navigation-drawer
+    v-if="authToken && siteSelected"
+    v-model="menuVisible"
+    clipped
+    overflow
+    fixed
+    width="380"
+
+    height="calc(100% - 48px)"
+    style="top: 48px;"
+  >
+    <controls-drawer />
+  </v-navigation-drawer>
+
+  <v-navigation-drawer
+    v-if="authToken && siteSelected"
+    v-model="advanceMenuVisible"
+    clipped
+    overflow
+    fixed
+    right
+
+    height="calc(100% - 48px)"
+    style="top: 48px;"
+  >
+    <global-settings />
+  </v-navigation-drawer>
+
+  <v-toolbar clipped-left app absolute dense :class="$style.toolbarOverride">
+    <v-tooltip bottom :disabled="!errorMessage">
+      <span>{{ errorMessage }}</span>
+      <v-btn icon @click.stop="menuVisible = !menuVisible" slot="activator">
+        <v-icon
+          v-if="!errorMessage"
+        >{{ $vuetify.icons.quakeTrace }}</v-icon>
+        <v-icon
+          v-if="errorMessage"
+          color="red"
+          class="px-3"
+        >{{ $vuetify.icons.connectionError }}</v-icon>
+      </v-btn>
+    </v-tooltip>
+
+    <v-toolbar-title class="ml-0">
+      Micro Quake 3D
+    </v-toolbar-title>
+
+    <v-spacer />
+    <toolbar-time-range v-if="!menuVisible && authToken && siteSelected"/>
+    <v-spacer />
+
+    <v-layout align-center justify-end v-if="authToken && siteSelected">
+      <v-btn-toggle
+        v-model="eventStatusFilter"
+        mandatory
+        class="mr-4"
+      >
+        <v-tooltip bottom>
+          <span>Show only accepted events</span>
+          <v-btn flat slot="activator" value="accepted">
+            <v-icon>{{ $vuetify.icons.accepted }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show only rejected events</span>
+          <v-btn flat slot="activator" value="rejected">
+            <v-icon>{{ $vuetify.icons.rejected }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+      </v-btn-toggle>
+
+      <v-btn-toggle
+        :value="doubleClickMode"
+        @change="updateDoubleClickMode"
+        mandatory
+      >
+        <v-tooltip bottom>
+          <span>Double-clicking triggers waveform UI</span>
+          <v-btn flat slot="activator">
+            <v-icon>{{ $vuetify.icons.quakeTrace }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Double-clicking retrieves event rays</span>
+          <v-btn flat slot="activator">
+            <v-icon>{{ $vuetify.icons.rays }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+      </v-btn-toggle>
+
+      <v-layout style="flex: none" class="mx-4">
+        <v-layout d-flex align-center>
+          <v-btn-toggle
+            v-model="raysVisible"
+            :class="$style.selectButton"
+          >
+            <v-tooltip bottom>
+              <div>
+                Show/Hide Event Rays
+                <br/>(
+                <span
+                  style="background: #007bff;"
+                  class="px-1"
+                >P</span>
+                /
+                <span
+                  style="background: #dc3545;"
+                  class="px-1"
+                >S</span>
+                Waves)
+              </div>
+              <v-btn
+                dense
+                flat
+                v-bind:disabled="raysInScene === false"
+                slot="activator"
+              >
+                <v-icon>{{ $vuetify.icons.rays }}</v-icon>
+              </v-btn>
+            </v-tooltip>
+          </v-btn-toggle>
+        </v-layout>
+        <v-layout d-flex align-center>
+          <v-select
+            :class="$style.toolbarSelect"
+            v-model="rayFilterMode"
+            :items="rayFilterModes"
+            item-text="label"
+            item-value="value"
+            label="Ray Filter Mode"
+            v-bind:disabled="raysInScene === false"
+            flat
+            solo
+            dense
+            return-object
+            single-line
+            hide-details
+            height="36"
+          ></v-select>
+        </v-layout>
+      </v-layout>
+
+      <v-btn-toggle
+        v-model="componentsVisibility"
+        multiple
+        class="mr-2"
+      >
+        <v-tooltip bottom>
+          <span>Show/Hide Catalogue</span>
+          <v-btn flat slot="activator" value="catalogue">
+            <v-icon>{{ $vuetify.icons.catalogue }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Mine</span>
+          <v-btn flat slot="activator" value="mine">
+            <v-icon>{{ $vuetify.icons.mines }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Seismic events</span>
+          <v-btn flat slot="activator" value="seismicEvents">
+            <v-icon>{{ $vuetify.icons.seismicEvents }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Blast</span>
+          <v-btn flat slot="activator" value="blast">
+            <v-icon>{{ $vuetify.icons.blasts }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <span>Show/Hide Historical events</span>
+          <v-btn flat slot="activator" value="historicEvents">
+            <v-icon>{{ $vuetify.icons.historicalEvents }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+        <v-divider vertical />
+        <v-tooltip bottom>
+          <span>Show/Hide Uncertainty</span>
+          <v-btn flat slot="activator" value="uncertainty">
+            <v-icon>{{ $vuetify.icons.uncertainty }}</v-icon>
+          </v-btn>
+        </v-tooltip>
+      </v-btn-toggle>
+
+      <v-divider vertical />
+
+      <v-tooltip bottom>
+        <span>Toggle Settings</span>
+        <v-btn
+          slot="activator"
+          flat
+          icon
+          @click.stop="advanceMenuVisible = !advanceMenuVisible"
+          class="mx-2"
+        >
+          <v-icon>{{ $vuetify.icons.settings }}</v-icon>
+        </v-btn>
+      </v-tooltip>
+    </v-layout>
+    <v-progress-linear
+      indeterminate
+      :class="$style.progress"
+      :active="!!busyCount"
+      height="3"
+    />
+  </v-toolbar>
+  <v-content style="background: darkgray; position: relative;">
+    <picking-tooltip>
+      <vtk-view v-if="remoteReady"/>
+      <local-view v-else-if="localReady"/>
+    </picking-tooltip>
+  </v-content>
+</v-app>

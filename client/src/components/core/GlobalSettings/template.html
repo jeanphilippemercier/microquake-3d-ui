@@ -1,0 +1,186 @@
+<v-container class="py-0 px-3" :class="$style.noSelectChildren">
+
+  <v-card flat class="py-2">
+    <div class="py-1" :class="$style.relative">
+      <span class="body-2">Events sizing</span>
+      <v-btn
+        @click="resetSettings"
+        absolute
+        icon
+        flat
+        style="top: 50%; right: 0; transform: translateY(-50%);"
+        v-show="hasChanges"
+      >
+        <v-icon>{{ $vuetify.icons.undo }}</v-icon>
+    </v-btn>
+    </div>
+    <v-divider class="mb-3" />
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs5>
+          <span class="body-2">Scaling</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-range-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="scalingRange"
+            :min="0.02"
+            :max="3"
+            :step="0.02"
+          />
+        </v-flex>
+        <v-flex xs5>
+          <span class="body-2">Magnitude</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-range-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="magnitudeRange"
+            :min="-5"
+            :max="5"
+            :step="0.01"
+          />
+        </v-flex>
+        <v-flex xs5>
+          <span class="body-2">Uncertainty</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="uncertaintyScaleFactor"
+            :min="0.1"
+            :max="5"
+            :step="0.1"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </v-card>
+
+  <v-card flat class="py-2" v-if="!localRendering">
+    <div class="py-1">
+      <span class="body-2">Remote rendering</span>
+    </div>
+    <v-divider class="mb-3" />
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs5>
+          <span class="body-2">Quality</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="interactiveQuality"
+            :min="5"
+            :max="100"
+            :step="1"
+          />
+        </v-flex>
+        <v-flex xs5>
+          <span class="body-2">Size ratio</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="interactiveRatio"
+            :min="0.1"
+            :max="1"
+            :step="0.01"
+          />
+        </v-flex>
+        <v-flex xs5>
+          <span class="body-2">Framerate (fps)</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="maxFPS"
+            :min="15"
+            :max="30"
+            :step="1"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </v-card>
+
+  <v-card flat class="py-2">
+    <div class="py-1">
+      <span class="body-2">Settings</span>
+    </div>
+    <v-divider class="mb-3" />
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs10>
+          <span class="body-2">Dark mode</span>
+        </v-flex>
+        <v-flex xs2>
+          <v-switch
+            v-model="darkMode"
+            hide-details
+            class="pt-0 mt-0"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <v-container fluid grid-list-md class="pa-0" v-if="!localRendering">
+      <v-layout row wrap align-center>
+        <v-flex xs10>
+          <span class="body-2">Active Orientation Cube</span>
+        </v-flex>
+        <v-flex xs2>
+          <v-switch
+            v-model="advancedOrientation"
+            hide-details
+            class="pt-0 mt-0"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs5>
+          <span class="body-2">Live refresh rate</span>
+        </v-flex>
+        <v-flex xs7>
+          <v-slider
+            class="pt-0 mt-0"
+            hide-details
+            thumb-label
+            v-model="refreshRate"
+            :min="0.5"
+            :max="30"
+            :step="0.5"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs10>
+          <span class="body-2">Live mode</span>
+        </v-flex>
+        <v-flex xs2>
+          <v-switch
+            v-model="liveMode"
+            hide-details
+            class="pt-0 mt-0"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </v-card>
+
+</v-container>

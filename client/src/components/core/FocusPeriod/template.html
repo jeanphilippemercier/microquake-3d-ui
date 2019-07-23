@@ -1,0 +1,64 @@
+<v-container fluid grid-list-md class="pt-0">
+  <v-layout row align-center justify-space-between>
+    <div class="pt-1">{{ focusPeriodLabels[0] }}</div>
+    <div class="pt-1">{{ focusPeriodLabels[1] }}</div>
+  </v-layout>
+  <v-layout row wrap align-center>
+    <v-flex xs12>
+      <v-range-slider
+        class="pa-0 mt-0"
+        hide-details
+        v-model="focusPeriod"
+        :min="0"
+        :max="sliderMax"
+        :step="24"
+        @end="updateFocusPeriod"
+      />
+    </v-flex>
+    <v-flex xs12>
+      <color-presets
+        :active="activePreset"
+        :presets="presets"
+        :onChange="updateActivePreset"
+      />
+    </v-flex>
+  </v-layout>
+  <v-layout row align-center justify-space-between>
+    <v-menu
+      ref="menu"
+      v-model="minDateMenu"
+      :close-on-content-click="false"
+      lazy
+      transition="scale-transition"
+      offset-y
+      full-width
+      min-width="290px"
+    >
+      <div slot="activator" class="pt-1">{{ toMineTime(focusDateLabels[0]) }}</div>
+      <v-date-picker
+        v-model="minDate"
+        no-title
+        scrollable
+        @input="minDateMenu = false"
+      />
+    </v-menu>
+    <v-menu
+      ref="menu"
+      v-model="maxDateMenu"
+      :close-on-content-click="false"
+      lazy
+      transition="scale-transition"
+      offset-y
+      full-width
+      min-width="290px"
+    >
+      <div slot="activator" class="pt-1">{{ toMineTime(focusDateLabels[1]) }}</div>
+      <v-date-picker
+        v-model="maxDate"
+        no-title
+        scrollable
+        @input="maxDateMenu = false"
+      />
+    </v-menu>
+  </v-layout>
+</v-container>

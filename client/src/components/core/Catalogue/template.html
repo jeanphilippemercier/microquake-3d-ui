@@ -1,0 +1,50 @@
+<v-container fluid grid-list-md class="py-0 px-1">
+  <v-layout>
+    <v-flex>
+      <v-treeview
+        :active.sync="active"
+        :items="catalogue"
+        open-on-click
+        activatable
+      >
+        <template v-slot:prepend="{ item }">
+          <div
+            class="mr-2"
+            style="width: 24px; text-align: center;"
+            v-if="!$vuetify.icons[item.type] && item.type"
+          >
+            {{ labelTypeMapping[item.type] || item.type }}
+          </div>
+          <v-icon
+            v-if="!!$vuetify.icons[item.type]"
+            v-text="$vuetify.icons[item.type]"
+            class="mr-2"
+          />
+        </template>
+        <template v-slot:label="{ item }">
+          <v-layout align-center>
+            <div class="pr-1">{{ item.name }}</div>
+            <v-btn
+              icon
+              small
+              v-if="item.open"
+              @click="open(item.id)"
+            >
+              <v-icon small class="px-0">
+                {{ $vuetify.icons.quakeTrace }}
+              </v-icon>
+            </v-btn>
+            <div v-if="item.magnitude !== undefined">
+              {{ item.magnitude.toFixed(3) }}
+            </div>
+          </v-layout>
+        </template>
+        <template v-slot:append="{ item }">
+          <v-btn icon small v-if="item.open" @click="showRays(item.id)">
+            <v-icon small>{{ $vuetify.icons.rays}}</v-icon>
+          </v-btn>
+        </template>
+      </v-treeview>
+    </v-flex>
+  </v-layout>
+</v-container>

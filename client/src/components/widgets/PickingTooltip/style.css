@@ -1,0 +1,31 @@
+.container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.tooltip {
+  color: #333;
+  font-weight: bold;
+  position: absolute;
+  background: rgba(180, 180, 180, 0.85);
+  border-radius: 5px;
+  border: solid 1px #222;
+  z-index: 10;
+  -webkit-box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
+  -moz-box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
+  box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
+}
+
+.center {
+  text-align: center;
+}
+
+.visible {
+  composes: tooltip;
+}
+
+.hidden {
+  display: none;
+}
