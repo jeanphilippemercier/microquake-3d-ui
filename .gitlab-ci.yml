@@ -62,7 +62,7 @@ docker:
   - docker build . -t $UI_IMAGE:latest -t $UI_IMAGE:$(echo $CI_COMMIT_SHA | cut -c1-8) --build-arg SSH_PRIVATE_KEY
   - docker push $UI_IMAGE:latest
   - docker push $UI_IMAGE:$(echo $CI_COMMIT_SHA | cut -c1-8)
-  - sed -i /external/apps/quake/www/js/app.*.js -e 's/api.microquake.org/api.otgeo.corp.microquake.org/g'
+  - sed -i ./www/js/app.*.js -e 's/api.microquake.org/api.otgeo.corp.microquake.org/g'
   - docker build . -t $ONPREM_IMAGE:latest -t $ONPREM_IMAGE:$(echo $CI_COMMIT_SHA | cut -c1-8) --build-arg SSH_PRIVATE_KEY
   - docker push $ONPREM_IMAGE:latest
   - docker push $ONPREM_IMAGE:$(echo $CI_COMMIT_SHA | cut -c1-8)
