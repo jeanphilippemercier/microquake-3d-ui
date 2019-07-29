@@ -123,7 +123,7 @@ export default {
 
       const request = {
         method: 'get',
-        url: `${baseUrl}/v1/inventory/stations`,
+        url: `${baseUrl}/v1/inventory/sensors`,
         headers: {
           Authorization: `Bearer: ${authToken}`,
         },
