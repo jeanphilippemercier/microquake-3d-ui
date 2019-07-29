@@ -126,7 +126,7 @@
     </v-toolbar-title>
 
     <v-spacer />
-    <toolbar-time-range v-if="!menuVisible && authToken && siteSelected"/>
+    <toolbar-time-range v-if="(!menuVisible || ~componentsVisibility.indexOf('catalogue')) && authToken && siteSelected"/>
     <v-spacer />
 
     <v-layout align-center justify-end v-if="authToken && siteSelected">
