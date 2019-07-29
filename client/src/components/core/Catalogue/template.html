@@ -35,7 +35,7 @@
               </v-icon>
             </v-btn>
             <div v-if="item.magnitude !== undefined">
-              {{ item.magnitude.toFixed(3) }}
+              {{ item.magnitude | significant }}
             </div>
           </v-layout>
         </template>

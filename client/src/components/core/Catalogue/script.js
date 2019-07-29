@@ -34,4 +34,15 @@ export default {
       this.$store.dispatch('API_SHOW_RAY');
     },
   },
+  filters: {
+    significant(number) {
+      let fixedDecimal = 0;
+      let absNum = Math.abs(number);
+      while (absNum < 10) {
+        fixedDecimal++;
+        absNum *= 10;
+      }
+      return number.toFixed(fixedDecimal);
+    },
+  },
 };
