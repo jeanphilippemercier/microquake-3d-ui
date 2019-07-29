@@ -34,8 +34,8 @@
                 {{ $vuetify.icons.quakeTrace }}
               </v-icon>
             </v-btn>
-            <div v-if="item.magnitude !== undefined">
-              {{ item.magnitude | significant }}
+            <div v-if="item.magnitude !== undefined" :class="$style.monospace">
+              {{ item.magnitude.toFixed(1) | sign }}
             </div>
           </v-layout>
         </template>

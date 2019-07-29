@@ -44,5 +44,11 @@ export default {
       }
       return number.toFixed(fixedDecimal);
     },
+    sign(str) {
+      if (str[0] === '-') {
+        return str;
+      }
+      return `+${str}`;
+    },
   },
 };
