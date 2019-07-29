@@ -340,6 +340,14 @@ export default {
       if (getters.QUAKE_LIVE_MODE) {
         commit('QUAKE_FOCUS_PERIOD_SET', [2190 - 72, 2190]);
         dispatch('API_LIVE_UPDATE');
+
+        // Force the catalogue to be visible
+        commit(
+          'QUAKE_COMPONENTS_VISIBILITY_SET',
+          Object.assign({}, getters.QUAKE_COMPONENTS_VISIBILITY, {
+            catalogue: true,
+          })
+        );
       }
     },
   },
