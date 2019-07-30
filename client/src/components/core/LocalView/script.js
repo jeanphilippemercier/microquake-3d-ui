@@ -107,6 +107,7 @@ export default {
   },
   methods: {
     ...mapActions({
+      resetCameraZ: 'API_RESET_CAMERA_Z',
       resetCamera: 'API_RESET_CAMERA',
       render: 'API_RENDER',
       snapViewUp: 'API_VIEW_UP',

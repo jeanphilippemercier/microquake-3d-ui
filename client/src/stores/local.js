@@ -427,6 +427,21 @@ export default {
 
       renderer.getRenderWindow().render();
     },
+    LOCAL_RESET_CAMERA_Z({ getters }) {
+      const renderer = getters.VIEW_LOCAL_RENDERER;
+      const interactor = getters.VIEW_LOCAL_INTERACTOR;
+      const camera = renderer.getActiveCamera();
+      camera.set({
+        focalPoint: [0, 0, 0],
+        position: [0, 0, 1],
+        viewUp: [0, 1, 0],
+      });
+      renderer.resetCamera();
+      const fp = camera.getFocalPoint();
+      interactor.getInteractorStyle().setCenterOfRotation(fp);
+
+      renderer.getRenderWindow().render();
+    },
     LOCAL_RENDER({ getters }) {
       const renderer = getters.VIEW_LOCAL_RENDERER;
       renderer.getRenderWindow().render();

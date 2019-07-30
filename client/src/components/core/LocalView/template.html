@@ -14,6 +14,18 @@
         </v-btn>
       </v-tooltip>
       <v-tooltip left>
+        <span :class="$style.noSelect">Reset camera Z</span>
+        <v-btn
+          slot="activator"
+          icon
+          dark
+          small
+          v-on:click="resetCameraZ()"
+        >
+          <v-icon>{{ $vuetify.icons.resetCameraZ }}</v-icon>
+        </v-btn>
+      </v-tooltip>
+      <v-tooltip left>
         <span :class="$style.noSelect">Snap view up</span>
         <v-btn
           slot="activator"

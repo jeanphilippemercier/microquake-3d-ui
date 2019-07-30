@@ -87,5 +87,8 @@ export default {
     API_LIVE_UPDATE({ state, dispatch }) {
       return dispatch(`${state.mode}_LIVE_UPDATE`);
     },
+    API_RESET_CAMERA_Z({ state, dispatch }) {
+      return dispatch(`${state.mode}_RESET_CAMERA_Z`);
+    },
   },
 };

@@ -46,6 +46,7 @@ Vue.use(Vuetify, {
 
     // view
     resetCamera: 'mdi-image-filter-center-focus',
+    resetCameraZ: 'mdi-map-search-outline',
     snapViewUp: 'mdi-compass',
     pickCenter: 'mdi-axis-x-rotate-clockwise',
 
