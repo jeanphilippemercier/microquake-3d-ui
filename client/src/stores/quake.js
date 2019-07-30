@@ -12,6 +12,19 @@ function byName(a, b) {
   return b.name.localeCompare(a.name);
 }
 
+function storeItem(key, value) {
+  console.log('store', key, value);
+  window.localStorage.setItem(`paraview.quake.config.${key}`, value);
+}
+
+function retreiveItem(key, defaultValue) {
+  const vStr = window.localStorage.getItem(`paraview.quake.config.${key}`);
+  if (vStr === undefined || vStr === null) {
+    return defaultValue;
+  }
+  return vStr;
+}
+
 export default {
   state: {
     liveMode: false,
@@ -135,10 +148,10 @@ export default {
       return state.siteMap;
     },
     QUAKE_SELECTED_SITE(state) {
-      return state.selectedSite;
+      return retreiveItem('selectedSite', state.selectedSite);
     },
     QUAKE_SELECTED_NETWORK(state) {
-      return state.selectedNetwork;
+      return retreiveItem('selectedNetwork', state.selectedNetwork);
     },
     QUAKE_USER_ACCEPTED_SITE(state) {
       return state.userAcceptedSite;
@@ -231,9 +244,11 @@ export default {
           state.siteMap[value].timezone) ||
           '+08:00'
       );
+      storeItem('selectedSite', value);
     },
     QUAKE_SELECTED_NETWORK_SET(state, value) {
       state.selectedNetwork = value;
+      storeItem('selectedNetwork', value);
     },
     QUAKE_USER_ACCEPTED_SITE_SET(state, value) {
       state.userAcceptedSite = value;
