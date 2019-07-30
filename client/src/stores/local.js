@@ -112,6 +112,7 @@ export default {
           pipeline.stations = vtkStations.newInstance({ renderer, translate });
           pipeline.stations.setInput(data);
           renderer.addViewProp(pipeline.stations);
+          renderer.getRenderWindow().render();
         });
 
         // Triger live update
@@ -620,6 +621,7 @@ export default {
       // Fetch stations for status
       dispatch('HTTP_FETCH_STATIONS').then(({ data }) => {
         getters.LOCAL_PIPELINE_OBJECTS.stations.setInput(data);
+        dispatch('LOCAL_RENDER');
       });
 
       // Reschedule ourself minutes => ms

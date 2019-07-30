@@ -101,7 +101,7 @@ function vtkStations(publicAPI, model) {
 
     for (let i = 0; i < nbStations; i++) {
       const station = stations[i];
-      console.log(station);
+      // console.log(station);
       xyz[i * 3] = station.location_x + model.translate[0];
       xyz[i * 3 + 1] = station.location_y + model.translate[1];
       xyz[i * 3 + 2] = station.location_z + model.translate[2];
@@ -113,10 +113,10 @@ function vtkStations(publicAPI, model) {
       orientation[i * 3] = orientation_x;
       orientation[i * 3 + 1] = orientation_y;
       orientation[i * 3 + 2] = orientation_z;
-      console.log('station', {
-        name: station.name,
-        orientation_z: orientation_z,
-      });
+      // console.log('station', {
+      //   name: station.name,
+      //   orientation_z: orientation_z,
+      // });
 
       // Check station signal_quality
       if (station.signal_quality) {
