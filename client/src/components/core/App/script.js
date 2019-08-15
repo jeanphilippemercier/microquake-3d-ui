@@ -153,6 +153,10 @@ export default {
         this.$store.dispatch(action);
       });
     });
+
+    if (this.selectedSite) {
+      this.updateSelectedSite(this.selectedSite);
+    }
   },
   beforeDestroy() {
     shortcuts.forEach(({ key }) => {

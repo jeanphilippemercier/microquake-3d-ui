@@ -82,6 +82,7 @@ function formatEpochDate(epoch) {
 }
 
 function setTimeZone(strOffset) {
+  console.log('setTimeZone', strOffset);
   const [hours, min] = strOffset.split(':').map(Number);
   const sign = hours < 0 ? -1 : +1;
   OFFSET_IN_MS = 0;
