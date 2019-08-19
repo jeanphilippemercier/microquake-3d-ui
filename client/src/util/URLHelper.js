@@ -1,5 +1,5 @@
 function getWaveformURLForEvent(id) {
-  return `https://waveform.microquake.org/dashboard?id=${encodeURI(id)}`;
+  return `https://waveform.microquake.org/events/${encodeURIComponent(id)}`;
 }
 
 export default {
