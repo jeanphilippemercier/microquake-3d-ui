@@ -9,7 +9,7 @@
           {{ pickedData.name }}
         </v-flex>
       </v-layout>
-      <v-layout row wrap align-center v-if="!pickedData.name" style="width: 250px;">
+      <v-layout row wrap align-center v-if="!pickedData.name && pickedData.time" style="width: 250px;">
         <v-flex xs2 :class="$style.center">
           <v-icon color="#333">{{ $vuetify.icons.pickedDate }}</v-icon>
         </v-flex>
