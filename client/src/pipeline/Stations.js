@@ -110,9 +110,9 @@ function vtkStations(publicAPI, model) {
       const { orientation_x, orientation_y, orientation_z } = getOrientationRef(
         station.components
       );
-      orientation[i * 3] = orientation_x;
-      orientation[i * 3 + 1] = orientation_y;
-      orientation[i * 3 + 2] = orientation_z;
+      orientation[i * 3] = -orientation_x;
+      orientation[i * 3 + 1] = -orientation_y;
+      orientation[i * 3 + 2] = -orientation_z;
       // console.log('station', {
       //   name: station.name,
       //   orientation_z: orientation_z,
