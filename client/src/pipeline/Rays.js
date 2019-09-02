@@ -135,7 +135,10 @@ function vtkRays(publicAPI, model) {
         activeArray = arrays[phase].all;
       }
 
-      for (let j = 0; j < nodes.length; j++) {
+      if (!nodes) {
+        console.error('Got ray without nodes');
+      }
+      for (let j = 0; nodes && j < nodes.length; j++) {
         cell.push(nodes[j][0] + model.translate[0]);
         cell.push(nodes[j][1] + model.translate[1]);
         cell.push(nodes[j][2] + model.translate[2]);
