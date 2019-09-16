@@ -231,8 +231,9 @@ export default {
 
       const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
       const historicalTime = getters.QUAKE_HISTORICAL_TIME;
-      const now = DateHelper.getDateFromNow(2190 - focusPeriod[1]);
-      const fTime = DateHelper.getDateFromNow(2190 - focusPeriod[0]);
+      const offset = getters.QUAKE_FOCUS_PERIOD_OFFSET;
+      const now = DateHelper.getDateFromNow(offset - focusPeriod[1]);
+      const fTime = DateHelper.getDateFromNow(offset - focusPeriod[0]);
       const hTime = DateHelper.getDateFromNow(historicalTime);
 
       if (!mineBounds) {
