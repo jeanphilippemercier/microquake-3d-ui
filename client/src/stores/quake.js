@@ -25,6 +25,8 @@ function retreiveItem(key, defaultValue) {
   return vStr;
 }
 
+let MOST_RECENT_EVENT = '';
+
 export default {
   state: {
     liveMode: false,
@@ -344,11 +346,13 @@ export default {
       commit('QUAKE_CATALOGUE_SET', catalogue);
 
       if (getters.QUAKE_LIVE_MODE) {
-        // Activate most recent event
-        dispatch(
-          'API_ACTIVATE_EVENT',
-          catalogue[0].children[0].children[0].children[0].id
-        );
+        const mostRecentEvent =
+          catalogue[0].children[0].children[0].children[0].id;
+        if (mostRecentEvent !== MOST_RECENT_EVENT) {
+          // Activate most recent event
+          dispatch('API_ACTIVATE_EVENT', mostRecentEvent);
+        }
+        MOST_RECENT_EVENT = mostRecentEvent;
       }
     },
     QUAKE_UPDATE_LIVE_MODE({ getters, commit, dispatch }) {
