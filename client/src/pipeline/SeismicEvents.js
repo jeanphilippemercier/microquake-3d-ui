@@ -31,6 +31,9 @@ const UNCERTAINTY_CAP = 50.0;
 const TIME_RATIO = 10000000000;
 
 function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
+  if (!eventsData) {
+    return [];
+  }
   return eventsData.filter((event) => {
     if (event.x < mineBounds[0] || event.x > mineBounds[1]) {
       return false;

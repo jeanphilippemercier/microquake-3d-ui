@@ -1,7 +1,25 @@
 <v-container class="pa-0" :class="$style.container">
   <v-layout row align-center>
     <v-flex xs3 style="text-align: right;">
-      <div :class="$style.label">{{ focusDateLabels[0] }}</div>
+      <v-menu
+        ref="menu"
+        v-model="minDateMenu"
+        :close-on-content-click="false"
+        lazy
+        transition="scale-transition"
+        offset-y
+        full-width
+      >
+        <div slot="activator" :class="$style.label">
+          {{ focusDateLabels[0] | toMineTime | toDay }}
+        </div>
+        <v-date-picker
+          v-model="minDate"
+          no-title
+          scrollable
+          @input="minDateMenu = false"
+        />
+      </v-menu>
     </v-flex>
     <v-flex xs6 class="pa-0">
       <img
@@ -10,7 +28,25 @@
       />
     </v-flex>
     <v-flex xs3 style="text-align: left;">
-      <div :class="$style.label">{{ focusDateLabels[1] }}</div>
+      <v-menu
+        ref="menu"
+        v-model="maxDateMenu"
+        :close-on-content-click="false"
+        lazy
+        transition="scale-transition"
+        offset-y
+        full-width
+      >
+        <div slot="activator" :class="$style.label">
+          {{ focusDateLabels[1] | toMineTime | toDay }}
+        </div>
+        <v-date-picker
+          v-model="maxDate"
+          no-title
+          scrollable
+          @input="maxDateMenu = false"
+        />
+      </v-menu>
     </v-flex>
   </v-layout>
 </v-container>

@@ -54,6 +54,15 @@ function getShortTimeLabel(value) {
   return strBuffer.join(' ');
 }
 
+function getHoursFromNowInMineTime(strDate) {
+  const deltaHours = Math.round(
+    (Date.now() -
+      new Date(new Date(`${strDate}T00:00:00.0`).getTime() - OFFSET_IN_MS)) /
+      3600000
+  );
+  return deltaHours;
+}
+
 function getHoursFromNow(strDate) {
   const deltaHours = Math.round(
     (Date.now() - new Date(`${strDate}T00:00:00.0`)) / 3600000
@@ -92,11 +101,12 @@ function setTimeZone(strOffset) {
 }
 
 export default {
-  getDateFromNow,
-  getShortTimeLabel,
-  formatEpochTime,
   formatEpochDate,
+  formatEpochTime,
+  getDateFromNow,
   getHoursFromNow,
+  getHoursFromNowInMineTime,
+  getShortTimeLabel,
   setTimeZone,
   toMineTime,
 };
