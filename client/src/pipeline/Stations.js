@@ -118,10 +118,16 @@ function vtkStations(publicAPI, model) {
       //   orientation_z: orientation_z,
       // });
 
+      // ----------------------------------------------------------------------
       // Check station signal_quality
-      if (station.signal_quality) {
-        status[i] = station.signal_quality.integrity;
-      }
+      // ----------------------------------------------------------------------
+      // if (station.signal_quality) {
+      //   status[i] = station.signal_quality.integrity;
+      // }
+      // ----------------------------------------------------------------------
+      // The code is not valid anymore so marking every station alive
+      // ----------------------------------------------------------------------
+      status[i] = 1;
 
       // Fill tooltip
       model.tooltips.push(station);
