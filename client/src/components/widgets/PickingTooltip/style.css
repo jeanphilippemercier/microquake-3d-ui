@@ -18,6 +18,13 @@
   box-shadow: 5px 5px 20px 0px rgba(0,0,0,0.5);
 }
 
+.title {
+  text-align: center;
+  border-bottom: solid 1px #222;
+  position: relative;
+  top: -4px;
+}
+
 .center {
   text-align: center;
 }

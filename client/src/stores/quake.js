@@ -56,6 +56,7 @@ export default {
       historicEvents: true,
       ray: false,
       uncertainty: false,
+      otherEvents: true,
     },
     doubleClickMode: 1,
     rayFilterMode: 0,

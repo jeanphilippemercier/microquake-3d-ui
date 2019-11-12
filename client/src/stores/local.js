@@ -98,6 +98,7 @@ export default {
           commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
             mine: true,
             seismicEvents: false,
+            otherEvents: false,
             blast: false,
             historicEvents: false,
             ray: false,
@@ -140,7 +141,11 @@ export default {
     LOCAL_UPDATE_SCALING({ getters }) {
       const renderer = getters.VIEW_LOCAL_RENDERER;
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
-      const itemToUpdate = [pipeline.seismicEvents, pipeline.blast];
+      const itemToUpdate = [
+        pipeline.seismicEvents,
+        pipeline.blast,
+        pipeline.otherEvents,
+      ];
 
       while (itemToUpdate.length) {
         const item = itemToUpdate.pop();
@@ -155,7 +160,11 @@ export default {
 
       const renderer = getters.VIEW_LOCAL_RENDERER;
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
-      const itemToUpdate = [pipeline.seismicEvents, pipeline.blast];
+      const itemToUpdate = [
+        pipeline.seismicEvents,
+        pipeline.blast,
+        pipeline.otherEvents,
+      ];
       while (itemToUpdate.length) {
         itemToUpdate.pop().setColorPreset(preset);
       }
@@ -195,6 +204,7 @@ export default {
       const componentsVisibility = getters.QUAKE_COMPONENTS_VISIBILITY;
       const keys = [
         'seismicEvents',
+        'otherEvents',
         'blast',
         'historicEvents',
         'ray',
@@ -228,6 +238,7 @@ export default {
       const prefOriginMap = getters.QUAKE_PREFERRED_ORIGIN_MAP;
 
       const idList = [];
+      const typeList = [];
 
       const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
       const historicalTime = getters.QUAKE_HISTORICAL_TIME;
@@ -276,8 +287,24 @@ export default {
         pipeline.historicEvents.setOpacity(0.6);
         pipeline.historicEvents.setPointSize(3);
 
+        // Add the other events
+        const cubeSource2 = vtkCubeSource.newInstance({
+          xLength: 15,
+          yLength: 15,
+          zLength: 15,
+        });
+        pipeline.otherEvents = vtkSeismicEvents.newInstance({
+          translate,
+          renderer,
+          eventType: 'other',
+          mineBounds,
+          glyph: cubeSource2.getOutputData(),
+          enableScaling: false,
+        });
+
         renderer.addViewProp(pipeline.seismicEvents);
         renderer.addViewProp(pipeline.blast);
+        renderer.addViewProp(pipeline.otherEvents);
         renderer.addViewProp(pipeline.historicEvents);
       }
 
@@ -288,10 +315,27 @@ export default {
 
           const focusTS = new Date(fTime) / 10000;
           const nowTS = new Date(now) / 10000;
-          pipeline.seismicEvents.setInput(response.data, prefOriginMap, idList);
+          pipeline.seismicEvents.setInput(
+            response.data,
+            prefOriginMap,
+            idList,
+            typeList
+          );
           pipeline.seismicEvents.updateColorRange(focusTS, nowTS);
-          pipeline.blast.setInput(response.data, prefOriginMap, idList);
+          pipeline.blast.setInput(
+            response.data,
+            prefOriginMap,
+            idList,
+            typeList
+          );
           pipeline.blast.updateColorRange(focusTS, nowTS);
+          pipeline.otherEvents.setInput(
+            response.data,
+            prefOriginMap,
+            idList,
+            typeList
+          );
+          pipeline.otherEvents.updateColorRange(focusTS, nowTS);
 
           dispatch('QUAKE_UPDATE_CATALOGUE', response.data);
 
@@ -599,7 +643,8 @@ export default {
           pipeline.seismicEvents.getSelectionData(selection) ||
             pipeline.blast.getSelectionData(selection) ||
             pipeline.historicEvents.getSelectionData(selection) ||
-            pipeline.stations.getSelectionData(selection)
+            pipeline.stations.getSelectionData(selection) ||
+            pipeline.otherEvents.getSelectionData(selection)
         );
       }
     },
@@ -643,6 +688,7 @@ export default {
         const id = pipeline.seismicEvents.getLastIdList().indexOf(resourceId);
         pipeline.seismicEvents.activate(id);
         pipeline.blast.activate(id);
+        pipeline.otherEvents.activate(id);
       }
     },
   },

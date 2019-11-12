@@ -32,6 +32,7 @@ Vue.use(Vuetify, {
     settings: 'mdi-settings',
     mines: 'mdi-pickaxe',
     seismicEvents: 'mdi-chart-bubble',
+    otherEvents: 'mdi-help-circle',
     quakeTrace: 'mdi-pulse',
     rays: 'mdi-wan',
     historicalEvents: 'mdi-history',
@@ -61,6 +62,7 @@ Vue.use(Vuetify, {
     pickedDate: 'mdi-calendar',
     pickedTime: 'mdi-clock-outline',
     pickedPosition: 'mdi-crosshairs-gps',
+    eventType: 'mdi-format-list-bulleted-type',
 
     // catalogue
     waveform: 'mdi-open-in-new',

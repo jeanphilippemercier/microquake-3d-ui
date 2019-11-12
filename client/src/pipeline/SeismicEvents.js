@@ -45,7 +45,11 @@ function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
       return false;
     }
 
-    if (typeFilter !== 'all') {
+    if (typeFilter === 'other') {
+      return (
+        event.event_type !== 'earthquake' && event.event_type !== 'explosion'
+      );
+    } else if (typeFilter !== 'all') {
       return typeFilter === event.event_type;
     }
 
@@ -54,11 +58,27 @@ function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
 }
 
 // ----------------------------------------------------------------------------
+
+function extractTypes(eventsData) {
+  const types = {};
+  for (let i = 0; i < eventsData.length; i++) {
+    const { event_type } = eventsData[i];
+    if (!types[event_type]) {
+      types[event_type] = 1;
+    } else {
+      types[event_type] += 1;
+    }
+  }
+  return types;
+}
+
+// ----------------------------------------------------------------------------
 // Static API
 // ----------------------------------------------------------------------------
 
 export const STATIC = {
   filterEvents,
+  extractTypes,
 };
 
 // ----------------------------------------------------------------------------
@@ -144,7 +164,7 @@ function vtkSeismicEvents(publicAPI, model) {
       lookupTable: model.lookupTable,
       useLookupTableScalarRange: true,
       orient: false,
-      scaling: true,
+      scaling: model.enableScaling,
       scaleArray: 'adjustedMagnitude',
       scaleMode: vtkGlyph3DMapper.ScaleModes.SCALE_BY_MAGNITUDE,
     });
@@ -164,7 +184,7 @@ function vtkSeismicEvents(publicAPI, model) {
     model.uncertaintyMapper = vtkGlyph3DMapper.newInstance({
       orient: true,
       orientationArray: 'uncertainty_direction',
-      scaling: true,
+      scaling: model.enableScaling,
       scaleArray: 'adjustedUncertainty',
       scaleMode: vtkGlyph3DMapper.ScaleModes.SCALE_BY_MAGNITUDE,
       colorByArrayName: 'time',
@@ -207,8 +227,9 @@ function vtkSeismicEvents(publicAPI, model) {
   // Public API
   // --------------------------------------------------------------------------
 
-  publicAPI.setInput = (eventsData, preferedOrigins = {}, idList = []) => {
+  publicAPI.setInput = (eventsData, preferedOrigins = {}, idList = [], typeList = []) => {
     model.lastIdList = idList;
+    model.lastTypeList = typeList;
     const filteredEvents = filterEvents(
       model.mineBounds,
       eventsData,
@@ -256,11 +277,12 @@ function vtkSeismicEvents(publicAPI, model) {
           ? 1
           : event.uncertainty_vector_z;
 
-      magnitudeArray[i] = event.magnitude;
+      magnitudeArray[i] = model.enableScaling ? event.magnitude : 10;
       timeArray[i] = event.time_epoch / TIME_RATIO;
       idArray[i] = idList.length;
 
       idList.push(event.event_resource_id);
+      typeList.push(event.event_type);
       preferedOrigins[event.event_resource_id] = event.preferred_origin_id;
     }
     // ------------------------------------------------------------------------
@@ -311,6 +333,9 @@ function vtkSeismicEvents(publicAPI, model) {
   };
 
   publicAPI.updateUncertaintyScaling = () => {
+    if (!model.enableScaling) {
+      return;
+    }
     model.adjustedUncertaintyArray.setData(
       model.uncertaintyArray
         .getData()
@@ -322,6 +347,9 @@ function vtkSeismicEvents(publicAPI, model) {
   };
 
   publicAPI.updateScaling = () => {
+    if (!model.enableScaling) {
+      return;
+    }
     const [minMagnitude, maxMagnitude] = model.magnitudeRange;
     const deltaMagnitude = maxMagnitude - minMagnitude;
     const [minScale, maxScale] = model.scalingRange;
@@ -385,6 +413,7 @@ function vtkSeismicEvents(publicAPI, model) {
         time: time * TIME_RATIO,
         uncertainty,
         event_resource_id: model.lastIdList[id],
+        type: model.lastTypeList[id],
         worldPosition,
       };
     }
@@ -461,6 +490,7 @@ const DEFAULT_VALUES = {
   magnitudeRange: [-3, 5],
   scalingRange: [0.001, 1],
   scalingFactor: 50,
+  enableScaling: true,
   uncertaintyScalingFactor: 50,
   visibility: true,
   colorRange: [0, 1],

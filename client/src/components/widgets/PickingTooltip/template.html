@@ -6,6 +6,11 @@
           {{ pickedData.station_location_code }}.{{ pickedData.location_code}} ({{ pickedData.code}})
         </v-flex>
       </v-layout>
+      <v-layout v-if="pickedData.type" :class="$style.title">
+        <v-flex xs12 class="py-0 my-0">
+          {{ pickedData.type }}
+        </v-flex>
+      </v-layout>
       <v-layout row wrap align-center v-if="!pickedData.name && pickedData.time" style="width: 250px;">
         <v-flex xs2 :class="$style.center">
           <v-icon color="#333">{{ $vuetify.icons.pickedDate }}</v-icon>
@@ -45,7 +50,7 @@
         <v-flex xs2 :class="$style.center" v-show="rayCount !== undefined">
           <v-icon color="#333">{{ $vuetify.icons.rays }}</v-icon>
         </v-flex>
-        <v-flex xs4 >
+        <v-flex xs4 v-show="rayCount !== undefined" >
           {{rayCount}}
         </v-flex>
       </v-layout>

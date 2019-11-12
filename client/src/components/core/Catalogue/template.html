@@ -8,18 +8,14 @@
         activatable
       >
         <template v-slot:prepend="{ item }">
-          <div
-            class="mr-2"
-            style="width: 24px; text-align: center;"
-            v-if="!$vuetify.icons[item.type] && item.type"
-          >
-            {{ labelTypeMapping[item.type] || item.type }}
-          </div>
-          <v-icon
-            v-if="!!$vuetify.icons[item.type]"
-            v-text="$vuetify.icons[item.type]"
-            class="mr-2"
-          />
+          <v-tooltip bottom v-if="item.type">
+            <span>{{ labelTypeMapping[item.type] || item.type }}</span>
+            <v-icon
+              slot="activator"
+              v-text="$vuetify.icons[item.type] || $vuetify.icons.otherEvents"
+              class="mr-2"
+            />
+          </v-tooltip>
         </template>
         <template v-slot:label="{ item }">
           <v-layout align-center>
