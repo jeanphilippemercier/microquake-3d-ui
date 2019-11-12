@@ -282,7 +282,7 @@ export default {
       }
 
       // Get the events
-      dispatch('HTTP_FETCH_EVENTS', [fTime, now, eventStatusFilter])
+      dispatch('HTTP_FETCH_EVENTS', [`${fTime}Z`, `${now}Z`, eventStatusFilter])
         .then((response) => {
           commit('QUAKE_REFRESH_COUNT_SET', getters.QUAKE_REFRESH_COUNT + 1);
 
@@ -304,7 +304,11 @@ export default {
           console.error(error);
         });
 
-      dispatch('HTTP_FETCH_EVENTS', [hTime, fTime, eventStatusFilter])
+      dispatch('HTTP_FETCH_EVENTS', [
+        `${hTime}Z`,
+        `${fTime}Z`,
+        eventStatusFilter,
+      ])
         .then((response) => {
           pipeline.historicEvents.setInput(response.data, prefOriginMap);
         })
