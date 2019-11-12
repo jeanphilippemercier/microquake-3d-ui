@@ -2,6 +2,7 @@ import Mousetrap from 'mousetrap';
 import { mapGetters, mapMutations, mapActions } from 'vuex';
 
 import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
+import DateHelper from 'paraview-quake/src/util/DateHelper';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import LocalView from 'paraview-quake/src/components/core/LocalView';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
@@ -74,6 +75,8 @@ export default {
       busyCount: 'BUSY_COUNT',
       errorMessage: 'REMOTE_ERROR',
       raysInScene: 'QUAKE_RAYS_IN_SCENE',
+
+      heartbeat: 'QUAKE_HEARTBEAT',
     }),
     siteItems() {
       return Object.values(this.siteMap || []);
@@ -182,5 +185,15 @@ export default {
         this.$store.dispatch('API_INITIALIZE');
       }
     },
+    loginOnEnter({ code }) {
+      if (code === 'Enter') {
+        this.login();
+      }
+    },
+    toHoursFromNow: DateHelper.toHoursFromNow,
+  },
+  filters: {
+    toHoursFromNow: DateHelper.toHoursFromNow,
+    hoursFromNowToLabel: DateHelper.hoursFromNowToLabel,
   },
 };

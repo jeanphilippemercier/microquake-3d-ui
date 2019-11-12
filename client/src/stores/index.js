@@ -83,6 +83,10 @@ function createStore() {
                 console.error('Error fetching sites:');
                 console.error(siteError);
               });
+            dispatch('QUAKE_UPDATE_HEARTBEAT');
+            setInterval(() => {
+              dispatch('QUAKE_UPDATE_HEARTBEAT');
+            }, 60 * 1000); // Update every minutes
           })
           .catch((error) => {
             console.error('Authentication failure', error.response.data);

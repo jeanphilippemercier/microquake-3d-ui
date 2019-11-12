@@ -45,3 +45,12 @@
 .monospace {
   font-family: monospace;
 }
+
+.thinBorder {
+  border: solid #ccc 1px;
+  box-shadow: none;
+}
+
+:global(.theme--dark) .thinBorder {
+  border-color: #555;
+}

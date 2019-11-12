@@ -70,6 +70,24 @@ function getHoursFromNow(strDate) {
   return deltaHours;
 }
 
+function toHoursFromNow(str) {
+  const deltaHours = (Date.now() - new Date(str)) / 3600000;
+  return deltaHours;
+}
+
+function hoursFromNowToLabel(nbHoursAgo) {
+  if (nbHoursAgo > 0.9) {
+    return `${Math.round(nbHoursAgo)} hours ago`;
+  }
+  const minutes = nbHoursAgo * 60;
+
+  if (minutes < 1) {
+    return 'now';
+  }
+
+  return `${Math.round(minutes)} minutes ago`;
+}
+
 function formatEpochTime(epoch) {
   if (Number.isNaN(epoch)) {
     return 'N/A';
@@ -109,4 +127,6 @@ export default {
   getShortTimeLabel,
   setTimeZone,
   toMineTime,
+  toHoursFromNow,
+  hoursFromNowToLabel,
 };

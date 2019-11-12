@@ -131,6 +131,20 @@ export default {
 
       return busy(dispatch, axios(request));
     },
+    async HTTP_FETCH_HEARTBEAT({ getters, dispatch }) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/inventory/heartbeat`,
+        headers: {
+          Authorization: `Bearer: ${authToken}`,
+        },
+      };
+
+      return busy(dispatch, axios(request));
+    },
     async HTTP_FETCH_URL({ getters, dispatch }, url) {
       const authToken = getters.HTTP_AUTH_TOKEN;
 

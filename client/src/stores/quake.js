@@ -74,6 +74,8 @@ export default {
     selectedSite: null,
     selectedNetwork: null,
     userAcceptedSite: false,
+    // heartbeat status
+    heartbeat: {},
   },
   getters: {
     QUAKE_REFRESH_COUNT(state) {
@@ -170,6 +172,9 @@ export default {
     QUAKE_TYPE_MAPPING(state) {
       return state.typeMapping;
     },
+    QUAKE_HEARTBEAT(state) {
+      return state.heartbeat;
+    },
   },
   mutations: {
     QUAKE_REFRESH_COUNT_SET(state, value) {
@@ -264,8 +269,20 @@ export default {
     QUAKE_TYPE_MAPPING_SET(state, value) {
       state.typeMapping = value;
     },
+    QUAKE_HEARTBEAT_SET(state, value) {
+      const newHeartBeat = {};
+      for (let i = 0; i < value.length; i++) {
+        const { source, last_heard } = value[i];
+        newHeartBeat[source] = last_heard;
+      }
+      state.heartbeat = newHeartBeat;
+    },
   },
   actions: {
+    async QUAKE_UPDATE_HEARTBEAT({ commit, dispatch }) {
+      const { data } = await dispatch('HTTP_FETCH_HEARTBEAT');
+      commit('QUAKE_HEARTBEAT_SET', data);
+    },
     QUAKE_UPDATE_SITES({ commit }, sitesJson) {
       const siteMapObj = {};
       sitesJson.forEach((siteJson) => {
