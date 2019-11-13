@@ -17,7 +17,9 @@ function busy(dispatch, promise) {
 export default {
   state: {
     baseUrl: 'https://api.microquake.org/api',
+    wsUrl: 'wss://api.microquake.org/eventstream/',
     authToken: null,
+    wsClient: null,
   },
   getters: {
     HTTP_AUTH_TOKEN(state) {
@@ -172,6 +174,48 @@ export default {
         }
       }
       return { data: fullList };
+    },
+    async HTTP_FETCH_SCATTERS({ getters, dispatch }) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/inventory/scatters`,
+        headers: {
+          Authorization: `Bearer: ${authToken}`,
+        },
+      };
+
+      return await busy(dispatch, axios(request));
+    },
+    HTTP_WS_CONNECT({ state, dispatch }) {
+      if (state.wsClient) {
+        dispatch('HTTP_WS_DISCONNECT');
+      }
+      state.wsClient = new WebSocket(state.wsUrl);
+      state.wsClient.onmessage = (msg) => {
+        console.log('ws msg');
+        console.log(JSON.parse(msg.data));
+      };
+      state.wsClient.onerror = (e) => {
+        console.error(e);
+        setTimeout(() => {
+          dispatch('HTTP_WS_CONNECT');
+        }, 20000);
+      };
+      state.wsClient.onopen = () => {
+        console.log('opening event stream');
+      };
+      state.wsClient.onclose = (e) => {
+        console.log('closing event stream', e);
+      };
+    },
+    HTTP_WS_DISCONNECT({ state }) {
+      if (state.wsClient) {
+        state.wsClient.close();
+        state.wsClient = null;
+      }
     },
   },
 };

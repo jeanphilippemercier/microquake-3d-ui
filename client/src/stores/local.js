@@ -14,6 +14,7 @@ import vtkStations from 'paraview-quake/src/pipeline/Stations';
 
 const PIPELINE_ITEMS = {};
 let LIVE_TIMEOUT = 0;
+const RESOURCE_ID_TO_ID = {};
 
 const vtpReader = vtkXMLPolyDataReader.newInstance();
 const BLAST_GLYPH = vtpReader.setUrl('/blast.vtp').then(() => {
@@ -237,9 +238,6 @@ export default {
       const eventStatusFilter = getters.QUAKE_FOCUS_EVENT_STATUS;
       const prefOriginMap = getters.QUAKE_PREFERRED_ORIGIN_MAP;
 
-      const idList = [];
-      const typeList = [];
-
       const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
       const historicalTime = getters.QUAKE_HISTORICAL_TIME;
       const offset = getters.QUAKE_FOCUS_PERIOD_OFFSET;
@@ -308,33 +306,29 @@ export default {
         renderer.addViewProp(pipeline.historicEvents);
       }
 
+      // id used
+      let currentId = 0;
+
       // Get the events
       dispatch('HTTP_FETCH_EVENTS', [`${fTime}Z`, `${now}Z`, eventStatusFilter])
         .then((response) => {
           commit('QUAKE_REFRESH_COUNT_SET', getters.QUAKE_REFRESH_COUNT + 1);
 
+          // Generate id for events
+          const eventsWithIds = response.data.map((v) => {
+            v.id = currentId;
+            RESOURCE_ID_TO_ID[v.event_resource_id] = currentId;
+            currentId++;
+            return v;
+          });
+
           const focusTS = new Date(fTime) / 10000;
           const nowTS = new Date(now) / 10000;
-          pipeline.seismicEvents.setInput(
-            response.data,
-            prefOriginMap,
-            idList,
-            typeList
-          );
+          pipeline.seismicEvents.setInput(eventsWithIds, prefOriginMap);
           pipeline.seismicEvents.updateColorRange(focusTS, nowTS);
-          pipeline.blast.setInput(
-            response.data,
-            prefOriginMap,
-            idList,
-            typeList
-          );
+          pipeline.blast.setInput(eventsWithIds, prefOriginMap);
           pipeline.blast.updateColorRange(focusTS, nowTS);
-          pipeline.otherEvents.setInput(
-            response.data,
-            prefOriginMap,
-            idList,
-            typeList
-          );
+          pipeline.otherEvents.setInput(eventsWithIds, prefOriginMap);
           pipeline.otherEvents.updateColorRange(focusTS, nowTS);
 
           dispatch('QUAKE_UPDATE_CATALOGUE', response.data);
@@ -354,7 +348,13 @@ export default {
         eventStatusFilter,
       ])
         .then((response) => {
-          pipeline.historicEvents.setInput(response.data, prefOriginMap);
+          const eventsWithIds = response.data.map((v) => {
+            v.id = currentId;
+            RESOURCE_ID_TO_ID[v.event_resource_id] = currentId;
+            currentId++;
+            return v;
+          });
+          pipeline.historicEvents.setInput(eventsWithIds, prefOriginMap);
         })
         .catch((error) => {
           console.error('Encountered error retrieving events');
@@ -634,10 +634,16 @@ export default {
       renderer.addViewProp(locations);
     },
     LOCAL_UPDATE_SELECTION_DATA({ getters, commit }, selection) {
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
       if (!selection) {
         commit('QUAKE_PICKED_DATA_SET', null);
-      } else {
-        const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      } else if (
+        pipeline.seismicEvents &&
+        pipeline.blast &&
+        pipeline.historicEvents &&
+        pipeline.stations &&
+        pipeline.otherEvents
+      ) {
         commit(
           'QUAKE_PICKED_DATA_SET',
           pipeline.seismicEvents.getSelectionData(selection) ||
@@ -685,7 +691,8 @@ export default {
     LOCAL_ACTIVATE_EVENT({ getters }, resourceId) {
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
       if (pipeline.seismicEvents) {
-        const id = pipeline.seismicEvents.getLastIdList().indexOf(resourceId);
+        const id = RESOURCE_ID_TO_ID[resourceId];
+
         pipeline.seismicEvents.activate(id);
         pipeline.blast.activate(id);
         pipeline.otherEvents.activate(id);

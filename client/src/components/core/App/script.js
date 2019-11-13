@@ -79,6 +79,20 @@ export default {
 
       heartbeat: 'QUAKE_HEARTBEAT',
     }),
+    connectorColor() {
+      const connectorTime = DateHelper.toHoursFromNow(
+        this.heartbeat.event_connector
+      );
+      // 5/60 => 0.0833 => 5 minutes
+      if (connectorTime < 0.083) {
+        return 'green';
+      }
+      // 15/60 => 0.25 => 15 minutes
+      if (connectorTime < 0.25) {
+        return 'yellow';
+      }
+      return 'red';
+    },
     siteItems() {
       return Object.values(this.siteMap || []);
     },
@@ -191,7 +205,6 @@ export default {
         this.login();
       }
     },
-    toHoursFromNow: DateHelper.toHoursFromNow,
   },
   filters: {
     toHoursFromNow: DateHelper.toHoursFromNow,

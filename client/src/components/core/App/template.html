@@ -115,7 +115,7 @@
       <v-btn icon @click.stop="menuVisible = !menuVisible" slot="activator">
         <v-icon
           v-if="!errorMessage"
-          :color="toHoursFromNow(heartbeat.event_connector) > 0.25 ? 'orange' : 'green'"
+          :color="connectorColor"
         >{{ $vuetify.icons.quakeTrace }}</v-icon>
         <v-icon
           v-if="errorMessage"

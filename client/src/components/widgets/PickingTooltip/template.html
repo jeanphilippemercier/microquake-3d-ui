@@ -6,9 +6,9 @@
           {{ pickedData.station_location_code }}.{{ pickedData.location_code}} ({{ pickedData.code}})
         </v-flex>
       </v-layout>
-      <v-layout v-if="pickedData.type" :class="$style.title">
+      <v-layout v-if="pickedData.event_type" :class="$style.title">
         <v-flex xs12 class="py-0 my-0">
-          {{ pickedData.type }}
+          {{ pickedData.event_type }}
         </v-flex>
       </v-layout>
       <v-layout row wrap align-center v-if="!pickedData.name && pickedData.time" style="width: 250px;">
@@ -26,7 +26,7 @@
         </v-flex>
         <v-flex xs4>
           <span v-if="pickedData.magnitude > -999">
-            {{ (pickedData.magnitude || 0).toFixed(2) }}
+            {{ (pickedData.magnitude || 0).toFixed(2) }} (Mw)
           </span>
         </v-flex>
         <v-flex xs2 :class="$style.center">
@@ -52,6 +52,26 @@
         </v-flex>
         <v-flex xs4 v-show="rayCount !== undefined" >
           {{rayCount}}
+        </v-flex>
+      </v-layout>
+      <v-layout row wrap align-center v-if="!pickedData.name && pickedData.time" style="width: 250px; text-align: center;">
+        <v-flex xs6 v-show="pickedData.corner_frequency" >
+          Corner freq.
+        </v-flex>
+        <v-flex xs6 v-show="pickedData.corner_frequency">
+          {{ (pickedData.corner_frequency || 0).toFixed(2) }} (Hz)
+        </v-flex>
+        <v-flex xs6 v-show="pickedData.time_residual > 0">
+          RMS residual
+        </v-flex>
+        <v-flex xs6 v-show="pickedData.time_residual > 0">
+          {{ (pickedData.time_residual || 0).toFixed(2) }} (ms)
+        </v-flex>
+        <v-flex xs6 v-show="pickedData.npick > 0">
+          Picks
+        </v-flex>
+        <v-flex xs6 v-show="pickedData.npick > 0">
+          {{ (pickedData.npick || 0).toFixed(2) }}
         </v-flex>
       </v-layout>
     </v-container>

@@ -227,9 +227,8 @@ function vtkSeismicEvents(publicAPI, model) {
   // Public API
   // --------------------------------------------------------------------------
 
-  publicAPI.setInput = (eventsData, preferedOrigins = {}, idList = [], typeList = []) => {
-    model.lastIdList = idList;
-    model.lastTypeList = typeList;
+  publicAPI.setInput = (eventsData, preferedOrigins = {}) => {
+    model.originalList = eventsData;
     const filteredEvents = filterEvents(
       model.mineBounds,
       eventsData,
@@ -279,10 +278,8 @@ function vtkSeismicEvents(publicAPI, model) {
 
       magnitudeArray[i] = model.enableScaling ? event.magnitude : 10;
       timeArray[i] = event.time_epoch / TIME_RATIO;
-      idArray[i] = idList.length;
+      idArray[i] = event.id;
 
-      idList.push(event.event_resource_id);
-      typeList.push(event.event_type);
       preferedOrigins[event.event_resource_id] = event.preferred_origin_id;
     }
     // ------------------------------------------------------------------------
@@ -407,15 +404,13 @@ function vtkSeismicEvents(publicAPI, model) {
       const magnitude = model.magnitudeArray.getData()[compositeID];
       const time = model.timeArray.getData()[compositeID];
       const uncertainty = model.uncertaintyArray.getData()[compositeID];
-      return {
+      return Object.assign({}, model.originalList[id], {
         id,
         magnitude,
         time: time * TIME_RATIO,
         uncertainty,
-        event_resource_id: model.lastIdList[id],
-        type: model.lastTypeList[id],
         worldPosition,
-      };
+      });
     }
     return null;
   };
@@ -423,41 +418,69 @@ function vtkSeismicEvents(publicAPI, model) {
   publicAPI.activate = (id) => {
     const ids = model.idArray.getData();
     const inRange = id >= ids[0] && id <= ids[ids.length - 1];
+    let step = ids.length;
+    let idx = 0;
+    let notFound = true;
     if (inRange) {
-      const idx = id - ids[0];
-      const xyzs = model.polydata.getPoints().getData();
-      const x = xyzs[idx * 3];
-      const y = xyzs[idx * 3 + 1];
-      const z = xyzs[idx * 3 + 2];
-      const outPoints = model.activePolydata.getPoints();
-      const outXYZs = outPoints.getData();
+      while (notFound && step > 0.4) {
+        step *= 0.5;
+        if (id === ids[idx]) {
+          notFound = false;
+        } else if (id > ids[idx]) {
+          idx += Math.round(step);
+        } else if (id < ids[idx]) {
+          idx -= Math.round(step);
+        }
+      }
 
-      outXYZs[0] = model.mineBounds[0] + model.translate[0];
-      outXYZs[1] = y;
-      outXYZs[2] = z;
-      outXYZs[3] = model.mineBounds[1] + model.translate[0];
-      outXYZs[4] = y;
-      outXYZs[5] = z;
+      // Validate possible neihgbors
+      while (notFound && id > ids[idx]) {
+        idx++;
+      }
+      while (notFound && id < ids[idx]) {
+        idx--;
+      }
+      notFound = id !== ids[idx];
 
-      outXYZs[6] = x;
-      outXYZs[7] = model.mineBounds[2] + model.translate[1];
-      outXYZs[8] = z;
-      outXYZs[9] = x;
-      outXYZs[10] = model.mineBounds[3] + model.translate[1];
-      outXYZs[11] = z;
+      // Show intersection if found
+      if (!notFound) {
+        const xyzs = model.polydata.getPoints().getData();
+        const x = xyzs[idx * 3];
+        const y = xyzs[idx * 3 + 1];
+        const z = xyzs[idx * 3 + 2];
+        const outPoints = model.activePolydata.getPoints();
+        const outXYZs = outPoints.getData();
 
-      outXYZs[12] = x;
-      outXYZs[13] = y;
-      outXYZs[14] = model.mineBounds[4] + model.translate[2];
-      outXYZs[15] = x;
-      outXYZs[16] = y;
-      outXYZs[17] = model.mineBounds[5] + model.translate[2];
+        outXYZs[0] = model.mineBounds[0] + model.translate[0];
+        outXYZs[1] = y;
+        outXYZs[2] = z;
+        outXYZs[3] = model.mineBounds[1] + model.translate[0];
+        outXYZs[4] = y;
+        outXYZs[5] = z;
 
-      outPoints.modified();
-      model.activePolydata.modified();
+        outXYZs[6] = x;
+        outXYZs[7] = model.mineBounds[2] + model.translate[1];
+        outXYZs[8] = z;
+        outXYZs[9] = x;
+        outXYZs[10] = model.mineBounds[3] + model.translate[1];
+        outXYZs[11] = z;
+
+        outXYZs[12] = x;
+        outXYZs[13] = y;
+        outXYZs[14] = model.mineBounds[4] + model.translate[2];
+        outXYZs[15] = x;
+        outXYZs[16] = y;
+        outXYZs[17] = model.mineBounds[5] + model.translate[2];
+
+        outPoints.modified();
+        model.activePolydata.modified();
+      }
+      model.activeActor.setVisibility(!notFound);
+      publicAPI.render();
+    } else {
+      model.activeActor.setVisibility(false);
+      publicAPI.render();
     }
-    model.activeActor.setVisibility(inRange);
-    publicAPI.render();
   };
 
   publicAPI.updateGlyph = (g) => {
@@ -480,7 +503,6 @@ function vtkSeismicEvents(publicAPI, model) {
 
 const DEFAULT_VALUES = {
   glyph: null,
-  lastIdList: null,
   renderer: null,
   translate: [0, 0, 0],
   mineBounds: [-1, 1, -1, 1, -1, 1],
@@ -509,7 +531,6 @@ export function extend(publicAPI, model, initialValues = {}) {
     'renderer',
     'scalingFactor',
     'uncertaintyScalingFactor',
-    'lastIdList',
   ]);
   macro.setGetArray(publicAPI, model, ['translate'], 3);
   macro.setGetArray(publicAPI, model, ['mineBounds'], 6);
