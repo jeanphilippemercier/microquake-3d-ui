@@ -1,6 +1,10 @@
-<v-container fluid grid-list-md class="py-0 px-1">
-  <v-layout>
-    <v-flex>
+<v-container
+  fluid
+  class="pa-1"
+  style="max-height: calc(100vh - 51px - 50px);min-height: calc(100vh - 51px - 50px);overflow: hidden;"
+>
+  <v-layout column>
+    <v-flex :style="treeStyle" class="pb-3">
       <v-treeview
         :active.sync="active"
         :items="catalogue"
@@ -20,12 +24,7 @@
         <template v-slot:label="{ item }">
           <v-layout align-center>
             <div class="pr-1">{{ item.name }}</div>
-            <v-btn
-              icon
-              small
-              v-if="item.open"
-              @click="open(item.id)"
-            >
+            <v-btn icon small v-if="item.open" @click="open(item.id)">
               <v-icon small class="px-0">
                 {{ $vuetify.icons.quakeTrace }}
               </v-icon>
@@ -42,5 +41,14 @@
         </template>
       </v-treeview>
     </v-flex>
+    <event-detail
+      v-if="selectedEvent && selectedEvent.event_resource_id"
+
+      :class="$style.bottom"
+
+      :dark="darkMode"
+      :event="selectedEvent"
+      @close="unselectEvent"
+    />
   </v-layout>
 </v-container>

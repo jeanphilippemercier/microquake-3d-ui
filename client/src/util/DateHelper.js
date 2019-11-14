@@ -118,6 +118,10 @@ function setTimeZone(strOffset) {
   OFFSET_IN_MS *= sign;
 }
 
+function getOffsetTime() {
+  return { ms: OFFSET_IN_MS };
+}
+
 export default {
   formatEpochDate,
   formatEpochTime,
@@ -129,4 +133,5 @@ export default {
   toMineTime,
   toHoursFromNow,
   hoursFromNowToLabel,
+  getOffsetTime,
 };

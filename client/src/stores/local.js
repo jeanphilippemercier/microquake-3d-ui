@@ -331,7 +331,7 @@ export default {
           pipeline.otherEvents.setInput(eventsWithIds, prefOriginMap);
           pipeline.otherEvents.updateColorRange(focusTS, nowTS);
 
-          dispatch('QUAKE_UPDATE_CATALOGUE', response.data);
+          dispatch('QUAKE_UPDATE_CATALOGUE', eventsWithIds);
 
           if (getters.QUAKE_LIVE_MODE && focusPeriod[0] < 2100) {
             dispatch('LOCAL_UPDATE_EVENTS');
@@ -688,14 +688,17 @@ export default {
         dispatch('LOCAL_LIVE_UPDATE');
       }, timeout);
     },
-    LOCAL_ACTIVATE_EVENT({ getters }, resourceId) {
+    LOCAL_ACTIVATE_EVENT({ getters, commit }, resourceId) {
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
       if (pipeline.seismicEvents) {
         const id = RESOURCE_ID_TO_ID[resourceId];
-
-        pipeline.seismicEvents.activate(id);
-        pipeline.blast.activate(id);
-        pipeline.otherEvents.activate(id);
+        const selectedEvents = [
+          pipeline.seismicEvents.activate(id),
+          pipeline.blast.activate(id),
+          pipeline.otherEvents.activate(id),
+        ];
+        const event = selectedEvents.filter((v) => !!v)[0];
+        commit('QUAKE_SELECTED_EVENT_SET', event);
       }
     },
   },

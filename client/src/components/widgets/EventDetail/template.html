@@ -1,0 +1,104 @@
+<v-card v-show="event && event.time_utc" class="elevation-20">
+  <v-container fluid class="pa-0">
+    <v-layout class="py-2 px-3 grey" :class="headerClass" align-center>
+      <v-flex xs10 class="font-weight-bold subtitle-2">Event detail</v-flex>
+      <v-flex xs2 class="text-xs-right">
+        <v-btn small icon flat @click="close" class="pa-0 ma-0">
+          <v-icon small>{{ $vuetify.icons.close}}</v-icon>
+        </v-btn>
+      </v-flex>
+    </v-layout>
+    <v-divider class="mb-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        Type
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{event.event_type }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">Time</v-flex>
+      <v-flex xs3 class="text-xs-center">
+        {{ toHour }}<small>{{ toMs }}</small>
+      </v-flex>
+      <v-flex xs4 class="text-xs-center">{{ toDate }}</v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs4 class="font-weight-bold subtitle-2">
+        Magnitude
+        <span v-if="event.magnitude_type">({{event.magnitude_type}})</span>
+      </v-flex>
+      <v-flex xs4 class="text-xs-right">
+        {{event.magnitude | eventMagnitude}}
+      </v-flex>
+      <v-flex xs4 class="text-xs-center">
+        {{ event.status }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout align-center class="px-3">
+      <v-flex xs4 class="font-weight-bold subtitle-2">
+        Location (m)
+      </v-flex>
+      <v-flex xs8 class="text-xs-center">
+        <v-layout column>
+          <v-layout>
+            <v-flex xs1 class="caption text-xs-right">X</v-flex>
+            <v-flex xs5 class="text-xs-right">{{event.x}}</v-flex>
+            <v-flex xs6 class="caption text-xs-center">East</v-flex>
+          </v-layout>
+          <v-layout>
+            <v-flex xs1 class="caption text-xs-right">Y</v-flex>
+            <v-flex xs5 class="text-xs-right">{{event.y}}</v-flex>
+            <v-flex xs6 class="caption text-xs-center">North</v-flex>
+          </v-layout>
+          <v-layout>
+            <v-flex xs1 class="caption text-xs-right">Z</v-flex>
+            <v-flex xs5 class="text-xs-right">{{event.z}}</v-flex>
+            <v-flex xs6 class="caption text-xs-center"></v-flex>
+          </v-layout>
+        </v-layout>
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        Picks
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{ event.npick }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        RMS residual (ms)
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{ event.time_residual && (event.time_residual * 1000) | decentNumber }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        Uncertainty (m)
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{event.uncertainty | decentNumber }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        Corner freq. (Hz)
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{event.corner_frequency | decentNumber }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="mt-2" />
+  </v-container>
+</v-card>

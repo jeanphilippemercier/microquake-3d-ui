@@ -41,6 +41,7 @@ export default {
       earthquake: 'E',
     },
     catalogue: [],
+    selectedEvent: null,
     eventStatus: 'accepted',
     sensorChildren: [{ id: 'stations', name: 'Stations' }],
     refreshRate: 10,
@@ -79,6 +80,9 @@ export default {
     heartbeat: {},
   },
   getters: {
+    QUAKE_SELECTED_EVENT(state) {
+      return state.selectedEvent;
+    },
     QUAKE_REFRESH_COUNT(state) {
       return state.refreshCount;
     },
@@ -178,6 +182,9 @@ export default {
     },
   },
   mutations: {
+    QUAKE_SELECTED_EVENT_SET(state, value) {
+      state.selectedEvent = Object.assign({}, value);
+    },
     QUAKE_REFRESH_COUNT_SET(state, value) {
       state.refreshCount = value;
     },

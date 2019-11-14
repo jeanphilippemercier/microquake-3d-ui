@@ -416,34 +416,36 @@ function vtkSeismicEvents(publicAPI, model) {
   };
 
   publicAPI.activate = (id) => {
-    const ids = model.idArray.getData();
-    const inRange = id >= ids[0] && id <= ids[ids.length - 1];
-    let step = ids.length;
+    let selectedEvent = null;
+    const inRange = id >= model.originalList[0].id && id <= model.originalList[model.originalList.length - 1].id;
+    let step = model.originalList.length;
     let idx = 0;
     let notFound = true;
     if (inRange) {
       while (notFound && step > 0.4) {
         step *= 0.5;
-        if (id === ids[idx]) {
+        if (id === model.originalList[idx].id) {
           notFound = false;
-        } else if (id > ids[idx]) {
+        } else if (id > model.originalList[idx].id) {
           idx += Math.round(step);
-        } else if (id < ids[idx]) {
+        } else if (id < model.originalList[idx].id) {
           idx -= Math.round(step);
         }
       }
 
       // Validate possible neihgbors
-      while (notFound && id > ids[idx]) {
+      while (notFound && id > model.originalList[idx].id) {
         idx++;
       }
-      while (notFound && id < ids[idx]) {
+      while (notFound && id < model.originalList[idx].id) {
         idx--;
       }
-      notFound = id !== ids[idx];
+      notFound = id !== model.originalList[idx].id;
 
       // Show intersection if found
       if (!notFound) {
+        selectedEvent = model.originalList[idx];
+
         const xyzs = model.polydata.getPoints().getData();
         const x = xyzs[idx * 3];
         const y = xyzs[idx * 3 + 1];
@@ -481,6 +483,7 @@ function vtkSeismicEvents(publicAPI, model) {
       model.activeActor.setVisibility(false);
       publicAPI.render();
     }
+    return selectedEvent;
   };
 
   publicAPI.updateGlyph = (g) => {

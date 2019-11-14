@@ -1,14 +1,19 @@
 import { mapGetters, mapActions } from 'vuex';
 import URLHelper from 'paraview-quake/src/util/URLHelper';
+import EventDetail from 'paraview-quake/src/components/widgets/EventDetail';
 
 export default {
   name: 'Catalogue',
+  components: {
+    EventDetail,
+  },
   computed: {
     ...mapGetters({
       darkMode: 'APP_DARK_THEME',
       catalogue: 'QUAKE_CATALOGUE',
       labelTypeMapping: 'QUAKE_TYPE_MAPPING',
       activeEvent: 'API_ACTIVE_EVENT',
+      selectedEvent: 'QUAKE_SELECTED_EVENT',
     }),
     active: {
       get() {
@@ -17,6 +22,18 @@ export default {
       set(v) {
         this.updateActiveEvent(v[0]);
       },
+    },
+    treeStyle() {
+      let baseHeight = 101;
+      if (this.selectedEvent && this.selectedEvent.time_utc) {
+        baseHeight += 250;
+      }
+      const height = `calc(100vh - ${baseHeight}px)`;
+      return {
+        minHeight: height,
+        maxHeight: height,
+        overflow: 'auto',
+      };
     },
   },
   methods: {
@@ -32,6 +49,9 @@ export default {
     showRays(event_resource_id) {
       this.$store.commit('QUAKE_PICKED_DATA_SET', { event_resource_id });
       this.$store.dispatch('API_SHOW_RAY');
+    },
+    unselectEvent() {
+      this.updateActiveEvent('');
     },
   },
   filters: {

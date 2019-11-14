@@ -54,3 +54,10 @@
 :global(.theme--dark) .thinBorder {
   border-color: #555;
 }
+
+.bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
