@@ -24,9 +24,9 @@ export default {
       },
     },
     treeStyle() {
-      let baseHeight = 101;
+      let baseHeight = 110;
       if (this.selectedEvent && this.selectedEvent.time_utc) {
-        baseHeight += 250;
+        baseHeight += 392;
       }
       const height = `calc(100vh - ${baseHeight}px)`;
       return {
