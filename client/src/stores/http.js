@@ -175,13 +175,16 @@ export default {
       }
       return { data: fullList };
     },
-    async HTTP_FETCH_SCATTERS({ getters, dispatch }) {
+    async HTTP_FETCH_SCATTERS({ getters, dispatch }, resourceId) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
 
       const request = {
         method: 'get',
         url: `${baseUrl}/v1/inventory/scatters`,
+        params: {
+          event_id: resourceId,
+        },
         headers: {
           Authorization: `Bearer: ${authToken}`,
         },

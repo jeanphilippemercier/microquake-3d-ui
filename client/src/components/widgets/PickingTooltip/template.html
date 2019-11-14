@@ -8,7 +8,7 @@
       </v-layout>
       <v-layout v-if="pickedData.event_type" :class="$style.title">
         <v-flex xs12 class="py-0 my-0">
-          {{ pickedData.event_type }}
+          {{ eventType }}
         </v-flex>
       </v-layout>
       <v-layout row wrap align-center v-if="!pickedData.name && pickedData.time" style="width: 250px;">

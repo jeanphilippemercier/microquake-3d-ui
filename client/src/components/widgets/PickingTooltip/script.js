@@ -21,6 +21,9 @@ export default {
     };
   },
   computed: {
+    labelTypeMapping() {
+      return this.$store.getters.QUAKE_TYPE_MAPPING;
+    },
     tooltipClass() {
       return this.pickedData && !this.disablePicking
         ? this.$style.visible
@@ -33,6 +36,11 @@ export default {
       return this.$store.getters.QUAKE_RAY_MAPPING[
         this.pickedData.event_resource_id
       ];
+    },
+    eventType() {
+      const type = this.pickedData.event_type;
+      const goodName = this.labelTypeMapping[type];
+      return goodName ? `${goodName.value} - ${goodName.text}` : type;
     },
   },
   mounted() {

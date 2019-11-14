@@ -15,6 +15,7 @@ import vtkStations from 'paraview-quake/src/pipeline/Stations';
 const PIPELINE_ITEMS = {};
 let LIVE_TIMEOUT = 0;
 const RESOURCE_ID_TO_ID = {};
+const UNCERTAINTY_SCATTER = {};
 
 const vtpReader = vtkXMLPolyDataReader.newInstance();
 const BLAST_GLYPH = vtpReader.setUrl('/blast.vtp').then(() => {
@@ -28,6 +29,7 @@ export default {
     mineTranslate: [0.0, 0.0, 0.0],
     minePlan: null,
     pipelineObjects: {},
+    uncertaintyScatterTS: {},
   },
   getters: {
     LOCAL_MINE_PLAN(state) {
@@ -699,7 +701,33 @@ export default {
         ];
         const event = selectedEvents.filter((v) => !!v)[0];
         commit('QUAKE_SELECTED_EVENT_SET', event);
+
+        // Fetch uncertainty scatter
+        // console.log(dispatch('LOCAL_GET_UNCERTAINTY_SCATTER', resourceId));
       }
+    },
+    async LOCAL_GET_UNCERTAINTY_SCATTER({ state, dispatch }, resourceId) {
+      if (UNCERTAINTY_SCATTER[resourceId]) {
+        return UNCERTAINTY_SCATTER[resourceId];
+      }
+
+      const listToFill = [];
+      UNCERTAINTY_SCATTER[resourceId] = listToFill;
+      state.uncertaintyScatterTS[resourceId] = 0;
+
+      async function processChunk({ results, next }) {
+        for (let i = 0; i < results.length; i++) {
+          listToFill.push(results[i]);
+        }
+        state.uncertaintyScatterTS[resourceId]++;
+        if (next) {
+          const { data } = await dispatch('HTTP_FETCH_URL', next);
+          processChunk(data);
+        }
+      }
+
+      const { data } = await dispatch('HTTP_FETCH_SCATTERS', resourceId);
+      processChunk(data);
     },
   },
 };
