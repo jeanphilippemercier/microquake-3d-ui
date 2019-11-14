@@ -189,6 +189,20 @@ export default {
 
       return await busy(dispatch, axios(request));
     },
+    async HTTP_FETCH_EVENT_TYPES({ getters, dispatch }, siteCode) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}/v1/inventory/microquake_event_types?site__code=${siteCode}`,
+        headers: {
+          Authorization: `Bearer: ${authToken}`,
+        },
+      };
+
+      return await busy(dispatch, axios(request));
+    },
     HTTP_WS_CONNECT({ state, dispatch }) {
       if (state.wsClient) {
         dispatch('HTTP_WS_DISCONNECT');

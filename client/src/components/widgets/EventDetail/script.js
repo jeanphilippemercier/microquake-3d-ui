@@ -12,6 +12,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    typeMapping: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   computed: {
     headerClass() {
@@ -34,6 +38,18 @@ export default {
         .add(DateHelper.getOffsetTime())
         .utc()
         .format('MMM Do YYYY');
+    },
+    eventType() {
+      if (this.event.event_type && this.typeMapping[this.event.event_type]) {
+        return this.typeMapping[this.event.event_type].text;
+      }
+      return this.event.event_type;
+    },
+    eventTypeShort() {
+      if (this.event.event_type && this.typeMapping[this.event.event_type]) {
+        return this.typeMapping[this.event.event_type].value;
+      }
+      return null;
     },
   },
   methods: {

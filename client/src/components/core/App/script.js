@@ -185,13 +185,13 @@ export default {
     ...mapMutations({
       updateUserName: 'APP_AUTH_USER_NAME_SET',
       updateUserPassword: 'APP_AUTH_USER_PASSWORD_SET',
-      updateSelectedSite: 'QUAKE_SELECTED_SITE_SET',
       updateSelectedNetwork: 'QUAKE_SELECTED_NETWORK_SET',
       updateLocalRendering: 'API_LOCAL_RENDERING_SET',
       updateDoubleClickMode: 'QUAKE_DOUBLE_CLICK_MODE_SET',
     }),
     ...mapActions({
       login: 'APP_LOGIN',
+      updateSelectedSite: 'QUAKE_SELECTED_SITE_SET',
     }),
     selectSite() {
       console.log('In selectSite() method');

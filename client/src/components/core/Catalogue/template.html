@@ -13,12 +13,18 @@
       >
         <template v-slot:prepend="{ item }">
           <v-tooltip bottom v-if="item.type">
-            <span>{{ labelTypeMapping[item.type] || item.type }}</span>
+            <span>{{ labelTypeMapping[item.type] && labelTypeMapping[item.type].text || item.type }}</span>
             <v-icon
               slot="activator"
+              v-if="$vuetify.icons[item.type] || !labelTypeMapping[item.type].value"
               v-text="$vuetify.icons[item.type] || $vuetify.icons.otherEvents"
               class="mr-2"
             />
+            <div
+              slot="activator"
+              v-else
+              style="min-width: 32px; padding-left: 5px;"
+            >{{ labelTypeMapping[item.type].value }}</div>
           </v-tooltip>
         </template>
         <template v-slot:label="{ item }">
@@ -48,6 +54,7 @@
 
       :dark="darkMode"
       :event="selectedEvent"
+      :typeMapping="labelTypeMapping"
       @close="unselectEvent"
     />
   </v-layout>

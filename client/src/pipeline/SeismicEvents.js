@@ -417,7 +417,9 @@ function vtkSeismicEvents(publicAPI, model) {
 
   publicAPI.activate = (id) => {
     let selectedEvent = null;
-    const inRange = id >= model.originalList[0].id && id <= model.originalList[model.originalList.length - 1].id;
+    const inRange =
+      id >= model.originalList[0].id &&
+      id <= model.originalList[model.originalList.length - 1].id;
     let step = model.originalList.length;
     let idx = 0;
     let notFound = true;

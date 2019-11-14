@@ -31,15 +31,7 @@ export default {
   state: {
     liveMode: false,
     refreshCount: 0,
-    typeMapping: {
-      thunder: 'L',
-      'controlled explosion': 'OB',
-      'anthropogenic event': 'SE',
-      'other event': 'N',
-      'quarry blast': 'OP',
-      explosion: 'B',
-      earthquake: 'E',
-    },
+    typeMapping: {},
     catalogue: [],
     selectedEvent: null,
     eventStatus: 'accepted',
@@ -251,16 +243,6 @@ export default {
     QUAKE_SITE_MAP_SET(state, value) {
       state.siteMap = value;
     },
-    QUAKE_SELECTED_SITE_SET(state, value) {
-      state.selectedSite = value;
-      DateHelper.setTimeZone(
-        (state.siteMap &&
-          state.siteMap[value] &&
-          state.siteMap[value].timezone) ||
-          '+08:00'
-      );
-      storeItem('selectedSite', value);
-    },
     QUAKE_SELECTED_NETWORK_SET(state, value) {
       state.selectedNetwork = value;
       storeItem('selectedNetwork', value);
@@ -287,6 +269,21 @@ export default {
     },
   },
   actions: {
+    async QUAKE_SELECTED_SITE_SET({ state, commit, dispatch }, value) {
+      state.selectedSite = value;
+      DateHelper.setTimeZone(
+        (state.siteMap &&
+          state.siteMap[value] &&
+          state.siteMap[value].timezone) ||
+          '+08:00'
+      );
+      const { data } = await dispatch('HTTP_FETCH_EVENT_TYPES', value);
+      const eventTypes = {};
+      data.forEach(({ identifier, microquake_type, quakeml_type }) => {
+        eventTypes[quakeml_type] = { text: microquake_type, value: identifier };
+      });
+      commit('QUAKE_TYPE_MAPPING_SET', eventTypes);
+    },
     async QUAKE_UPDATE_HEARTBEAT({ commit, dispatch }) {
       const { data } = await dispatch('HTTP_FETCH_HEARTBEAT');
       commit('QUAKE_HEARTBEAT_SET', data);

@@ -12,9 +12,11 @@
     <v-layout class="px-3">
       <v-flex xs5 class="font-weight-bold subtitle-2">
         Type
+        <span v-if="eventTypeShort">({{eventTypeShort}})</span>
+
       </v-flex>
-      <v-flex xs3 class="text-xs-right">
-        {{event.event_type }}
+      <v-flex xs7>
+        {{ eventType }}
       </v-flex>
     </v-layout>
     <v-divider class="my-2" />
