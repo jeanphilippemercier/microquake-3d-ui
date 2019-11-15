@@ -415,7 +415,7 @@ export default {
       const raysDataMap = getters.QUAKE_RAY_DATA;
       if (getters.QUAKE_PICKED_DATA) {
         const id = getters.QUAKE_PICKED_DATA.event_resource_id;
-        dispatch('LOCAL_ACTIVATE_EVENT', id);
+        dispatch('API_ACTIVATE_EVENT', id);
         if (raysDataMap[id]) {
           const hasRays = raysDataMap[id].length > 0;
           commit('QUAKE_RAYS_IN_SCENE_SET', hasRays);
@@ -469,7 +469,7 @@ export default {
         const win = window.open(url, '_blank');
         win.focus();
 
-        dispatch('LOCAL_ACTIVATE_EVENT', resourceId);
+        dispatch('API_ACTIVATE_EVENT', resourceId);
       }
     },
     LOCAL_RESET_CAMERA({ getters }) {
