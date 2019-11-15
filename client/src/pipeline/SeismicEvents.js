@@ -416,37 +416,38 @@ function vtkSeismicEvents(publicAPI, model) {
   };
 
   publicAPI.activate = (id) => {
+    const ids = model.idArray.getData();
+    const inRange = id >= ids[0] && id <= ids[ids.length - 1];
+    let step = ids.length;
     let selectedEvent = null;
-    const inRange =
-      id >= model.originalList[0].id &&
-      id <= model.originalList[model.originalList.length - 1].id;
-    let step = model.originalList.length;
     let idx = 0;
     let notFound = true;
     if (inRange) {
       while (notFound && step > 0.4) {
         step *= 0.5;
-        if (id === model.originalList[idx].id) {
+        if (id === ids[idx]) {
           notFound = false;
-        } else if (id > model.originalList[idx].id) {
+        } else if (id > ids[idx]) {
           idx += Math.round(step);
-        } else if (id < model.originalList[idx].id) {
+        } else if (id < ids[idx]) {
           idx -= Math.round(step);
         }
       }
 
       // Validate possible neihgbors
-      while (notFound && id > model.originalList[idx].id) {
+      while (notFound && id > ids[idx]) {
         idx++;
       }
-      while (notFound && id < model.originalList[idx].id) {
+      while (notFound && id < ids[idx]) {
         idx--;
       }
-      notFound = id !== model.originalList[idx].id;
+      notFound = id !== ids[idx];
 
       // Show intersection if found
       if (!notFound) {
-        selectedEvent = model.originalList[idx];
+        // originalList are always odered with +1 between elements
+        const oidx = id - model.originalList[0].id;
+        selectedEvent = model.originalList[oidx];
 
         const xyzs = model.polydata.getPoints().getData();
         const x = xyzs[idx * 3];
