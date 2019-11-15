@@ -88,7 +88,7 @@ function createStore() {
             dispatch('QUAKE_UPDATE_HEARTBEAT');
             setInterval(() => {
               dispatch('QUAKE_UPDATE_HEARTBEAT');
-            }, 60 * 1000); // 60s
+            }, 5 * 60 * 1000); // 5 minutes
 
             // Start listening on event stream
             dispatch('HTTP_WS_CONNECT');

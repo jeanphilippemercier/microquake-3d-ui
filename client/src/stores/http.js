@@ -181,10 +181,9 @@ export default {
 
       const request = {
         method: 'get',
-        url: `${baseUrl}/v1/inventory/scatters`,
-        params: {
-          event_id: resourceId,
-        },
+        url: `${baseUrl}/v1/scatters?event_id=${encodeURIComponent(
+          resourceId
+        )}`,
         headers: {
           Authorization: `Bearer: ${authToken}`,
         },
@@ -206,14 +205,16 @@ export default {
 
       return await busy(dispatch, axios(request));
     },
-    HTTP_WS_CONNECT({ state, dispatch }) {
+    HTTP_WS_CONNECT({ state, commit, dispatch }) {
       if (state.wsClient) {
         dispatch('HTTP_WS_DISCONNECT');
       }
       state.wsClient = new WebSocket(state.wsUrl);
       state.wsClient.onmessage = (msg) => {
-        console.log('ws msg');
-        console.log(JSON.parse(msg.data));
+        const msgObj = JSON.parse(msg.data);
+        if (msgObj.type === 'heartbeat') {
+          commit('QUAKE_HEARTBEAT_SET', [msgObj.heartbeat]);
+        }
       };
       state.wsClient.onerror = (e) => {
         console.error(e);

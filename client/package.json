@@ -27,7 +27,7 @@
   },
   "author": "Kitware",
   "dependencies": {
-    "@mdi/font": "3.5.95",
+    "@mdi/font": "4.5.95",
     "axios": "0.18.0",
     "core-js": "2.6.5",
     "moment": "^2.24.0",

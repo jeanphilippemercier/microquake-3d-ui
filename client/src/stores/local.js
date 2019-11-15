@@ -7,6 +7,7 @@ import handlePiece from 'paraview-quake/src/pipeline/MinePieceHandler';
 import URLHelper from 'paraview-quake/src/util/URLHelper';
 
 /* eslint-disable import/no-named-as-default-member */
+import vtkScatters from 'paraview-quake/src/pipeline/Scatters';
 import vtkSeismicEvents from 'paraview-quake/src/pipeline/SeismicEvents';
 import vtkRays from 'paraview-quake/src/pipeline/Rays';
 import vtkLocations from 'paraview-quake/src/pipeline/Locations';
@@ -29,7 +30,7 @@ export default {
     mineTranslate: [0.0, 0.0, 0.0],
     minePlan: null,
     pipelineObjects: {},
-    uncertaintyScatterTS: {},
+    uncertaintyScatterTS: 0,
   },
   getters: {
     LOCAL_MINE_PLAN(state) {
@@ -43,6 +44,10 @@ export default {
     },
     LOCAL_PIPELINE_OBJECTS() {
       return PIPELINE_ITEMS;
+    },
+    LOCAL_UNCERTAINTY_SCATTER(state) {
+      state.uncertaintyScatterTS;
+      return UNCERTAINTY_SCATTER;
     },
   },
   mutations: {
@@ -302,10 +307,20 @@ export default {
           enableScaling: false,
         });
 
+        // Scatter
+        pipeline.scatters = vtkScatters.newInstance({
+          translate,
+          renderer,
+          mineBounds,
+        });
+        pipeline.scatters.setOpacity(0.4);
+        pipeline.scatters.setPointSize(10);
+
         renderer.addViewProp(pipeline.seismicEvents);
         renderer.addViewProp(pipeline.blast);
         renderer.addViewProp(pipeline.otherEvents);
         renderer.addViewProp(pipeline.historicEvents);
+        renderer.addViewProp(pipeline.scatters);
       }
 
       // id used
@@ -703,9 +718,6 @@ export default {
         ];
         const event = selectedEvents.filter((v) => !!v)[0];
         commit('QUAKE_SELECTED_EVENT_SET', event);
-
-        // Fetch uncertainty scatter
-        // console.log(dispatch('LOCAL_GET_UNCERTAINTY_SCATTER', resourceId));
       }
     },
     async LOCAL_GET_UNCERTAINTY_SCATTER({ state, dispatch }, resourceId) {
@@ -715,13 +727,14 @@ export default {
 
       const listToFill = [];
       UNCERTAINTY_SCATTER[resourceId] = listToFill;
-      state.uncertaintyScatterTS[resourceId] = 0;
+      state.uncertaintyScatterTS++;
 
       async function processChunk({ results, next }) {
         for (let i = 0; i < results.length; i++) {
           listToFill.push(results[i]);
         }
-        state.uncertaintyScatterTS[resourceId]++;
+        state.uncertaintyScatterTS++;
+        dispatch('LOCAL_SHOW_SCATTER', resourceId);
         if (next) {
           const { data } = await dispatch('HTTP_FETCH_URL', next);
           processChunk(data);
@@ -730,6 +743,15 @@ export default {
 
       const { data } = await dispatch('HTTP_FETCH_SCATTERS', resourceId);
       processChunk(data);
+      return UNCERTAINTY_SCATTER[resourceId];
+    },
+    async LOCAL_SHOW_SCATTER({ getters, dispatch }, resourceId) {
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      const scattersItems = await dispatch(
+        'LOCAL_GET_UNCERTAINTY_SCATTER',
+        resourceId
+      );
+      pipeline.scatters.setInput(scattersItems);
     },
   },
 };

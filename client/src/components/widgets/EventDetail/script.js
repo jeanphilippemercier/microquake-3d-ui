@@ -18,6 +18,17 @@ export default {
     },
   },
   computed: {
+    activeResourceId() {
+      return this.event && this.event.event_resource_id;
+    },
+    isScatterOn() {
+      return this.$store.getters.API_SCATTER_EVENT === this.activeResourceId;
+    },
+    scatterIcon() {
+      return this.isScatterOn
+        ? this.$vuetify.icons.scatterOn
+        : this.$vuetify.icons.scatterOff;
+    },
     headerClass() {
       return this.dark ? 'darken-2' : 'lighten-1';
     },
@@ -51,10 +62,20 @@ export default {
       }
       return null;
     },
+    currentScattersCount() {
+      const list = this.$store.getters.LOCAL_UNCERTAINTY_SCATTER[
+        this.activeResourceId
+      ];
+      return list ? list.length : '-';
+    },
   },
   methods: {
     close() {
       this.$emit('close');
+    },
+    scatter() {
+      const id = this.isScatterOn ? '-' : this.activeResourceId;
+      this.$emit('scatter', id);
     },
   },
   filters: {

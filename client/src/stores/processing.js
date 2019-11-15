@@ -2,6 +2,7 @@ export default {
   state: {
     mode: 'LOCAL',
     activeEvent: null,
+    scatter: null,
   },
   getters: {
     API_RENDER_MODE(state) {
@@ -13,6 +14,9 @@ export default {
     API_ACTIVE_EVENT(state) {
       return state.activeEvent;
     },
+    API_SCATTER_EVENT(state) {
+      return state.scatter;
+    },
   },
   mutations: {
     API_RENDER_MODE_SET(state, value) {
@@ -23,6 +27,9 @@ export default {
     },
     API_ACTIVE_EVENT_SET(state, value) {
       state.activeEvent = value;
+    },
+    API_SCATTER_EVENT_SET(state, value) {
+      state.scatter = value;
     },
   },
   actions: {
@@ -89,6 +96,10 @@ export default {
     },
     API_RESET_CAMERA_Z({ state, dispatch }) {
       return dispatch(`${state.mode}_RESET_CAMERA_Z`);
+    },
+    API_SHOW_SCATTER({ state, commit, dispatch }, resourceId) {
+      commit('API_SCATTER_EVENT_SET', resourceId);
+      return dispatch(`${state.mode}_SHOW_SCATTER`, resourceId);
     },
   },
 };

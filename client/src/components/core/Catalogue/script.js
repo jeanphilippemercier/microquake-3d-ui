@@ -26,7 +26,7 @@ export default {
     treeStyle() {
       let baseHeight = 110;
       if (this.selectedEvent && this.selectedEvent.time_utc) {
-        baseHeight += 392;
+        baseHeight += 474;
       }
       const height = `calc(100vh - ${baseHeight}px)`;
       return {
@@ -39,6 +39,7 @@ export default {
   methods: {
     ...mapActions({
       updateActiveEvent: 'API_ACTIVATE_EVENT',
+      showScatter: 'API_SHOW_SCATTER',
       open: '',
     }),
     open(id) {

@@ -9,13 +9,12 @@
       </v-flex>
     </v-layout>
     <v-divider class="mb-2" />
-    <v-layout class="px-3">
+    <v-layout class="px-3" align-center>
       <v-flex xs5 class="font-weight-bold subtitle-2">
         Type
         <span v-if="eventTypeShort">({{eventTypeShort}})</span>
-
       </v-flex>
-      <v-flex xs7>
+      <v-flex xs5>
         {{ eventType }}
       </v-flex>
     </v-layout>
@@ -99,6 +98,29 @@
       </v-flex>
       <v-flex xs3 class="text-xs-right">
         {{event.corner_frequency | decentNumber }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        Uncertainty (m)
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{event.uncertainty | decentNumber }}
+      </v-flex>
+    </v-layout>
+    <v-divider class="my-2" />
+    <v-layout class="px-3">
+      <v-flex xs5 class="font-weight-bold subtitle-2">
+        Scatters
+      </v-flex>
+      <v-flex xs3 class="text-xs-right">
+        {{ currentScattersCount }}
+      </v-flex>
+      <v-flex xs4 class="text-xs-right">
+        <v-btn small icon flat @click="scatter" class="pa-0 ma-0">
+          <v-icon small>{{ scatterIcon }}</v-icon>
+        </v-btn>
       </v-flex>
     </v-layout>
     <v-divider class="mt-2" />

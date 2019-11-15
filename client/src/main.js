@@ -66,6 +66,8 @@ Vue.use(Vuetify, {
 
     // catalogue
     waveform: 'mdi-open-in-new',
+    scatterOn: 'mdi-scatter-plot',
+    scatterOff: 'mdi-scatter-plot-outline',
   },
 });
 
