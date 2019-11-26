@@ -288,6 +288,7 @@ export default {
           translate,
           renderer,
           mineBounds,
+          eventType: 'earthquake',
         });
         pipeline.historicEvents.setOpacity(0.6);
         pipeline.historicEvents.setPointSize(3);
