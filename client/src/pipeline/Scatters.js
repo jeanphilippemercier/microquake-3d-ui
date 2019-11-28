@@ -13,9 +13,9 @@ function filterEvents(mineBounds, eventsData) {
     return [];
   }
   return eventsData.filter((event) => {
-    const x = event.x * 1000;
-    const y = event.y * 1000;
-    const z = event.z * 1000;
+    const x = event.x;
+    const y = event.y;
+    const z = event.z;
     if (x < mineBounds[0] || x > mineBounds[1]) {
       return false;
     }
@@ -85,9 +85,9 @@ function vtkScatters(publicAPI, model) {
     // ------------------------------------------------------------------------
     for (let i = 0; i < size; ++i) {
       const event = filteredEvents[i];
-      coords[3 * i] = 1000 * event.x + model.translate[0];
-      coords[3 * i + 1] = 1000 * event.y + model.translate[1];
-      coords[3 * i + 2] = 1000 * event.z + model.translate[2];
+      coords[3 * i] = event.x + model.translate[0];
+      coords[3 * i + 1] = event.y + model.translate[1];
+      coords[3 * i + 2] = event.z + model.translate[2];
     }
     // ------------------------------------------------------------------------
 
