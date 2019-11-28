@@ -108,19 +108,21 @@
       <v-flex xs3 class="text-xs-right">
         {{event.uncertainty | decentNumber }}
       </v-flex>
-    </v-layout>
-    <v-divider class="my-2" />
-    <v-layout class="px-3">
-      <v-flex xs5 class="font-weight-bold subtitle-2">
-        Scatters
-      </v-flex>
-      <v-flex xs3 class="text-xs-right">
-        {{ currentScattersCount }}
-      </v-flex>
       <v-flex xs4 class="text-xs-right">
-        <v-btn small icon flat @click="scatter" class="pa-0 ma-0">
-          <v-icon small>{{ scatterIcon }}</v-icon>
-        </v-btn>
+        <v-tooltip top>
+          <span>{{ currentScattersCount }}</span>
+          <v-btn
+            slot="activator"
+            small
+            icon
+            flat
+            @click="scatter"
+            class="pa-0 ma-0"
+            :color="currentScattersColor"
+          >
+            <v-icon small>{{ scatterIcon }}</v-icon>
+          </v-btn>
+        </v-tooltip>
       </v-flex>
     </v-layout>
     <v-divider class="mt-2" />

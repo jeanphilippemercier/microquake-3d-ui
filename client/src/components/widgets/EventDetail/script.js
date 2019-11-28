@@ -68,6 +68,15 @@ export default {
       ];
       return list ? list.length : '-';
     },
+    currentScattersColor() {
+      const list = this.$store.getters.LOCAL_UNCERTAINTY_SCATTER[
+        this.activeResourceId
+      ];
+      if (list) {
+        return list.length ? 'green' : 'red';
+      }
+      return 'gray';
+    },
   },
   methods: {
     close() {

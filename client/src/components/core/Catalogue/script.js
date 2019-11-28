@@ -26,7 +26,7 @@ export default {
     treeStyle() {
       let baseHeight = 110;
       if (this.selectedEvent && this.selectedEvent.time_utc) {
-        baseHeight += 474;
+        baseHeight += 436;
       }
       const height = `calc(100vh - ${baseHeight}px)`;
       return {
