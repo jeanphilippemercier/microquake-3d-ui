@@ -1,9 +1,30 @@
 <div :class="$style.container">
   <div :class="tooltipClass" :style="stylePosition">
     <v-container v-if="pickedData" fluid grid-list-md class="pa-1">
-      <v-layout row wrap align-center v-if="pickedData.name">
+      <v-layout row wrap align-center v-if="pickedData.name" style="width: 200px; text-align: center;">
         <v-flex xs12 class="px-3">
           {{ pickedData.station_location_code }}.{{ pickedData.location_code}} ({{ pickedData.code}})
+        </v-flex>
+        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
+          Integrity
+        </v-flex>
+        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
+          {{ Math.floor(pickedData.signal_quality.integrity * 100) }}%
+        </v-flex>
+        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
+          Amplitude
+        </v-flex>
+        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
+          {{ Number(pickedData.signal_quality.amplitude).toFixed(2) }}
+        </v-flex>
+        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
+          Energy
+        </v-flex>
+        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
+          {{ Number(pickedData.signal_quality.energy).toFixed(2)}}
+        </v-flex>
+        <v-flex xs12 class="px-3" v-if="pickedData.signal_quality">
+          {{ dateHelper.toMineTime(pickedData.signal_quality.update_timestamp) }}
         </v-flex>
       </v-layout>
       <v-layout v-if="pickedData.event_type" :class="$style.title">

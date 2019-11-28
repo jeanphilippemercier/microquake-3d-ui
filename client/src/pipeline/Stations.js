@@ -6,7 +6,6 @@ import vtkDataArray from 'vtk.js/Sources/Common/Core/DataArray';
 import vtkPolyData from 'vtk.js/Sources/Common/DataModel/PolyData';
 import vtkProp3D from 'vtk.js/Sources/Rendering/Core/Prop3D';
 import vtkGlyph3DMapper from 'vtk.js/Sources/Rendering/Core/Glyph3DMapper';
-
 import vtkConeSource from 'vtk.js/Sources/Filters/Sources/ConeSource';
 
 import {
@@ -101,7 +100,6 @@ function vtkStations(publicAPI, model) {
 
     for (let i = 0; i < nbStations; i++) {
       const station = stations[i];
-      // console.log(station);
       xyz[i * 3] = station.location_x + model.translate[0];
       xyz[i * 3 + 1] = station.location_y + model.translate[1];
       xyz[i * 3 + 2] = station.location_z + model.translate[2];
@@ -113,21 +111,13 @@ function vtkStations(publicAPI, model) {
       orientation[i * 3] = -orientation_x;
       orientation[i * 3 + 1] = -orientation_y;
       orientation[i * 3 + 2] = -orientation_z;
-      // console.log('station', {
-      //   name: station.name,
-      //   orientation_z: orientation_z,
-      // });
 
       // ----------------------------------------------------------------------
       // Check station signal_quality
       // ----------------------------------------------------------------------
-      // if (station.signal_quality) {
-      //   status[i] = station.signal_quality.integrity;
-      // }
-      // ----------------------------------------------------------------------
-      // The code is not valid anymore so marking every station alive
-      // ----------------------------------------------------------------------
-      status[i] = 1;
+      if (station.signal_quality) {
+        status[i] = 2 * (station.signal_quality.integrity - 0.5);
+      }
 
       // Fill tooltip
       model.tooltips.push(station);
@@ -142,6 +132,15 @@ function vtkStations(publicAPI, model) {
       .getArray('orientation')
       .setData(orientation, 3);
 
+    // Update cells
+    const verts = new Uint16Array(nbStations + 1);
+    verts[0] = nbStations;
+    for (let i = 0; i < nbStations; i++) {
+      verts[i + 1] = i;
+    }
+    model.polydata.getVerts().setData(verts);
+
+    model.polydata.modified();
     publicAPI.modified();
     publicAPI.render();
   };
@@ -152,7 +151,10 @@ function vtkStations(publicAPI, model) {
   };
 
   publicAPI.getNestedProps = () => {
-    return model.actors;
+    if (model.polydata.getPoints().getData().length) {
+      return model.actors;
+    }
+    return [];
   };
 
   publicAPI.render = () => {
