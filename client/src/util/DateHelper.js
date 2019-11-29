@@ -23,11 +23,11 @@ function getDateFromNow(nbHours = 0) {
 }
 
 function dateToString(date) {
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
+  const year = date.getUTCFullYear();
+  const month = pad(date.getUTCMonth() + 1);
+  const day = pad(date.getUTCDate());
+  const hours = pad(date.getUTCHours());
+  const minutes = pad(date.getUTCMinutes());
 
   return `${year}-${month}-${day}T${hours}:${minutes}:00.0`;
 }
