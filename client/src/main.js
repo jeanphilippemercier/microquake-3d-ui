@@ -79,6 +79,11 @@ const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
 const store = createStore();
 store.commit('REMOTE_CONFIG_SET', config);
 
+// Clear old toast events
+setInterval(() => {
+  store.dispatch('QUAKE_NOTIFICATIONS_GC');
+}, 1000);
+
 // ----------------------------------------------------------------------
 // !!! To speed up development !!!
 // Provide a token to skip: auth + site-selection

@@ -1,0 +1,15 @@
+<div>
+  <v-alert
+    v-for="item in notifications"
+    :key="item.id"
+
+    :value="true"
+    :type="item.type"
+    transition="slide-y-transition"
+    origin="bottom center"
+    :dismissible="!item.autoclean"
+    class="py-1"
+  >
+    {{ item.notification.operation }}: {{ item.notification.type }}
+  </v-alert>
+</div>

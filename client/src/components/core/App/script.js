@@ -5,6 +5,7 @@ import ControlsDrawer from 'paraview-quake/src/components/core/ControlsDrawer';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import GlobalSettings from 'paraview-quake/src/components/core/GlobalSettings';
 import LocalView from 'paraview-quake/src/components/core/LocalView';
+import NotificationToast from 'paraview-quake/src/components/core/NotificationToast';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
 import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
 import VtkView from 'paraview-quake/src/components/core/View';
@@ -43,6 +44,7 @@ export default {
     ControlsDrawer,
     GlobalSettings,
     LocalView,
+    NotificationToast,
     PickingTooltip,
     ToolbarTimeRange,
     VtkView,

@@ -3,6 +3,11 @@ import Vue from 'vue';
 import PRESETS from 'paraview-quake/src/presets';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
+function randomPick(list) {
+  const idx = Math.round(Math.random() * (list.length - 1));
+  return list[idx];
+}
+
 const RAY_DATA = {};
 const PREFERRED_ORIGIN_MAP = {};
 const TYPES = {
@@ -70,12 +75,17 @@ export default {
     selectedSite: null,
     selectedNetwork: null,
     userAcceptedSite: false,
+    // notification
+    notifications: [],
     // sensor live update
     sensorsStatus: {},
     // heartbeat status
     heartbeat: {},
   },
   getters: {
+    QUAKE_NOTIFICATIONS(state) {
+      return state.notifications;
+    },
     QUAKE_SENSOR_STATUS(state) {
       return state.sensorsStatus;
     },
@@ -279,6 +289,22 @@ export default {
     },
   },
   actions: {
+    QUAKE_NOTIFICATIONS_ADD({ state, dispatch }, notification) {
+      const ts = Date.now();
+      state.notifications.unshift({
+        type: randomPick(['success', 'warning', 'info', 'error']),
+        ts,
+        autoclean: true,
+        notification,
+      });
+      dispatch('QUAKE_NOTIFICATIONS_GC');
+    },
+    QUAKE_NOTIFICATIONS_GC({ state }) {
+      const timecut = Date.now() - 5000; // 5s
+      state.notifications = state.notifications.filter(
+        ({ ts, autoclean }) => !autoclean || ts > timecut
+      );
+    },
     QUAKE_SENSOR_STATUS_UPDATE({ commit, dispatch }, value) {
       commit('QUAKE_SENSOR_STATUS_SET', value);
       dispatch('API_UPDATE_SENSOR_INTEGRITY');

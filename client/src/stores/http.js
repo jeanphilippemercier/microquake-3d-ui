@@ -213,6 +213,7 @@ export default {
       state.wsClient.onmessage = (msg) => {
         const msgObj = JSON.parse(msg.data);
         console.log(msgObj.type);
+        dispatch('QUAKE_NOTIFICATIONS_ADD', msgObj);
         switch (msgObj.type) {
           case 'heartbeat':
             commit('QUAKE_HEARTBEAT_SET', [msgObj.heartbeat]);

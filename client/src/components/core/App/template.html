@@ -1,4 +1,5 @@
 <v-app :dark="darkMode">
+  <notification-toast :class="$style.toast"/>
   <v-dialog
     :value="!authToken"
     hide-overlay
