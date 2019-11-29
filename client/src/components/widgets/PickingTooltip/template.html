@@ -5,27 +5,29 @@
         <v-flex xs12 class="px-3">
           {{ pickedData.station_location_code }}.{{ pickedData.location_code}} ({{ pickedData.code}})
         </v-flex>
-        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
-          Integrity
-        </v-flex>
-        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
-          {{ Math.floor(pickedData.signal_quality.integrity * 100) }}%
-        </v-flex>
-        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
-          Amplitude
-        </v-flex>
-        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
-          {{ Number(pickedData.signal_quality.amplitude).toFixed(2) }}
-        </v-flex>
-        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
-          Energy
-        </v-flex>
-        <v-flex xs6 class="px-3" v-if="pickedData.signal_quality">
-          {{ Number(pickedData.signal_quality.energy).toFixed(2)}}
-        </v-flex>
-        <v-flex xs12 class="px-3" v-if="pickedData.signal_quality">
-          {{ dateHelper.toMineTime(pickedData.signal_quality.update_timestamp) }}
-        </v-flex>
+        <v-layout row wrap align-center v-if="sensorStatus">
+          <v-flex xs6 class="px-3">
+            Integrity
+          </v-flex>
+          <v-flex xs6 class="px-3">
+            {{ Math.floor(sensorStatus.integrity * 100) }}%
+          </v-flex>
+          <v-flex xs6 class="px-3">
+            Amplitude
+          </v-flex>
+          <v-flex xs6 class="px-3">
+            {{ Number(sensorStatus.amplitude).toFixed(2) }}
+          </v-flex>
+          <v-flex xs6 class="px-3">
+            Energy
+          </v-flex>
+          <v-flex xs6 class="px-3">
+            {{ Number(sensorStatus.energy).toFixed(2)}}
+          </v-flex>
+          <v-flex xs12 class="px-3">
+            {{ dateHelper.toMineTime(sensorStatus.update_timestamp) }}
+          </v-flex>
+        </v-layout>
       </v-layout>
       <v-layout v-if="pickedData.event_type" :class="$style.title">
         <v-flex xs12 class="py-0 my-0">

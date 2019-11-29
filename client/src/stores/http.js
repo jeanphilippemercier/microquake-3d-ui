@@ -212,8 +212,18 @@ export default {
       state.wsClient = new WebSocket(state.wsUrl);
       state.wsClient.onmessage = (msg) => {
         const msgObj = JSON.parse(msg.data);
-        if (msgObj.type === 'heartbeat') {
-          commit('QUAKE_HEARTBEAT_SET', [msgObj.heartbeat]);
+        console.log(msgObj.type);
+        switch (msgObj.type) {
+          case 'heartbeat':
+            commit('QUAKE_HEARTBEAT_SET', [msgObj.heartbeat]);
+            break;
+          case 'signal_quality':
+            dispatch('QUAKE_SENSOR_STATUS_UPDATE', msgObj.signal_quality);
+            break;
+          default:
+            console.log('got notification', msgObj.type);
+            console.log(msgObj);
+            break;
         }
       };
       state.wsClient.onerror = (e) => {

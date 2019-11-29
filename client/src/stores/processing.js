@@ -101,5 +101,8 @@ export default {
       commit('API_SCATTER_EVENT_SET', resourceId);
       return dispatch(`${state.mode}_SHOW_SCATTER`, resourceId);
     },
+    API_UPDATE_SENSOR_INTEGRITY({ state, dispatch }) {
+      return dispatch(`${state.mode}_UPDATE_SENSOR_INTEGRITY`);
+    },
   },
 };

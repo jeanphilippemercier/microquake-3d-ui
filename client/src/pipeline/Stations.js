@@ -103,7 +103,8 @@ function vtkStations(publicAPI, model) {
       xyz[i * 3] = station.location_x + model.translate[0];
       xyz[i * 3 + 1] = station.location_y + model.translate[1];
       xyz[i * 3 + 2] = station.location_z + model.translate[2];
-      status[i] = 0; // 0:dead / 1:alive
+      // Reset signal quality to in-between
+      status[i] = 0.5; // 0:dead / 1:alive
 
       const { orientation_x, orientation_y, orientation_z } = getOrientationRef(
         station.components
@@ -115,9 +116,9 @@ function vtkStations(publicAPI, model) {
       // ----------------------------------------------------------------------
       // Check station signal_quality
       // ----------------------------------------------------------------------
-      if (station.signal_quality) {
-        status[i] = 2 * (station.signal_quality.integrity - 0.5);
-      }
+      // if (station.signal_quality) {
+      //   status[i] = 2 * (station.signal_quality.integrity - 0.5);
+      // }
 
       // Fill tooltip
       model.tooltips.push(station);
@@ -139,6 +140,25 @@ function vtkStations(publicAPI, model) {
       verts[i + 1] = i;
     }
     model.polydata.getVerts().setData(verts);
+
+    model.polydata.modified();
+    publicAPI.modified();
+    publicAPI.render();
+  };
+
+  publicAPI.updateSignalQuality = (allStatus) => {
+    const statusArray = model.polydata
+      .getPointData()
+      .getArray('status')
+      .getData();
+
+    for (let i = 0; i < statusArray.length; i++) {
+      const { code } = model.tooltips[i];
+      if (code && allStatus[code] !== undefined) {
+        const integrity = 2 * (allStatus[code].integrity - 0.5);
+        statusArray[i] = integrity;
+      }
+    }
 
     model.polydata.modified();
     publicAPI.modified();

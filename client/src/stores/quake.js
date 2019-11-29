@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 import PRESETS from 'paraview-quake/src/presets';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
@@ -68,10 +70,15 @@ export default {
     selectedSite: null,
     selectedNetwork: null,
     userAcceptedSite: false,
+    // sensor live update
+    sensorsStatus: {},
     // heartbeat status
     heartbeat: {},
   },
   getters: {
+    QUAKE_SENSOR_STATUS(state) {
+      return state.sensorsStatus;
+    },
     QUAKE_SELECTED_EVENT(state) {
       return state.selectedEvent;
     },
@@ -174,6 +181,9 @@ export default {
     },
   },
   mutations: {
+    QUAKE_SENSOR_STATUS_SET(state, value) {
+      Vue.set(state.sensorsStatus, value.sensor_code, value);
+    },
     QUAKE_SELECTED_EVENT_SET(state, value) {
       state.selectedEvent = Object.assign({}, value);
     },
@@ -269,6 +279,10 @@ export default {
     },
   },
   actions: {
+    QUAKE_SENSOR_STATUS_UPDATE({ commit, dispatch }, value) {
+      commit('QUAKE_SENSOR_STATUS_SET', value);
+      dispatch('API_UPDATE_SENSOR_INTEGRITY');
+    },
     async QUAKE_SELECTED_SITE_SET({ state, commit, dispatch }, value) {
       state.selectedSite = value;
       DateHelper.setTimeZone(

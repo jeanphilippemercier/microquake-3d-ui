@@ -697,7 +697,7 @@ export default {
       // Fetch stations for status
       dispatch('HTTP_FETCH_STATIONS').then(({ data }) => {
         getters.LOCAL_PIPELINE_OBJECTS.stations.setInput(data);
-        dispatch('LOCAL_RENDER');
+        dispatch('LOCAL_UPDATE_SENSOR_INTEGRITY');
       });
 
       // Reschedule ourself minutes => ms
@@ -753,6 +753,12 @@ export default {
         resourceId
       );
       pipeline.scatters.setInput(scattersItems);
+    },
+    LOCAL_UPDATE_SENSOR_INTEGRITY({ getters }) {
+      const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
+      if (pipeline.stations) {
+        pipeline.stations.updateSignalQuality(getters.QUAKE_SENSOR_STATUS);
+      }
     },
   },
 };

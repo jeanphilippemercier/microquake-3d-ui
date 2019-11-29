@@ -32,6 +32,11 @@ export default {
     pickedData() {
       return this.$store.getters.QUAKE_PICKED_DATA;
     },
+    sensorStatus() {
+      const code = this.pickedData && this.pickedData.code;
+      const sensors = this.$store.getters.QUAKE_SENSOR_STATUS;
+      return code && sensors && sensors[code];
+    },
     rayCount() {
       return this.$store.getters.QUAKE_RAY_MAPPING[
         this.pickedData.event_resource_id
