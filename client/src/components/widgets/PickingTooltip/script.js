@@ -1,5 +1,69 @@
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
+const SPEED_UNIT = [
+  {
+    label: 'm/s',
+    ratio: 1,
+  },
+  {
+    label: 'mm/s',
+    ratio: 1000,
+  },
+  {
+    label: '&micro;m/s',
+    ratio: 1000000,
+  },
+  {
+    label: 'nm/s',
+    ratio: 1000000000,
+  },
+  {
+    label: 'pm/s',
+    ratio: 1000000000000,
+  },
+];
+
+const ENERGY_UNIT = [
+  {
+    label: 'J',
+    ratio: 1,
+  },
+  {
+    label: 'mJ',
+    ratio: 1000,
+  },
+  {
+    label: '&micro;J',
+    ratio: 1000000,
+  },
+  {
+    label: 'nJ',
+    ratio: 1000000000,
+  },
+  {
+    label: 'pJ',
+    ratio: 1000000000000,
+  },
+];
+
+function toUnit(value, UNITS) {
+  for (let i = 0; i < UNITS.length; i++) {
+    const unit = UNITS[i];
+    if (value * unit.ratio > 1) {
+      return `${Number(value * unit.ratio).toFixed(2)} ${unit.label}`;
+    }
+  }
+  return '-';
+}
+
+function speedUnit(value) {
+  return toUnit(value, SPEED_UNIT);
+}
+
+function energyUnit(value) {
+  return toUnit(value, ENERGY_UNIT);
+}
+
 export default {
   name: 'PickingTooltip',
   props: {
@@ -47,6 +111,15 @@ export default {
       const goodName = this.labelTypeMapping[type];
       return goodName ? `${goodName.value} - ${goodName.text}` : type;
     },
+  },
+  filters: {
+    speedUnit,
+    energyUnit,
+    toMineTime: DateHelper.toMineTime,
+  },
+  methods: {
+    speedUnit,
+    energyUnit,
   },
   mounted() {
     // Create methods as closures

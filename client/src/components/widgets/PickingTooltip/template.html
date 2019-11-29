@@ -6,26 +6,22 @@
           {{ pickedData.station_location_code }}.{{ pickedData.location_code}} ({{ pickedData.code}})
         </v-flex>
         <v-layout row wrap align-center v-if="sensorStatus">
-          <v-flex xs6 class="px-3">
+          <v-flex xs4 class="px-3">
             Integrity
           </v-flex>
-          <v-flex xs6 class="px-3">
+          <v-flex xs8 class="px-3">
             {{ Math.floor(sensorStatus.integrity * 100) }}%
           </v-flex>
-          <v-flex xs6 class="px-3">
+          <v-flex xs4 class="px-3">
             Amplitude
           </v-flex>
-          <v-flex xs6 class="px-3">
-            {{ Number(sensorStatus.amplitude).toFixed(2) }}
-          </v-flex>
-          <v-flex xs6 class="px-3">
+          <v-flex xs8 class="px-3" v-html="speedUnit(sensorStatus.amplitude)" />
+          <v-flex xs4 class="px-3">
             Energy
           </v-flex>
-          <v-flex xs6 class="px-3">
-            {{ Number(sensorStatus.energy).toFixed(2)}}
-          </v-flex>
+          <v-flex xs8 class="px-3" v-html="energyUnit(sensorStatus.energy)" />
           <v-flex xs12 class="px-3">
-            {{ dateHelper.toMineTime(sensorStatus.update_timestamp) }}
+            {{ sensorStatus.update_timestamp | toMineTime }}
           </v-flex>
         </v-layout>
       </v-layout>
