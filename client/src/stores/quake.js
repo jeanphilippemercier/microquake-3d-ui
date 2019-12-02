@@ -311,6 +311,7 @@ export default {
     },
     async QUAKE_SELECTED_SITE_SET({ state, commit, dispatch }, value) {
       state.selectedSite = value;
+      storeItem('selectedSite', value);
       DateHelper.setTimeZone(
         (state.siteMap &&
           state.siteMap[value] &&
