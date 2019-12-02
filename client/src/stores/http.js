@@ -74,6 +74,7 @@ export default {
     HTTP_FETCH_EVENTS({ getters, dispatch }, [startTime, endTime, status]) {
       const baseUrl = getters.HTTP_BASE_URL;
       const authToken = getters.HTTP_AUTH_TOKEN;
+      console.log(`fetch ${status} events from ${startTime} to ${endTime}`);
 
       const request = {
         method: 'get',
