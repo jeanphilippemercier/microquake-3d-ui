@@ -360,11 +360,7 @@ export default {
           console.error(error);
         });
 
-      dispatch('HTTP_FETCH_EVENTS', [
-        `${hTime}`,
-        `${fTime}`,
-        eventStatusFilter,
-      ])
+      dispatch('HTTP_FETCH_EVENTS', [`${hTime}`, `${fTime}`, eventStatusFilter])
         .then((response) => {
           const eventsWithIds = response.data.map((v) => {
             v.id = currentId;
