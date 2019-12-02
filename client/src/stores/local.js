@@ -328,7 +328,7 @@ export default {
       let currentId = 0;
 
       // Get the events
-      dispatch('HTTP_FETCH_EVENTS', [`${fTime}Z`, `${now}Z`, eventStatusFilter])
+      dispatch('HTTP_FETCH_EVENTS', [`${fTime}`, `${now}`, eventStatusFilter])
         .then((response) => {
           commit('QUAKE_REFRESH_COUNT_SET', getters.QUAKE_REFRESH_COUNT + 1);
 
@@ -361,8 +361,8 @@ export default {
         });
 
       dispatch('HTTP_FETCH_EVENTS', [
-        `${hTime}Z`,
-        `${fTime}Z`,
+        `${hTime}`,
+        `${fTime}`,
         eventStatusFilter,
       ])
         .then((response) => {
