@@ -115,11 +115,13 @@ export default {
   filters: {
     speedUnit,
     energyUnit,
-    toMineTime: DateHelper.toMineTime,
   },
   methods: {
     speedUnit,
     energyUnit,
+    toMineTime(str) {
+      return DateHelper.toMineTime(str).split('T').join(' ');
+    },
   },
   mounted() {
     // Create methods as closures

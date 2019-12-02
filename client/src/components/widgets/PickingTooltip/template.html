@@ -20,9 +20,7 @@
             Energy
           </v-flex>
           <v-flex xs8 class="px-3" v-html="energyUnit(sensorStatus.energy)" />
-          <v-flex xs12 class="px-3">
-            {{ sensorStatus.update_timestamp | toMineTime }}
-          </v-flex>
+          <v-flex xs12 class="px-3" v-html="toMineTime(sensorStatus.update_timestamp)" />
         </v-layout>
       </v-layout>
       <v-layout v-if="pickedData.event_type" :class="$style.title">
