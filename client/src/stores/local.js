@@ -122,6 +122,12 @@ export default {
           pipeline.stations.setInput(data);
           renderer.addViewProp(pipeline.stations);
           renderer.getRenderWindow().render();
+
+          // Register station information the very first time
+          data.forEach(({ code, signal_quality }) => {
+            commit('QUAKE_SENSOR_STATUS_SET', Object.assign({ sensor_code: code }, signal_quality));
+          });
+          dispatch('API_UPDATE_SENSOR_INTEGRITY');
         });
 
         // Triger live update
