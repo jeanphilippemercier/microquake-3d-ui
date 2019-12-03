@@ -58,7 +58,7 @@
           <v-icon color="#333">{{ $vuetify.icons.uncertainty }}</v-icon>
         </v-flex>
         <v-flex xs4 v-show="pickedData.uncertainty > 0">
-          {{ (pickedData.uncertainty || 0).toFixed(2) }}
+          {{ Math.round(pickedData.uncertainty || 0) }}
         </v-flex>
         <v-flex xs2 :class="$style.center" v-show="rayCount !== undefined">
           <v-icon color="#333">{{ $vuetify.icons.rays }}</v-icon>
@@ -72,19 +72,19 @@
           Corner freq.
         </v-flex>
         <v-flex xs6 v-show="pickedData.corner_frequency">
-          {{ (pickedData.corner_frequency || 0).toFixed(2) }} (Hz)
+          {{ Math.round(pickedData.corner_frequency || 0) }} (Hz)
         </v-flex>
         <v-flex xs6 v-show="pickedData.time_residual > 0">
           RMS residual
         </v-flex>
         <v-flex xs6 v-show="pickedData.time_residual > 0">
-          {{ (pickedData.time_residual || 0).toFixed(2) }} (ms)
+          {{ Math.round(pickedData.time_residual || 0) }} (ms)
         </v-flex>
         <v-flex xs6 v-show="pickedData.npick > 0">
           Picks
         </v-flex>
         <v-flex xs6 v-show="pickedData.npick > 0">
-          {{ (pickedData.npick || 0).toFixed(2) }}
+          {{ Math.round(pickedData.npick || 0) }}
         </v-flex>
       </v-layout>
     </v-container>

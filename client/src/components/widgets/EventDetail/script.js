@@ -98,7 +98,7 @@ export default {
       if (!v) {
         return '-';
       }
-      return Number(v).toFixed(2);
+      return Math.round(Number(v));
     },
   },
 };
