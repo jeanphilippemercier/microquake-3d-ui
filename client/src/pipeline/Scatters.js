@@ -16,6 +16,7 @@ function filterEvents(mineBounds, eventsData) {
     const x = event.x;
     const y = event.y;
     const z = event.z;
+    // console.log(`scatter postion\nX: ${mineBounds[0]} < ${x} < ${mineBounds[1]}\nY: ${mineBounds[2]} < ${y} < ${mineBounds[3]}\nZ: ${mineBounds[4]} < ${z} < ${mineBounds[5]}`);
     if (x < mineBounds[0] || x > mineBounds[1]) {
       return false;
     }
