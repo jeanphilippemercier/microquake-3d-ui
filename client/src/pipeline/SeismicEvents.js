@@ -445,10 +445,6 @@ function vtkSeismicEvents(publicAPI, model) {
 
       // Show intersection if found
       if (!notFound) {
-        // originalList are always odered with +1 between elements
-        const oidx = id - model.originalList[0].id;
-        selectedEvent = model.originalList[oidx];
-
         const xyzs = model.polydata.getPoints().getData();
         const x = xyzs[idx * 3];
         const y = xyzs[idx * 3 + 1];
@@ -479,6 +475,11 @@ function vtkSeismicEvents(publicAPI, model) {
 
         outPoints.modified();
         model.activePolydata.modified();
+
+        // originalList are always odered with +1 between elements
+        const oidx = id - model.originalList[0].id;
+        selectedEvent = model.originalList[oidx];
+        selectedEvent.worldPosition = [x, y, z];
       }
       model.activeActor.setVisibility(!notFound);
       publicAPI.render();
