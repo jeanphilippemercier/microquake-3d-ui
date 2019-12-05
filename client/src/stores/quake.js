@@ -293,7 +293,7 @@ export default {
       const ts = Date.now();
       const { type, operation } = notification;
 
-      if (type === 'event' && operation === 'create') {
+      if (type === 'event' && operation === 'created') {
         state.notifications.unshift({
           type: 'success',
           ts,
