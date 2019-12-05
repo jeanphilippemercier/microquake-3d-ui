@@ -51,6 +51,7 @@ export default {
   },
   data() {
     return {
+      refreshCount: 0,
       menuVisible: true,
       advanceMenuVisible: false,
       rayFilterModes: [
@@ -82,6 +83,7 @@ export default {
       heartbeat: 'QUAKE_HEARTBEAT',
     }),
     connectorColor() {
+      this.refreshCount;
       const connectorTime = DateHelper.toHoursFromNow(
         this.heartbeat.event_connector
       );
@@ -164,8 +166,21 @@ export default {
         this.$store.dispatch('API_UPDATE_EVENTS');
       },
     },
+    htmlError() {
+      if (!this.loginError || typeof this.loginError !== 'string') {
+        return null;
+      }
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(this.loginError, 'text/html');
+      const elem = doc.querySelector('head > title');
+      return elem && elem.textContent || this.loginError;
+    },
   },
   mounted() {
+    this.refreshInterval = setInterval(() => {
+      this.refreshCount = this.refreshCount + 1;
+    }, 1000);
+
     // attach keyboard shortcuts
     shortcuts.forEach(({ key, action }) => {
       Mousetrap.bind(key, (e) => {
@@ -179,6 +194,7 @@ export default {
     }
   },
   beforeDestroy() {
+    clearInterval(this.refreshInterval);
     shortcuts.forEach(({ key }) => {
       Mousetrap.unbind(key);
     });

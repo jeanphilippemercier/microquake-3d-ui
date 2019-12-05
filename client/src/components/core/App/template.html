@@ -30,8 +30,8 @@
         />
       </v-card-text>
       <v-card-actions>
-        <div>
-          {{ loginError.detail }}
+        <div style="color: red;">
+          {{ loginError.detail || htmlError }}
         </div>
         <v-spacer />
         <v-btn @click="login">
