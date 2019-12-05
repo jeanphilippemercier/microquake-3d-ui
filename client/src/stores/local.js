@@ -713,7 +713,7 @@ export default {
         dispatch('LOCAL_LIVE_UPDATE');
       }, timeout);
     },
-    LOCAL_ACTIVATE_EVENT({ getters, commit }, resourceId) {
+    LOCAL_ACTIVATE_EVENT({ getters, commit, dispatch }, resourceId) {
       const pipeline = getters.LOCAL_PIPELINE_OBJECTS;
       if (pipeline.seismicEvents) {
         const id = RESOURCE_ID_TO_ID[resourceId];

@@ -173,7 +173,7 @@ export default {
       const parser = new DOMParser();
       const doc = parser.parseFromString(this.loginError, 'text/html');
       const elem = doc.querySelector('head > title');
-      return elem && elem.textContent || this.loginError;
+      return (elem && elem.textContent) || this.loginError;
     },
   },
   mounted() {

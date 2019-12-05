@@ -3,10 +3,10 @@ import Vue from 'vue';
 import PRESETS from 'paraview-quake/src/presets';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
-function randomPick(list) {
-  const idx = Math.round(Math.random() * (list.length - 1));
-  return list[idx];
-}
+// function randomPick(list) {
+//   const idx = Math.round(Math.random() * (list.length - 1));
+//   return list[idx];
+// }
 
 const RAY_DATA = {};
 const PREFERRED_ORIGIN_MAP = {};
