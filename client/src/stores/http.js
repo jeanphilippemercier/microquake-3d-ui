@@ -213,7 +213,6 @@ export default {
       state.wsClient = new WebSocket(state.wsUrl);
       state.wsClient.onmessage = (msg) => {
         const msgObj = JSON.parse(msg.data);
-        console.log(msgObj.type);
         dispatch('QUAKE_NOTIFICATIONS_ADD', msgObj);
         switch (msgObj.type) {
           case 'heartbeat':
@@ -224,7 +223,6 @@ export default {
             break;
           default:
             console.log('got notification', msgObj.type);
-            console.log(msgObj);
             break;
         }
       };

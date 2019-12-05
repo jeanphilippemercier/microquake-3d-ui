@@ -291,12 +291,17 @@ export default {
   actions: {
     QUAKE_NOTIFICATIONS_ADD({ state, dispatch }, notification) {
       const ts = Date.now();
-      state.notifications.unshift({
-        type: randomPick(['success', 'warning', 'info', 'error']),
-        ts,
-        autoclean: true,
-        notification,
-      });
+      const { type, operation } = notification;
+
+      if (type === 'event' && operation === 'create') {
+        state.notifications.unshift({
+          type: 'success',
+          ts,
+          autoclean: true,
+          notification,
+        });
+      }
+
       dispatch('QUAKE_NOTIFICATIONS_GC');
     },
     QUAKE_NOTIFICATIONS_GC({ state }) {
