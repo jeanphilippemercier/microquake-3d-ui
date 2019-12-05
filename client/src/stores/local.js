@@ -724,6 +724,10 @@ export default {
         ];
         const event = selectedEvents.filter((v) => !!v)[0];
         commit('QUAKE_SELECTED_EVENT_SET', event);
+
+        if (event && event.worldPosition) {
+          dispatch('API_UPDATE_CENTER_OF_ROTATION', event.worldPosition);
+        }
       }
     },
     async LOCAL_GET_UNCERTAINTY_SCATTER({ state, dispatch }, resourceId) {
