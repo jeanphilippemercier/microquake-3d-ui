@@ -1,11 +1,6 @@
 <v-app :dark="darkMode">
-  <notification-toast :class="$style.toast"/>
-  <v-dialog
-    :value="!authToken"
-    hide-overlay
-    persistent
-    width="400"
-  >
+  <notification-toast :class="$style.toast" />
+  <v-dialog :value="!authToken" hide-overlay persistent width="400">
     <v-card class="pa-3">
       <v-card-title class="headline">Application Authentication</v-card-title>
       <v-card-text>
@@ -14,7 +9,6 @@
           :value="userName"
           @input="updateUserName"
           :prepend-icon="$vuetify.icons.username"
-
           :error-messages="loginError.username"
         />
         <v-text-field
@@ -23,9 +17,7 @@
           @input="updateUserPassword"
           :prepend-icon="$vuetify.icons.password"
           type="password"
-
           :error-messages="loginError.password"
-
           @keydown="loginOnEnter"
         />
       </v-card-text>
@@ -63,16 +55,6 @@
         />
       </v-card-text>
       <v-card-actions>
-      <!--
-        <v-switch
-          :value="localRendering"
-          @change="updateLocalRendering"
-          hide-details
-          class="pt-0 mt-0"
-          style="flex: none;"
-        />
-        <div class="body-2">{{localRendering ? 'Local' : 'Remote'}} Rendering</div>
-      -->
         <v-spacer />
         <v-btn @click="selectSite">
           Open
@@ -89,7 +71,6 @@
     fixed
     width="380"
     stateless
-
     height="calc(100% - 48px)"
     style="top: 48px;"
   >
@@ -104,7 +85,6 @@
     fixed
     right
     stateless
-
     height="calc(100% - 48px)"
     style="top: 48px;"
   >
@@ -114,17 +94,17 @@
   <v-toolbar clipped-left app absolute dense :class="$style.toolbarOverride">
     <v-tooltip bottom :disabled="!errorMessage && !heartbeat.event_connector">
       <span>{{ errorMessage }}</span>
-      <span>Connector active {{ heartbeat.event_connector | toHoursFromNow | hoursFromNowToLabel }}</span>
+      <span>
+        Connector active {{ heartbeat.event_connector | toHoursFromNow |
+        hoursFromNowToLabel }}
+      </span>
       <v-btn icon @click.stop="menuVisible = !menuVisible" slot="activator">
-        <v-icon
-          v-if="!errorMessage"
-          :color="connectorColor"
-        >{{ $vuetify.icons.quakeTrace }}</v-icon>
-        <v-icon
-          v-if="errorMessage"
-          color="red"
-          class="px-3"
-        >{{ $vuetify.icons.connectionError }}</v-icon>
+        <v-icon v-if="!errorMessage" :color="connectorColor">
+          {{ $vuetify.icons.quakeTrace }}
+        </v-icon>
+        <v-icon v-if="errorMessage" color="red" class="px-3">
+          {{ $vuetify.icons.connectionError }}
+        </v-icon>
       </v-btn>
     </v-tooltip>
 
@@ -133,13 +113,16 @@
     </v-toolbar-title>
 
     <v-spacer />
-    <toolbar-time-range v-if="(!menuVisible || ~componentsVisibility.indexOf('catalogue')) && authToken && siteSelected"/>
+    <toolbar-time-range
+      v-if="(!menuVisible || ~componentsVisibility.indexOf('catalogue')) && authToken && siteSelected"
+    />
     <v-spacer />
 
     <v-layout align-center justify-end v-if="authToken && siteSelected">
       <v-btn-toggle
         v-model="eventStatusFilter"
         mandatory
+        multiple
         class="mr-4"
         :class="$style.thinBorder"
       >
@@ -179,23 +162,14 @@
 
       <v-layout style="flex: none" class="mx-4" :class="$style.thinBorder">
         <v-layout d-flex align-center>
-          <v-btn-toggle
-            v-model="raysVisible"
-            :class="$style.selectButton"
-          >
+          <v-btn-toggle v-model="raysVisible" :class="$style.selectButton">
             <v-tooltip bottom>
               <div>
                 Show/Hide Event Rays
-                <br/>(
-                <span
-                  style="background: #007bff;"
-                  class="px-1"
-                >P</span>
+                <br />(
+                <span style="background: #007bff;" class="px-1">P</span>
                 /
-                <span
-                  style="background: #dc3545;"
-                  class="px-1"
-                >S</span>
+                <span style="background: #dc3545;" class="px-1">S</span>
                 Waves)
               </div>
               <v-btn
@@ -225,7 +199,7 @@
             single-line
             hide-details
             height="36"
-          ></v-select>
+          />
         </v-layout>
       </v-layout>
 
@@ -304,8 +278,8 @@
   </v-toolbar>
   <v-content style="background: darkgray; position: relative;">
     <picking-tooltip>
-      <vtk-view v-if="remoteReady"/>
-      <local-view v-else-if="localReady"/>
+      <vtk-view v-if="remoteReady" />
+      <local-view v-else-if="localReady" />
     </picking-tooltip>
   </v-content>
 </v-app>

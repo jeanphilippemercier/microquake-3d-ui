@@ -159,10 +159,18 @@ export default {
 
     eventStatusFilter: {
       get() {
-        return this.$store.getters.QUAKE_FOCUS_EVENT_STATUS;
+        const status = this.$store.getters.QUAKE_FOCUS_EVENT_STATUS;
+        if (status === 'all') {
+          return ['accepted', 'rejected'];
+        }
+        return [status];
       },
       set(value) {
-        this.$store.commit('QUAKE_FOCUS_EVENT_STATUS_SET', value);
+        if (value.length === 1) {
+          this.$store.commit('QUAKE_FOCUS_EVENT_STATUS_SET', value[0]);
+        } else {
+          this.$store.commit('QUAKE_FOCUS_EVENT_STATUS_SET', 'all');
+        }
         this.$store.dispatch('API_UPDATE_EVENTS');
       },
     },
