@@ -195,7 +195,7 @@ export default {
       Vue.set(state.sensorsStatus, value.sensor_code, value);
     },
     QUAKE_SELECTED_EVENT_SET(state, value) {
-      state.selectedEvent = Object.assign({}, value);
+      state.selectedEvent = { ...value };
     },
     QUAKE_REFRESH_COUNT_SET(state, value) {
       state.refreshCount = value;
@@ -429,12 +429,10 @@ export default {
         dispatch('API_LIVE_UPDATE');
 
         // Force the catalogue to be visible
-        commit(
-          'QUAKE_COMPONENTS_VISIBILITY_SET',
-          Object.assign({}, getters.QUAKE_COMPONENTS_VISIBILITY, {
-            catalogue: true,
-          })
-        );
+        commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
+          ...getters.QUAKE_COMPONENTS_VISIBILITY,
+          catalogue: true,
+        });
       }
     },
   },

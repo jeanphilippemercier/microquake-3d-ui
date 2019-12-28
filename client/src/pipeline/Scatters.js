@@ -13,9 +13,9 @@ function filterEvents(mineBounds, eventsData) {
     return [];
   }
   return eventsData.filter((event) => {
-    const x = event.x;
-    const y = event.y;
-    const z = event.z;
+    const { x } = event;
+    const { y } = event;
+    const { z } = event;
     // console.log(`scatter postion\nX: ${mineBounds[0]} < ${x} < ${mineBounds[1]}\nY: ${mineBounds[2]} < ${y} < ${mineBounds[3]}\nZ: ${mineBounds[4]} < ${z} < ${mineBounds[5]}`);
     if (x < mineBounds[0] || x > mineBounds[1]) {
       return false;
@@ -167,4 +167,4 @@ export const newInstance = macro.newInstance(extend, 'vtkScatters');
 
 // ----------------------------------------------------------------------------
 
-export default Object.assign({ newInstance, extend }, STATIC);
+export default { newInstance, extend, ...STATIC };

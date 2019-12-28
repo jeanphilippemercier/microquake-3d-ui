@@ -46,7 +46,8 @@ export default {
       return PIPELINE_ITEMS;
     },
     LOCAL_UNCERTAINTY_SCATTER(state) {
-      state.uncertaintyScatterTS;
+      // eslint-disable-next-line
+      state.uncertaintyScatterTS; // ts dependency
       return UNCERTAINTY_SCATTER;
     },
   },
@@ -125,10 +126,10 @@ export default {
 
           // Register station information the very first time
           data.forEach(({ code, signal_quality }) => {
-            commit(
-              'QUAKE_SENSOR_STATUS_SET',
-              Object.assign({ sensor_code: code }, signal_quality)
-            );
+            commit('QUAKE_SENSOR_STATUS_SET', {
+              sensor_code: code,
+              ...signal_quality,
+            });
           });
           dispatch('API_UPDATE_SENSOR_INTEGRITY');
         });
@@ -243,7 +244,7 @@ export default {
       while (itemToUpdate.length) {
         itemToUpdate
           .pop()
-          .updateUncertaintyVisibility(componentsVisibility['uncertainty']);
+          .updateUncertaintyVisibility(componentsVisibility.uncertainty);
       }
     },
     LOCAL_UPDATE_EVENTS({ getters, commit, dispatch }) {
@@ -262,7 +263,9 @@ export default {
       const hTime = DateHelper.getDateFromNow(historicalTime);
 
       if (!mineBounds) {
-        return Promise.reject('No mine bounds set yet, cannot update events');
+        return Promise.reject(
+          new Error('No mine bounds set yet, cannot update events')
+        );
       }
 
       if (!pipeline.seismicEvents) {
@@ -337,7 +340,11 @@ export default {
       let currentId = 0;
 
       // Get the events
-      dispatch('HTTP_FETCH_EVENTS', [`${fTime}`, `${now}`, eventStatusFilter])
+      const focus = dispatch('HTTP_FETCH_EVENTS', [
+        `${fTime}`,
+        `${now}`,
+        eventStatusFilter,
+      ])
         .then((response) => {
           commit('QUAKE_REFRESH_COUNT_SET', getters.QUAKE_REFRESH_COUNT + 1);
 
@@ -369,7 +376,11 @@ export default {
           console.error(error);
         });
 
-      dispatch('HTTP_FETCH_EVENTS', [`${hTime}`, `${fTime}`, eventStatusFilter])
+      const historic = dispatch('HTTP_FETCH_EVENTS', [
+        `${hTime}`,
+        `${fTime}`,
+        eventStatusFilter,
+      ])
         .then((response) => {
           const eventsWithIds = response.data.map((v) => {
             v.id = currentId;
@@ -383,6 +394,8 @@ export default {
           console.error('Encountered error retrieving events');
           console.error(error);
         });
+
+      return Promise.all([focus, historic]);
     },
     LOCAL_UPDATE_MINE_VISIBILITY({ getters }) {
       const mine = getters.QUAKE_MINE;
@@ -443,11 +456,10 @@ export default {
           getters.LOCAL_PIPELINE_OBJECTS.ray.setInput(id);
           // Auto show the rays
           if (hasRays && !getters.QUAKE_COMPONENTS_VISIBILITY.ray) {
-            const newVizibility = Object.assign(
-              {},
-              getters.QUAKE_COMPONENTS_VISIBILITY,
-              { ray: true }
-            );
+            const newVizibility = {
+              ...getters.QUAKE_COMPONENTS_VISIBILITY,
+              ray: true,
+            };
             commit('QUAKE_COMPONENTS_VISIBILITY_SET', newVizibility);
             dispatch('LOCAL_UPDATE_EVENTS_VISIBILITY');
           }
@@ -456,12 +468,10 @@ export default {
         }
         dispatch('HTTP_FETCH_RAYS', id).then(({ data }) => {
           const nbRays = data.length;
-          commit(
-            'QUAKE_RAY_MAPPING_SET',
-            Object.assign({}, getters.QUAKE_RAY_MAPPING, {
-              [id]: nbRays,
-            })
-          );
+          commit('QUAKE_RAY_MAPPING_SET', {
+            ...getters.QUAKE_RAY_MAPPING,
+            [id]: nbRays,
+          });
           const hasRays = nbRays > 0;
           commit('QUAKE_RAYS_IN_SCENE_SET', hasRays);
           commit('QUAKE_RAY_DATA_SET', { id, data });
@@ -471,11 +481,10 @@ export default {
 
           // Auto show the rays
           if (hasRays && !getters.QUAKE_COMPONENTS_VISIBILITY.ray) {
-            const newVizibility = Object.assign(
-              {},
-              getters.QUAKE_COMPONENTS_VISIBILITY,
-              { ray: true }
-            );
+            const newVizibility = {
+              ...getters.QUAKE_COMPONENTS_VISIBILITY,
+              ray: true,
+            };
             commit('QUAKE_COMPONENTS_VISIBILITY_SET', newVizibility);
             dispatch('LOCAL_UPDATE_EVENTS_VISIBILITY');
           }
@@ -541,7 +550,6 @@ export default {
       renderer.getRenderWindow().render();
     },
     LOCAL_ON_MINE_CHANGE({ state }, callback) {
-      // FIXME xxxxxxxxxxxx
       console.log('LOCAL_ON_MINE_CHANGE', state, callback);
     },
     LOCAL_FETCH_MINE({ commit, getters, dispatch }) {
@@ -647,7 +655,9 @@ export default {
         .catch((error) => {
           console.error('Encountered error retrieving mineplan');
           console.error(error);
-          return Promise.reject('Encountered error retrieving mineplan');
+          return Promise.reject(
+            new Error('Encountered error retrieving mineplan')
+          );
         });
     },
     LOCAL_SHOW_LOCATIONS({ getters }, xyz) {
@@ -695,8 +705,7 @@ export default {
         const minePlanJson = response.data[0];
         commit('LOCAL_MINE_PLAN_SET', minePlanJson);
 
-        // fetch any missing piece
-        // FIXME: @scott
+        // fetch any missing piece (todo)
       });
 
       // Fetch stations for status

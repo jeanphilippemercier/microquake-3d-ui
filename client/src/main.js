@@ -1,6 +1,6 @@
 // Import polyfills
-import 'core-js/modules/es7.promise.finally';
-import 'core-js/modules/web.immediate';
+// import 'core-js/modules/es7.promise.finally';
+// import 'core-js/modules/web.immediate';
 
 /* eslint-disable import/prefer-default-export */
 import Vue from 'vue';
@@ -73,9 +73,10 @@ Vue.use(Vuetify, {
 
 // ----------------------------------------------------------------------------
 
-const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
+const config = {
+  ...vtkURLExtract.extractURLParameters(),
   application: 'quake',
-});
+};
 const store = createStore();
 store.commit('APP_CONFIG_SET', config);
 

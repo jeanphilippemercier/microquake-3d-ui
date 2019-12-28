@@ -75,7 +75,7 @@ function vtkStations(publicAPI, model) {
   // Inner helpers
   // --------------------------------------------------------------------------
 
-  /// pick station component suitable to define orientation
+  // / pick station component suitable to define orientation
   function getOrientationRef(components) {
     // filter out component without code
     const fcs = (components || []).filter((comp) => Boolean(comp.code));
@@ -192,12 +192,10 @@ function vtkStations(publicAPI, model) {
         model.polydata.getPoints().getData()[compositeID * 3 + 2],
       ];
       const station = model.tooltips[compositeID];
-      return Object.assign(
-        {
-          worldPosition,
-        },
-        station
-      );
+      return {
+        worldPosition,
+        ...station,
+      };
     }
     return null;
   };

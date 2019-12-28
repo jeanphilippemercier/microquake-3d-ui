@@ -49,7 +49,8 @@ function filterEvents(mineBounds, eventsData, typeFilter = 'all') {
       return (
         event.event_type !== 'earthquake' && event.event_type !== 'explosion'
       );
-    } else if (typeFilter !== 'all') {
+    }
+    if (typeFilter !== 'all') {
       return typeFilter === event.event_type;
     }
 
@@ -404,13 +405,14 @@ function vtkSeismicEvents(publicAPI, model) {
       const magnitude = model.magnitudeArray.getData()[compositeID];
       const time = model.timeArray.getData()[compositeID];
       const uncertainty = model.uncertaintyArray.getData()[compositeID];
-      return Object.assign({}, model.originalList[id], {
+      return {
+        ...model.originalList[id],
         id,
         magnitude,
         time: time * TIME_RATIO,
         uncertainty,
         worldPosition,
-      });
+      };
     }
     return null;
   };
@@ -552,4 +554,4 @@ export const newInstance = macro.newInstance(extend, 'vtkSeismicEvents');
 
 // ----------------------------------------------------------------------------
 
-export default Object.assign({ newInstance, extend }, STATIC);
+export default { newInstance, extend, ...STATIC };

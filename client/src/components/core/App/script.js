@@ -80,7 +80,8 @@ export default {
       heartbeat: 'QUAKE_HEARTBEAT',
     }),
     connectorColor() {
-      this.refreshCount;
+      // eslint-disable-next-line
+      this.refreshCount; // create dependency
       const connectorTime = DateHelper.toHoursFromNow(
         this.heartbeat.event_connector
       );
@@ -114,10 +115,9 @@ export default {
         return Object.keys(visibilityMap).filter((k) => visibilityMap[k]);
       },
       set(value) {
-        const visibilityMap = Object.assign(
-          {},
-          this.$store.getters.QUAKE_COMPONENTS_VISIBILITY
-        );
+        const visibilityMap = {
+          ...this.$store.getters.QUAKE_COMPONENTS_VISIBILITY,
+        };
 
         VISIBILITY_ICON_INDEX_MAPPING.forEach((key) => {
           visibilityMap[key] = false;

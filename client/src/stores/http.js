@@ -159,13 +159,14 @@ export default {
         },
       };
 
-      return await busy(dispatch, axios(request));
+      return busy(dispatch, axios(request));
     },
     async HTTP_FETCH_STATIONS({ getters, dispatch }) {
       const fullList = [];
       const baseUrl = getters.HTTP_BASE_URL;
 
       let nextURL = `${baseUrl}/v1/inventory/sensors`;
+      /* eslint-disable no-await-in-loop */
       while (nextURL) {
         const { data } = await dispatch('HTTP_FETCH_URL', nextURL);
         nextURL = data.next;
@@ -174,6 +175,7 @@ export default {
           fullList.push(list[i]);
         }
       }
+      /* eslint-enable no-await-in-loop */
       return { data: fullList };
     },
     async HTTP_FETCH_SCATTERS({ getters, dispatch }, resourceId) {
@@ -190,7 +192,7 @@ export default {
         },
       };
 
-      return await busy(dispatch, axios(request));
+      return busy(dispatch, axios(request));
     },
     async HTTP_FETCH_EVENT_TYPES({ getters, dispatch }, siteCode) {
       const baseUrl = getters.HTTP_BASE_URL;
@@ -204,7 +206,7 @@ export default {
         },
       };
 
-      return await busy(dispatch, axios(request));
+      return busy(dispatch, axios(request));
     },
     HTTP_WS_CONNECT({ state, commit, dispatch }) {
       if (state.wsClient) {

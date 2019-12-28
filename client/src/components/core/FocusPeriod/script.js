@@ -48,6 +48,7 @@ export default {
     },
     focusDateLabels() {
       // need to dynamically update date label
+      // eslint-disable-next-line
       this.$store.getters.QUAKE_REFRESH_COUNT;
       return this.focusPeriod.map((v) =>
         DateHelper.getDateFromNow(this.sliderMax - v)
