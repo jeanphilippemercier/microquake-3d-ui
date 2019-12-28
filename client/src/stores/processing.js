@@ -22,9 +22,9 @@ export default {
     API_RENDER_MODE_SET(state, value) {
       state.mode = value;
     },
-    API_LOCAL_RENDERING_SET(state, value) {
-      state.mode = value ? 'LOCAL' : 'REMOTE';
-    },
+    // API_LOCAL_RENDERING_SET(state, value) {
+    //   state.mode = value ? 'LOCAL' : 'REMOTE';
+    // },
     API_ACTIVE_EVENT_SET(state, value) {
       state.activeEvent = value;
     },

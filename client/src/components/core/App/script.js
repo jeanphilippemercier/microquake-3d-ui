@@ -8,7 +8,6 @@ import LocalView from 'paraview-quake/src/components/core/LocalView';
 import NotificationToast from 'paraview-quake/src/components/core/NotificationToast';
 import PickingTooltip from 'paraview-quake/src/components/widgets/PickingTooltip';
 import ToolbarTimeRange from 'paraview-quake/src/components/widgets/ToolbarTimeRange';
-import VtkView from 'paraview-quake/src/components/core/View';
 
 import shortcuts from 'paraview-quake/src/shortcuts';
 
@@ -47,7 +46,6 @@ export default {
     NotificationToast,
     PickingTooltip,
     ToolbarTimeRange,
-    VtkView,
   },
   data() {
     return {
@@ -74,10 +72,9 @@ export default {
       siteMap: 'QUAKE_SITE_MAP',
       authToken: 'HTTP_AUTH_TOKEN',
       siteSelected: 'QUAKE_USER_ACCEPTED_SITE',
-      client: 'REMOTE_CLIENT',
       darkMode: 'APP_DARK_THEME',
       busyCount: 'BUSY_COUNT',
-      errorMessage: 'REMOTE_ERROR',
+      errorMessage: 'APP_ERROR_MSG',
       raysInScene: 'QUAKE_RAYS_IN_SCENE',
 
       heartbeat: 'QUAKE_HEARTBEAT',
@@ -107,9 +104,6 @@ export default {
           this.siteMap[this.selectedSite]) ||
         EMPTY_NETWORK
       ).networks;
-    },
-    remoteReady() {
-      return !this.localRendering && this.client;
     },
     localReady() {
       return this.localRendering;
@@ -212,7 +206,6 @@ export default {
       updateUserName: 'APP_AUTH_USER_NAME_SET',
       updateUserPassword: 'APP_AUTH_USER_PASSWORD_SET',
       updateSelectedNetwork: 'QUAKE_SELECTED_NETWORK_SET',
-      updateLocalRendering: 'API_LOCAL_RENDERING_SET',
       updateDoubleClickMode: 'QUAKE_DOUBLE_CLICK_MODE_SET',
     }),
     ...mapActions({

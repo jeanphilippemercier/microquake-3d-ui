@@ -77,7 +77,7 @@ const config = Object.assign({}, vtkURLExtract.extractURLParameters(), {
   application: 'quake',
 });
 const store = createStore();
-store.commit('REMOTE_CONFIG_SET', config);
+store.commit('APP_CONFIG_SET', config);
 
 // Clear old toast events
 setInterval(() => {

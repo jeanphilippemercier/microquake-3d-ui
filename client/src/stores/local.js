@@ -101,7 +101,7 @@ export default {
         // });
 
         // Handle locations in url
-        const config = getters.REMOTE_CONFIG;
+        const config = getters.APP_CONFIG;
         if (config.locations) {
           commit('QUAKE_COMPONENTS_VISIBILITY_SET', {
             mine: true,
