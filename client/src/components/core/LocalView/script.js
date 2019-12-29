@@ -93,6 +93,9 @@ export default {
 
     this.$store.commit('VIEW_LOCAL_RENDERER_SET', this.renderer);
     this.$store.commit('VIEW_LOCAL_INTERACTOR_SET', this.interactor);
+
+    // Resize
+    this.$nextTick(this.onResize);
   },
   computed: {
     ...mapGetters({

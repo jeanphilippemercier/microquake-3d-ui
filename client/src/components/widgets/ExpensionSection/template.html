@@ -1,23 +1,19 @@
-<v-expansion-panel expand :style="style" :value="0">
-  <v-expansion-panel-content>
-    <v-container slot="header"
-      fluid
-      grid-list-md
-      class="pa-0"
-    >
+<v-expansion-panel :style="style">
+  <v-expansion-panel-header style="min-height: 56px; max-height: 56px;">
+    <v-container fluid grid-list-md class="pa-0">
       <v-layout row align-center>
         <v-flex xs2>
-          <v-icon>{{ icon }}</v-icon>
+          <v-icon v-text="icon" />
         </v-flex>
         <v-flex xs10>
           <div class="body-2">{{ title }}</div>
         </v-flex>
       </v-layout>
     </v-container>
-    <v-card>
-      <v-divider />
+  </v-expansion-panel-header>
+  <v-expansion-panel-content :class="$style.expansionFullWidth">
+    <v-card flat outlined tile class="px-2">
       <slot />
-      <v-divider />
     </v-card>
   </v-expansion-panel-content>
 </v-expansion-panel>

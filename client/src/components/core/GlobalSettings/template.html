@@ -6,11 +6,10 @@
         @click="resetSettings"
         absolute
         icon
-        flat
         style="top: 50%; right: 0; transform: translateY(-50%);"
         v-show="hasChanges"
       >
-        <v-icon>{{ $vuetify.icons.undo }}</v-icon>
+        <v-icon v-text="`$undo`" />
       </v-btn>
     </div>
     <v-divider class="mb-3" />

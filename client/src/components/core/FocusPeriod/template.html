@@ -28,13 +28,15 @@
       ref="menu"
       v-model="minDateMenu"
       :close-on-content-click="false"
-      lazy
       transition="scale-transition"
       offset-y
-      full-width
       min-width="290px"
     >
-      <div slot="activator" class="pt-1">{{ toMineTime(focusDateLabels[0]) }}</div>
+      <template v-slot:activator="{ on: onStart }">
+        <div v-on="onStart" class="pt-1">
+          {{ toMineTime(focusDateLabels[0]) }}
+        </div>
+      </template>
       <v-date-picker
         v-model="minDate"
         no-title
@@ -46,13 +48,15 @@
       ref="menu"
       v-model="maxDateMenu"
       :close-on-content-click="false"
-      lazy
       transition="scale-transition"
       offset-y
-      full-width
       min-width="290px"
     >
-      <div slot="activator" class="pt-1">{{ toMineTime(focusDateLabels[1]) }}</div>
+      <template v-slot:activator="{ on: onEnd }">
+        <div v-on="onEnd" class="pt-1">
+          {{ toMineTime(focusDateLabels[1]) }}
+        </div>
+      </template>
       <v-date-picker
         v-model="maxDate"
         no-title

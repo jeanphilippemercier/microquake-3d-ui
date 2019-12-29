@@ -167,6 +167,12 @@ export default {
     liveMode() {
       this.$store.dispatch('QUAKE_UPDATE_LIVE_MODE');
     },
+    darkMode(v) {
+      this.$vuetify.theme.dark = v;
+    },
+  },
+  mounted() {
+    this.$vuetify.theme.dark = this.darkMode;
   },
   computed: {
     ...mapGetters({

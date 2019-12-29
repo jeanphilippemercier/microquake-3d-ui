@@ -71,3 +71,16 @@
   transform: translate(-50%, 0);
   z-index: 10;
 }
+
+:global(.v-btn-toggle) > :global(.v-btn):global(.v-btn) {
+  border: none;
+}
+
+.expansionFullWidth :global(.v-expansion-panel-content__wrap) {
+  background: red;
+  padding: 0;
+}
+
+.denseTree :global(.v-treeview-node__root) {
+  min-height: 32px;
+}

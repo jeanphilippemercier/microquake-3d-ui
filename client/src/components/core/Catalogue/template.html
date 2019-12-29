@@ -13,27 +13,28 @@
       >
         <template v-slot:prepend="{ item }">
           <v-tooltip bottom v-if="item.type">
-            <span>{{ labelTypeMapping[item.type] && labelTypeMapping[item.type].text || item.type }}</span>
-            <v-icon
-              slot="activator"
-              v-if="$vuetify.icons[item.type] || !labelTypeMapping[item.type].value"
-              v-text="$vuetify.icons[item.type] || $vuetify.icons.otherEvents"
-              class="mr-2"
-            />
-            <div
-              slot="activator"
-              v-else
-              style="min-width: 32px; padding-left: 5px;"
-            >{{ labelTypeMapping[item.type].value }}</div>
+            <span
+              >{{ labelTypeMapping[item.type] &&
+              labelTypeMapping[item.type].text || item.type }}</span
+            >
+            <template v-slot:activator="{ on }">
+              <v-icon
+                v-on="on"
+                v-if="$vuetify.icons[item.type] || !labelTypeMapping[item.type].value"
+                v-text="$vuetify.icons[item.type] || $vuetify.icons.otherEvents"
+                class="mr-2"
+              />
+              <div v-on="on" v-else style="min-width: 32px; padding-left: 5px;">
+                {{ labelTypeMapping[item.type].value }}
+              </div>
+            </template>
           </v-tooltip>
         </template>
         <template v-slot:label="{ item }">
           <v-layout align-center>
             <div class="pr-1">{{ item.name }}</div>
             <v-btn icon small v-if="item.open" @click="open(item.id)">
-              <v-icon small class="px-0">
-                {{ $vuetify.icons.quakeTrace }}
-              </v-icon>
+              <v-icon small class="px-0" v-text="`$quakeTrace`" />
             </v-btn>
             <div v-if="item.magnitude !== undefined" :class="$style.monospace">
               {{ item.magnitude.toFixed(1) | sign }}
@@ -42,16 +43,14 @@
         </template>
         <template v-slot:append="{ item }">
           <v-btn icon small v-if="item.open" @click="showRays(item.id)">
-            <v-icon small>{{ $vuetify.icons.rays}}</v-icon>
+            <v-icon small v-text="`$rays`" />
           </v-btn>
         </template>
       </v-treeview>
     </v-flex>
     <event-detail
       v-if="selectedEvent && selectedEvent.event_resource_id"
-
       :class="$style.bottom"
-
       :dark="darkMode"
       :event="selectedEvent"
       :typeMapping="labelTypeMapping"

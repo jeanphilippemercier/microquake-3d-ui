@@ -5,14 +5,14 @@
         ref="menu"
         v-model="minDateMenu"
         :close-on-content-click="false"
-        lazy
         transition="scale-transition"
         offset-y
-        full-width
       >
-        <div slot="activator" :class="$style.label">
-          {{ focusDateLabels[0] | toMineTime | toDay }}
-        </div>
+        <template v-slot:activator="{ on: onStart }">
+          <div :class="$style.label" v-on="onStart">
+            {{ focusDateLabels[0] | toMineTime | toDay }}
+          </div>
+        </template>
         <v-date-picker
           v-model="minDate"
           no-title
@@ -32,14 +32,14 @@
         ref="menu"
         v-model="maxDateMenu"
         :close-on-content-click="false"
-        lazy
         transition="scale-transition"
         offset-y
-        full-width
       >
-        <div slot="activator" :class="$style.label">
-          {{ focusDateLabels[1] | toMineTime | toDay }}
-        </div>
+        <template v-slot:activator="{ on: onEnd }">
+          <div v-on="onEnd" :class="$style.label">
+            {{ focusDateLabels[1] | toMineTime | toDay }}
+          </div>
+        </template>
         <v-date-picker
           v-model="maxDate"
           no-title

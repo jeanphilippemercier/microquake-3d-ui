@@ -8,10 +8,11 @@
         :open="allIds"
         open-on-click
         selectable
-        :expand-icon="$vuetify.icons.expandGroup"
-        :on-icon="$vuetify.icons.layerOn"
-        :off-icon="$vuetify.icons.layerOff"
-        :indeterminate-icon="$vuetify.icons.layerIndeterminate"
+        :expand-icon="`$expandGroup`"
+        :on-icon="`$layerOn`"
+        :off-icon="`$layerOff`"
+        :indeterminate-icon="`$layerIndeterminate`"
+        :class="$style.denseTree"
       />
     </v-flex>
   </v-layout>

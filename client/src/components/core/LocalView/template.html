@@ -1,60 +1,66 @@
 <v-container :class="$style.container" fluid fill-height v-resize="onResize">
-  <v-container :class="$style.floatToolbar" fluid >
-    <v-layout column >
+  <v-container :class="$style.floatToolbar" fluid>
+    <v-layout column class="pa-2">
       <v-tooltip left>
         <span :class="$style.noSelect">Reset camera</span>
-        <v-btn
-          slot="activator"
-          icon
-          dark
-          small
-          v-on:click="resetCamera()"
-        >
-          <v-icon>{{ $vuetify.icons.resetCamera }}</v-icon>
-        </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon dark small v-on:click="resetCamera()">
+            <v-icon v-text="`$resetCamera`" />
+          </v-btn>
+        </template>
       </v-tooltip>
       <v-tooltip left>
         <span :class="$style.noSelect">Reset camera Z</span>
-        <v-btn
-          slot="activator"
-          icon
-          dark
-          small
-          v-on:click="resetCameraZ()"
-        >
-          <v-icon>{{ $vuetify.icons.resetCameraZ }}</v-icon>
-        </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            icon
+            dark
+            small
+            v-on:click="resetCameraZ()"
+            class="mt-3"
+          >
+            <v-icon v-text="`$resetCameraZ`" />
+          </v-btn>
+        </template>
       </v-tooltip>
       <v-tooltip left>
         <span :class="$style.noSelect">Snap view up</span>
-        <v-btn
-          slot="activator"
-          icon
-          dark
-          small
-          v-on:click="snapViewUp()"
-        >
-          <v-icon>{{ $vuetify.icons.snapViewUp }}</v-icon>
-        </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            icon
+            dark
+            small
+            v-on:click="snapViewUp()"
+            class="mt-3"
+          >
+            <v-icon v-text="`$snapViewUp`" />
+          </v-btn>
+        </template>
       </v-tooltip>
       <v-tooltip left>
         <span :class="$style.noSelect">Pick Center of Rotation</span>
-        <v-btn
-          slot="activator"
-          icon
-          dark
-          small
-          v-on:click="togglePickCenter()"
-        >
-          <v-icon :color="pickingCenter ? 'green' : 'white'">{{ $vuetify.icons.pickCenter }}</v-icon>
-        </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            icon
+            dark
+            small
+            v-on:click="togglePickCenter()"
+            class="mt-3"
+          >
+            <v-icon
+              :color="pickingCenter ? 'green' : 'white'"
+              v-text="`$pickCenter`"
+            />
+          </v-btn>
+        </template>
       </v-tooltip>
     </v-layout>
   </v-container>
-  <div
-    :class="$style.tootip"
-    :style="tooltipStyle"
-    v-show="orientationTooltip"
-  >{{ orientationTooltip }}</div>
+  <div :class="$style.tootip" :style="tooltipStyle" v-show="orientationTooltip">
+    {{ orientationTooltip }}
+  </div>
   <div :class="[$style.renderer, 'js-renderer']" />
 </v-container>

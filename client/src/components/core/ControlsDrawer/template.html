@@ -1,36 +1,38 @@
 <div :class="$style.noSelectChildren">
-  <expension-section
-    v-show="!showCatalogue"
-    id="mine"
-    title="Mine"
-    :icon="$vuetify.icons.mines"
-  >
-    <mine-visibility />
-  </expension-section>
+  <v-expansion-panels accordion multiple :value="[0, 1, 2, 3]">
+    <expension-section
+      v-show="!showCatalogue"
+      id="mine"
+      title="Mine"
+      :icon="`$mines`"
+    >
+      <mine-visibility />
+    </expension-section>
 
-  <expension-section
-    v-show="!showCatalogue"
-    id="seismicEvents,blast"
-    title="Focus period"
-    :icon="$vuetify.icons.seismicEvents"
-  >
-    <focus-period />
-  </expension-section>
+    <expension-section
+      v-show="!showCatalogue"
+      id="seismicEvents,blast"
+      title="Focus period"
+      :icon="`$seismicEvents`"
+    >
+      <focus-period />
+    </expension-section>
 
-  <expension-section
-    v-show="!showCatalogue"
-    id="historicEvents"
-    title="Historical period"
-    :icon="$vuetify.icons.historicalEvents"
-  >
-    <historical-period />
-  </expension-section>
+    <expension-section
+      v-show="!showCatalogue"
+      id="historicEvents"
+      title="Historical period"
+      :icon="`$historicalEvents`"
+    >
+      <historical-period />
+    </expension-section>
 
-  <expension-section
-    v-show="showCatalogue"
-    title="Catalogue"
-    :icon="$vuetify.icons.catalogue"
-  >
-    <catalogue />
-  </expension-section>
+    <expension-section
+      v-show="showCatalogue"
+      title="Catalogue"
+      :icon="`$catalogue`"
+    >
+      <catalogue />
+    </expension-section>
+  </v-expansion-panels>
 </div>

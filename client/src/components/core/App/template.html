@@ -8,14 +8,14 @@
           label="Username"
           :value="userName"
           @input="updateUserName"
-          :prepend-icon="$vuetify.icons.username"
+          :prepend-icon="`$username`"
           :error-messages="loginError.username"
         />
         <v-text-field
           label="Password"
           :value="userPassword"
           @input="updateUserPassword"
-          :prepend-icon="$vuetify.icons.password"
+          :prepend-icon="`$password`"
           type="password"
           :error-messages="loginError.password"
           @keydown="loginOnEnter"
@@ -64,9 +64,9 @@
   </v-dialog>
 
   <v-navigation-drawer
+    absolute
     v-if="authToken && siteSelected"
     v-model="menuVisible"
-    clipped
     overflow
     fixed
     width="380"
@@ -78,11 +78,10 @@
   </v-navigation-drawer>
 
   <v-navigation-drawer
+    absolute
     v-if="authToken && siteSelected"
     v-model="advanceMenuVisible"
-    clipped
     overflow
-    fixed
     right
     stateless
     height="calc(100% - 48px)"
@@ -91,21 +90,35 @@
     <global-settings />
   </v-navigation-drawer>
 
-  <v-toolbar clipped-left app absolute dense :class="$style.toolbarOverride">
+  <v-app-bar
+    clipped-left
+    clipped-right
+    app
+    absolute
+    dense
+    :class="$style.toolbarOverride"
+  >
     <v-tooltip bottom :disabled="!errorMessage && !heartbeat.event_connector">
       <span>{{ errorMessage }}</span>
       <span>
         Connector active {{ heartbeat.event_connector | toHoursFromNow |
         hoursFromNowToLabel }}
       </span>
-      <v-btn icon @click.stop="menuVisible = !menuVisible" slot="activator">
-        <v-icon v-if="!errorMessage" :color="connectorColor">
-          {{ $vuetify.icons.quakeTrace }}
-        </v-icon>
-        <v-icon v-if="errorMessage" color="red" class="px-3">
-          {{ $vuetify.icons.connectionError }}
-        </v-icon>
-      </v-btn>
+      <template v-slot:activator="{ on }">
+        <v-btn icon @click.stop="menuVisible = !menuVisible" v-on="on">
+          <v-icon
+            v-if="!errorMessage"
+            :color="connectorColor"
+            v-text="`$quakeTrace`"
+          />
+          <v-icon
+            v-if="errorMessage"
+            color="red"
+            class="px-3"
+            v-text="`$connectionError`"
+          />
+        </v-btn>
+      </template>
     </v-tooltip>
 
     <v-toolbar-title class="ml-0">
@@ -128,15 +141,31 @@
       >
         <v-tooltip bottom>
           <span>Show only accepted events</span>
-          <v-btn flat slot="activator" value="accepted">
-            <v-icon>{{ $vuetify.icons.accepted }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              value="accepted"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$accepted`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show only rejected events</span>
-          <v-btn flat slot="activator" value="rejected">
-            <v-icon>{{ $vuetify.icons.rejected }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              value="rejected"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$rejected`" />
+            </v-btn>
+          </template>
         </v-tooltip>
       </v-btn-toggle>
 
@@ -148,15 +177,19 @@
       >
         <v-tooltip bottom>
           <span>Double-clicking triggers waveform UI</span>
-          <v-btn flat slot="activator">
-            <v-icon>{{ $vuetify.icons.quakeTrace }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn text v-on="on" max-width="40" min-width="40" height="36">
+              <v-icon v-text="`$quakeTrace`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Double-clicking retrieves event rays</span>
-          <v-btn flat slot="activator">
-            <v-icon>{{ $vuetify.icons.rays }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn text v-on="on" max-width="40" min-width="40" height="36">
+              <v-icon v-text="`$rays`" />
+            </v-btn>
+          </template>
         </v-tooltip>
       </v-btn-toggle>
 
@@ -172,14 +205,19 @@
                 <span style="background: #dc3545;" class="px-1">S</span>
                 Waves)
               </div>
-              <v-btn
-                dense
-                flat
-                v-bind:disabled="raysInScene === false"
-                slot="activator"
-              >
-                <v-icon>{{ $vuetify.icons.rays }}</v-icon>
-              </v-btn>
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  dense
+                  text
+                  v-bind:disabled="raysInScene === false"
+                  v-on="on"
+                  max-width="40"
+                  min-width="40"
+                  height="34"
+                >
+                  <v-icon v-text="`$rays`" />
+                </v-btn>
+              </template>
             </v-tooltip>
           </v-btn-toggle>
         </v-layout>
@@ -192,13 +230,13 @@
             item-value="value"
             label="Ray Filter Mode"
             v-bind:disabled="raysInScene === false"
-            flat
             solo
             dense
+            flat
             return-object
             single-line
             hide-details
-            height="36"
+            height="34"
           />
         </v-layout>
       </v-layout>
@@ -211,46 +249,109 @@
       >
         <v-tooltip bottom>
           <span>Show/Hide Catalogue</span>
-          <v-btn flat slot="activator" value="catalogue">
-            <v-icon>{{ $vuetify.icons.catalogue }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="catalogue"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$catalogue`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Mine</span>
-          <v-btn flat slot="activator" value="mine">
-            <v-icon>{{ $vuetify.icons.mines }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="mine"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$mines`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Seismic events</span>
-          <v-btn flat slot="activator" value="seismicEvents">
-            <v-icon>{{ $vuetify.icons.seismicEvents }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="seismicEvents"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$seismicEvents`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Blast</span>
-          <v-btn flat slot="activator" value="blast">
-            <v-icon>{{ $vuetify.icons.blasts }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="blast"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$blasts`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Historical events</span>
-          <v-btn flat slot="activator" value="historicEvents">
-            <v-icon>{{ $vuetify.icons.historicalEvents }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="historicEvents"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$historicalEvents`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-tooltip bottom>
           <span>Show/Hide Other events</span>
-          <v-btn flat slot="activator" value="otherEvents">
-            <v-icon>{{ $vuetify.icons.otherEvents }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="otherEvents"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$otherEvents`" />
+            </v-btn>
+          </template>
         </v-tooltip>
         <v-divider vertical />
         <v-tooltip bottom>
           <span>Show/Hide Uncertainty</span>
-          <v-btn flat slot="activator" value="uncertainty">
-            <v-icon>{{ $vuetify.icons.uncertainty }}</v-icon>
-          </v-btn>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              text
+              value="uncertainty"
+              v-on="on"
+              max-width="40"
+              min-width="40"
+              height="36"
+            >
+              <v-icon v-text="`$uncertainty`" />
+            </v-btn>
+          </template>
         </v-tooltip>
       </v-btn-toggle>
 
@@ -258,15 +359,17 @@
 
       <v-tooltip bottom>
         <span>Toggle Settings</span>
-        <v-btn
-          slot="activator"
-          flat
-          icon
-          @click.stop="advanceMenuVisible = !advanceMenuVisible"
-          class="mx-2"
-        >
-          <v-icon>{{ $vuetify.icons.settings }}</v-icon>
-        </v-btn>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            text
+            icon
+            @click.stop="advanceMenuVisible = !advanceMenuVisible"
+            class="mx-2"
+            v-on="on"
+          >
+            <v-icon v-text="`$settings`" />
+          </v-btn>
+        </template>
       </v-tooltip>
     </v-layout>
     <v-progress-linear
@@ -275,7 +378,7 @@
       :active="!!busyCount"
       height="3"
     />
-  </v-toolbar>
+  </v-app-bar>
   <v-content style="background: darkgray; position: relative;">
     <picking-tooltip>
       <local-view if="localReady" />
