@@ -1,0 +1,37 @@
+{
+  "resources": [ {"port_range": [9010, 9014], "host": "localhost"} ],
+  "sessionData": {},
+  "configuration": {
+    "log_dir": "/opt/launcher/log",
+    "host": "localhost",
+    "endpoint": "paraview",
+    "sessionURL": "SESSION_URL_ROOT/proxy?sessionId=${id}&path=ws",
+    "timeout": 60,
+    "upload_dir": "/data/upload",
+    "fields": [],
+    "port": 9000,
+    "proxy_file": "/opt/launcher/proxy-mapping.txt",
+    "sanitize": {}
+  },
+  "properties": {
+    "apps_dir": "/external/apps",
+    "mines_dir": "/external/mines",
+    "python_exec": "/opt/paraview/bin/pvpython"
+  },
+  "apps": {
+    "quake": {
+      "cmd": [
+        "${python_exec}",
+        EXTRA_PVPYTHON_ARGS
+        "${apps_dir}/quake/server/pvw-quake.py",
+        "--mines", "${mines_dir}",
+        "--port", "${port}",
+        "--authKey", "${secret}",
+        "--viewport-max-width", "1920",
+        "--viewport-max-height", "1080",
+        "--timeout", "30"
+      ],
+      "ready_line" : "Starting factory"
+    }
+  }
+}
