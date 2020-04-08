@@ -1,53 +1,90 @@
 <v-container
   fluid
-  class="pa-1"
+  class="pa-0"
   style="max-height: calc(100vh - 56px - 48px - 2px);min-height: calc(100vh - 56px - 48px - 2px);overflow: hidden;"
 >
   <v-layout column>
-    <v-flex :style="treeStyle" class="pb-3">
-      <v-treeview
-        :active.sync="active"
-        :items="catalogue"
-        open-on-click
-        activatable
+    <v-expansion-panels
+      accordion
+      focusable
+      tile
+      :class="$style.expansionPanels"
+      :style="treeStyle"
+    >
+      <v-expansion-panel
+        v-for="(item, i) in catalogueList"
+        :key="i"
+
+        :class="$style.expansionPanel"
       >
-        <template v-slot:prepend="{ item }">
-          <v-tooltip bottom v-if="item.type">
-            <span
-              >{{ labelTypeMapping[item.type] &&
-              labelTypeMapping[item.type].text || item.type }}</span
-            >
-            <template v-slot:activator="{ on }">
-              <v-icon
-                v-on="on"
-                v-if="$vuetify.icons.values[item.type] || !labelTypeMapping[item.type].value"
-                v-text="$vuetify.icons.values[item.type] || $vuetify.icons.values.otherEvents"
-                class="mr-2"
-              />
-              <div v-on="on" v-else style="min-width: 32px; padding-left: 5px;">
-                {{ labelTypeMapping[item.type].value }}
-              </div>
-            </template>
-          </v-tooltip>
-        </template>
-        <template v-slot:label="{ item }">
+        <v-expansion-panel-header hide-actions>
           <v-layout align-center>
-            <div class="pr-1">{{ item.name }}</div>
-            <v-btn icon small v-if="item.open" @click="open(item.id)">
-              <v-icon small class="px-0" v-text="`$quakeTrace`" />
-            </v-btn>
-            <div v-if="item.magnitude !== undefined" :class="$style.monospace">
-              {{ item.magnitude.toFixed(1) | sign }}
-            </div>
+            <b>
+              {{ item.label }}
+            </b>
+            <small class="ml-2">{{ item.year }}</small>
+            <v-spacer />
+            <span v-if="item.max">{{ item.max.toFixed(2) }} Mw</span>
+            <v-spacer />
+            {{ item.children.length }}
           </v-layout>
-        </template>
-        <template v-slot:append="{ item }">
-          <v-btn icon small v-if="item.open" @click="showRays(item.id)">
-            <v-icon small v-text="`$rays`" />
-          </v-btn>
-        </template>
-      </v-treeview>
-    </v-flex>
+        </v-expansion-panel-header>
+        <v-expansion-panel-content >
+          <v-list dense class="py-0">
+            <template
+              v-for="event in item.children"
+            >
+              <v-divider :key="`divider-${event.id}`" />
+              <v-list-item
+                style="max-height: 0;"
+                :key="`event-${event.id}`"
+                @click="active = [event.id]"
+                :class="active[0] == event.id ? $style.activeEvent : $style.event"
+              >
+                <v-list-item-content>
+                  <v-layout align-center>
+                    <v-flex xs5>
+                      <v-layout align-center>
+                        <v-tooltip bottom v-if="event.type">
+                          <span>
+                            {{ labelTypeMapping[event.type] &&
+                            labelTypeMapping[event.type].text || event.type }}
+                          </span>
+                          <template v-slot:activator="{ on }">
+                            <v-icon
+                              v-if="$vuetify.icons.values[event.type] || !labelTypeMapping[event.type].value"
+                              v-text="$vuetify.icons.values[event.type] || $vuetify.icons.values.otherEvents"
+                            />
+                            <div v-else style="min-width: 32px; padding-left: 5px;">
+                              {{ labelTypeMapping[event.type].value }}
+                            </div>
+                          </template>
+                        </v-tooltip>
+                        <div class="px-2">{{ event.name }}</div>
+                      </v-layout>
+                    </v-flex>
+                    <v-spacer />
+
+                    <v-btn fab depressed x-small v-if="event.open" @click="open(event.id)">
+                      <v-icon small v-text="`$quakeTrace`" />
+                    </v-btn>
+                    <v-spacer />
+                    <div v-if="event.magnitude !== undefined" :class="$style.monospace">
+                      {{ event.magnitude.toFixed(1) | sign }}
+                    </div>
+                    <small style="opacity: 0.5;" class="ml-2">Mw</small>
+                    <v-spacer />
+                    <v-btn fab depressed x-small v-if="event.open" @click="showRays(event.id)">
+                      <v-icon small v-text="`$rays`" />
+                    </v-btn>
+                  </v-layout>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-expansion-panel-content>
+    </v-expansion-panel>
+    </v-expansion-panels>
     <event-detail
       v-if="selectedEvent && selectedEvent.event_resource_id"
       :class="$style.bottom"

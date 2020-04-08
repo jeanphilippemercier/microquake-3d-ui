@@ -77,10 +77,25 @@
 }
 
 .expansionFullWidth :global(.v-expansion-panel-content__wrap) {
-  background: red;
   padding: 0;
 }
 
 .denseTree :global(.v-treeview-node__root) {
   min-height: 32px;
+}
+
+.expansionPanels {
+}
+
+.expansionPanel button {
+  padding: 10px 10px 6px 10px;
+  min-height: 20px !important;
+  overflow: hidden;
+}
+
+.activeEvent {
+  opacity: 1;
+}
+.event {
+  opacity: 0.45;
 }

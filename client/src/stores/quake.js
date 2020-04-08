@@ -3,6 +3,8 @@ import Vue from 'vue';
 import PRESETS from 'paraview-quake/src/presets';
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 
+import * as moment from 'moment';
+
 // function randomPick(list) {
 //   const idx = Math.round(Math.random() * (list.length - 1));
 //   return list[idx];
@@ -17,6 +19,12 @@ const TYPES = {
 
 function byName(a, b) {
   return b.name.localeCompare(a.name);
+}
+
+function extractMagnitudeMax(a, b) {
+  const mA = a.magnitude || a;
+  const mB = b.magnitude || b;
+  return Math.abs(mA) > Math.abs(mB) ? mA : mB;
 }
 
 function storeItem(key, value) {
@@ -40,6 +48,7 @@ export default {
     refreshCount: 0,
     typeMapping: {},
     catalogue: [],
+    catalogueByDay: [],
     selectedEvent: null,
     eventStatus: 'accepted',
     sensorChildren: [{ id: 'stations', name: 'Stations' }],
@@ -183,6 +192,9 @@ export default {
     QUAKE_CATALOGUE(state) {
       return state.catalogue;
     },
+    QUAKE_CATALOGUE_BY_DAY(state) {
+      return state.catalogueByDay;
+    },
     QUAKE_TYPE_MAPPING(state) {
       return state.typeMapping;
     },
@@ -276,6 +288,9 @@ export default {
     QUAKE_CATALOGUE_SET(state, catalogue) {
       state.catalogue = catalogue;
     },
+    QUAKE_CATALOGUE_BY_DAY_SET(state, value) {
+      state.catalogueByDay = value;
+    },
     QUAKE_TYPE_MAPPING_SET(state, value) {
       state.typeMapping = value;
     },
@@ -354,6 +369,7 @@ export default {
     },
     QUAKE_UPDATE_CATALOGUE({ getters, commit, dispatch }, events) {
       const catalogue = [];
+      const dateKeys = {};
       const nodeMap = {};
 
       for (let i = 0; i < events.length; i++) {
@@ -393,6 +409,8 @@ export default {
           parentNode.children.push(node);
           parentNode.children.sort(byName);
           nodeMap[node.id] = node;
+          //
+          dateKeys[currentKey] = node.children;
         }
         parentNode = nodeMap[currentKey];
 
@@ -411,7 +429,20 @@ export default {
         parentNode.children.sort(byName);
       }
 
+      // Generate catalogueByDay list
+      const catalogueByDay = Object.entries(dateKeys).map(
+        ([name, children]) => ({
+          name,
+          label: moment(name, 'YYYY/MM/DD').format('MMM DD'),
+          year: name.split('/').shift(),
+          max: children.reduce(extractMagnitudeMax, 0),
+          children,
+        })
+      );
+      catalogueByDay.sort(byName);
+
       commit('QUAKE_CATALOGUE_SET', catalogue);
+      commit('QUAKE_CATALOGUE_BY_DAY_SET', catalogueByDay);
 
       if (getters.QUAKE_LIVE_MODE) {
         const mostRecentEvent =

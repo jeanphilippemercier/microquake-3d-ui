@@ -15,6 +15,10 @@ export default {
         return this.$vuetify.icons.values.defaultExpansionIcon;
       },
     },
+    contentClass: {
+      type: String,
+      default: 'px-2',
+    },
   },
   computed: {
     style() {

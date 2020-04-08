@@ -11,6 +11,7 @@ export default {
     ...mapGetters({
       darkMode: 'APP_DARK_THEME',
       catalogue: 'QUAKE_CATALOGUE',
+      catalogueList: 'QUAKE_CATALOGUE_BY_DAY',
       labelTypeMapping: 'QUAKE_TYPE_MAPPING',
       activeEvent: 'API_ACTIVE_EVENT',
       selectedEvent: 'QUAKE_SELECTED_EVENT',
@@ -26,7 +27,7 @@ export default {
     treeStyle() {
       let baseHeight = 110;
       if (this.selectedEvent && this.selectedEvent.time_utc) {
-        baseHeight += 436;
+        baseHeight += 466;
       }
       const height = `calc(100vh - ${baseHeight}px)`;
       return {
