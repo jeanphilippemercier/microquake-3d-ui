@@ -74,10 +74,7 @@ function vtkLocations(publicAPI, model) {
       ids[i] = i;
     }
     model.polydata.getLines().setData(lines);
-    model.polydata
-      .getPointData()
-      .getScalars()
-      .setData(ids);
+    model.polydata.getPointData().getScalars().setData(ids);
     publicAPI.modified();
 
     model.lookupTable.setMappingRange(0, nbPoints - 1);

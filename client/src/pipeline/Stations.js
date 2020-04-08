@@ -124,10 +124,7 @@ function vtkStations(publicAPI, model) {
       model.tooltips.push(station);
     }
     model.polydata.getPoints().setData(xyz, 3);
-    model.polydata
-      .getPointData()
-      .getArray('status')
-      .setData(status);
+    model.polydata.getPointData().getArray('status').setData(status);
     model.polydata
       .getPointData()
       .getArray('orientation')

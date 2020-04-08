@@ -12,7 +12,7 @@ export default {
     icon: {
       type: String,
       default() {
-        return this.$vuetify.icons.defaultExpansionIcon;
+        return this.$vuetify.icons.values.defaultExpansionIcon;
       },
     },
   },

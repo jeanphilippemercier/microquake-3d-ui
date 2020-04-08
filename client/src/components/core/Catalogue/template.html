@@ -1,7 +1,7 @@
 <v-container
   fluid
   class="pa-1"
-  style="max-height: calc(100vh - 51px - 50px);min-height: calc(100vh - 51px - 50px);overflow: hidden;"
+  style="max-height: calc(100vh - 56px - 48px - 2px);min-height: calc(100vh - 56px - 48px - 2px);overflow: hidden;"
 >
   <v-layout column>
     <v-flex :style="treeStyle" class="pb-3">
@@ -20,8 +20,8 @@
             <template v-slot:activator="{ on }">
               <v-icon
                 v-on="on"
-                v-if="$vuetify.icons[item.type] || !labelTypeMapping[item.type].value"
-                v-text="$vuetify.icons[item.type] || $vuetify.icons.otherEvents"
+                v-if="$vuetify.icons.values[item.type] || !labelTypeMapping[item.type].value"
+                v-text="$vuetify.icons.values[item.type] || $vuetify.icons.values.otherEvents"
                 class="mr-2"
               />
               <div v-on="on" v-else style="min-width: 32px; padding-left: 5px;">

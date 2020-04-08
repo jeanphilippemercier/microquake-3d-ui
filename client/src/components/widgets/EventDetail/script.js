@@ -26,8 +26,8 @@ export default {
     },
     scatterIcon() {
       return this.isScatterOn
-        ? this.$vuetify.icons.scatterOn
-        : this.$vuetify.icons.scatterOff;
+        ? this.$vuetify.icons.values.scatterOn
+        : this.$vuetify.icons.values.scatterOff;
     },
     headerClass() {
       return this.dark ? 'darken-2' : 'lighten-1';

@@ -120,9 +120,7 @@ export default {
     speedUnit,
     energyUnit,
     toMineTime(str) {
-      return DateHelper.toMineTime(str)
-        .split('T')
-        .join(' ');
+      return DateHelper.toMineTime(str).split('T').join(' ');
     },
   },
   mounted() {

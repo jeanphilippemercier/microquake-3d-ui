@@ -41,7 +41,7 @@ const vuetifyOptions = {
       password: 'mdi-lock',
       // toolbar
       connectionError: 'mdi-access-point-network-off',
-      settings: 'mdi-settings',
+      settings: 'mdi-cog',
       mines: 'mdi-pickaxe',
       seismicEvents: 'mdi-chart-bubble',
       otherEvents: 'mdi-help-circle',
