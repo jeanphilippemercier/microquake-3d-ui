@@ -24,7 +24,7 @@
             </b>
             <small class="ml-2">{{ item.year }}</small>
             <v-spacer />
-            <span v-if="item.max">{{ item.max.toFixed(2) }} Mw</span>
+            <span v-if="item.max > -1000">{{ item.max.toFixed(1) }} Mw</span>
             <v-spacer />
             {{ item.children.length }}
           </v-layout>

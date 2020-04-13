@@ -24,7 +24,7 @@ function byName(a, b) {
 function extractMagnitudeMax(a, b) {
   const mA = a.magnitude || a;
   const mB = b.magnitude || b;
-  return Math.abs(mA) > Math.abs(mB) ? mA : mB;
+  return mA > mB ? mA : mB;
 }
 
 function storeItem(key, value) {
@@ -435,7 +435,7 @@ export default {
           name,
           label: moment(name, 'YYYY/MM/DD').format('MMM DD'),
           year: name.split('/').shift(),
-          max: children.reduce(extractMagnitudeMax, 0),
+          max: children.reduce(extractMagnitudeMax, -1000),
           children,
         })
       );
