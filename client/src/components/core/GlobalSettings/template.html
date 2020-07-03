@@ -62,6 +62,46 @@
   </v-card>
 
   <v-card class="py-2 px-3">
+    <div class="py-1" :class="$style.relative">
+      <span class="body-2">Events filtering</span>
+    </div>
+    <v-divider class="mb-3" />
+    <v-container fluid grid-list-md class="pa-0">
+      <v-layout row wrap align-center>
+        <v-flex xs10>
+          <span class="body-2">Magnitude</span>
+        </v-flex>
+        <v-flex xs2>
+          <v-switch hide-details class="mt-0" v-model="filterEventsByMagnitude" />
+        </v-flex>
+        <v-flex xs6>
+          <v-text-field
+            hide-details
+            class="mt-0 pt-0"
+            v-model="magnitudeFilterRange[0]"
+            :min="-5"
+            :max="0"
+            step="0.01"
+            type="number"
+          />
+        </v-flex>
+        <v-flex xs6>
+          <v-text-field
+            reverse
+            hide-details
+            class="mt-0 pt-0"
+            v-model="magnitudeFilterRange[1]"
+            :min="-5"
+            :max="0"
+            step="0.01"
+            type="number"
+          />
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </v-card>
+
+  <v-card class="py-2 px-3">
     <div class="py-1">
       <span class="body-2">Settings</span>
     </div>

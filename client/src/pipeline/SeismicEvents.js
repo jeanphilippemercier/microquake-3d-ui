@@ -352,8 +352,15 @@ function vtkSeismicEvents(publicAPI, model) {
     const deltaMagnitude = maxMagnitude - minMagnitude;
     const [minScale, maxScale] = model.scalingRange;
     const deltaScale = maxScale - minScale;
+    const { filtering } = model;
+    const [filterMin, filterMax] = model.filterRange;
 
     function adjustMagnitude(v) {
+      if (filtering) {
+        if (v < filterMin || v > filterMax) {
+          return 0;
+        }
+      }
       if (v < minMagnitude) {
         return minScale * model.scalingFactor;
       }
@@ -504,6 +511,23 @@ function vtkSeismicEvents(publicAPI, model) {
   publicAPI.getPointSize = model.actor.getProperty().getPointSize;
   publicAPI.setOpacity = model.actor.getProperty().setOpacity;
   publicAPI.getOpacity = model.actor.getProperty().getOpacity;
+
+  // filtering API
+  /* eslint-disable */
+  const _setFiltering = publicAPI.setFiltering;
+  publicAPI.setFiltering = (v) => {
+    if (_setFiltering(v)) {
+      publicAPI.updateScaling();
+    }
+  };
+
+  const _setFilterRange = publicAPI.setFilterRange;
+  publicAPI.setFilterRange = (...args) => {
+    if (_setFilterRange(...args)) {
+      publicAPI.updateScaling();
+    }
+  };
+  /* eslint-enable */
 }
 
 // ----------------------------------------------------------------------------
@@ -525,6 +549,8 @@ const DEFAULT_VALUES = {
   uncertaintyScalingFactor: 50,
   visibility: true,
   colorRange: [0, 1],
+  filtering: false,
+  filterRange: [-100, 0],
 };
 
 // ----------------------------------------------------------------------------
@@ -540,7 +566,9 @@ export function extend(publicAPI, model, initialValues = {}) {
     'renderer',
     'scalingFactor',
     'uncertaintyScalingFactor',
+    'filtering',
   ]);
+  macro.setGetArray(publicAPI, model, ['filterRange'], 2);
   macro.setGetArray(publicAPI, model, ['translate'], 3);
   macro.setGetArray(publicAPI, model, ['mineBounds'], 6);
   macro.setGetArray(publicAPI, model, ['magnitudeRange', 'scalingRange'], 2);

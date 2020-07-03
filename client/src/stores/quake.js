@@ -46,6 +46,8 @@ export default {
   state: {
     liveMode: false,
     refreshCount: 0,
+    quakeMagnitudeFilter: [-100, 0],
+    quakeMagnitudeFiltering: false,
     typeMapping: {},
     catalogue: [],
     catalogueByDay: [],
@@ -92,6 +94,18 @@ export default {
     heartbeat: {},
   },
   getters: {
+    QUAKE_MAGNITUDE_FILTERING(state) {
+      return state.quakeMagnitudeFiltering;
+    },
+    QUAKE_MAGNITUDE_FILTER(state) {
+      return state.quakeMagnitudeFilter;
+    },
+    QUAKE_MAGNITUDE_FILTER_LAMBDA(state, getters) {
+      const doFilter = getters.QUAKE_MAGNITUDE_FILTERING;
+      const [min, max] = getters.QUAKE_MAGNITUDE_FILTER;
+      return ({ magnitude }) =>
+        !doFilter || (magnitude >= min && magnitude <= max);
+    },
     QUAKE_NOTIFICATIONS(state) {
       return state.notifications;
     },
@@ -203,6 +217,12 @@ export default {
     },
   },
   mutations: {
+    QUAKE_MAGNITUDE_FILTERING_SET(state, value) {
+      state.quakeMagnitudeFiltering = value;
+    },
+    QUAKE_MAGNITUDE_FILTER_SET(state, value) {
+      state.quakeMagnitudeFilter = value;
+    },
     QUAKE_SENSOR_STATUS_SET(state, value) {
       Vue.set(state.sensorsStatus, value.sensor_code, value);
     },

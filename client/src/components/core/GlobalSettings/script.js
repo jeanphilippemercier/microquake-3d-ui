@@ -1,4 +1,4 @@
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 
 function storeItem(key, value) {
   window.localStorage.setItem(
@@ -133,6 +133,10 @@ const KEYS = {
 export default {
   name: 'GlobalSettings',
   methods: {
+    ...mapMutations({
+      updateFilteringMagnitude: 'QUAKE_MAGNITUDE_FILTERING_SET',
+      updateMagnitudeFilter: 'QUAKE_MAGNITUDE_FILTER_SET',
+    }),
     wrapGet(storeGetKey, storeSetKey, storageKey) {
       const originalValue = this.$store.getters[storeGetKey];
       const value = retreiveItem(KEYS[storageKey], originalValue);
@@ -170,6 +174,19 @@ export default {
     darkMode(v) {
       this.$vuetify.theme.dark = v;
     },
+    isFilteringMagnitude(v) {
+      this.localPipeline.seismicEvents.setFiltering(v);
+      this.localPipeline.blast.setFiltering(v);
+      this.localPipeline.otherEvents.setFiltering(v);
+      this.localPipeline.seismicEvents.render();
+    },
+    magnitudeFilterRangeValue(v) {
+      const dataRange = v.map(Number);
+      this.localPipeline.seismicEvents.setFilterRange(dataRange);
+      this.localPipeline.blast.setFilterRange(dataRange);
+      this.localPipeline.otherEvents.setFilterRange(dataRange);
+      this.localPipeline.seismicEvents.render();
+    },
   },
   mounted() {
     this.$vuetify.theme.dark = this.darkMode;
@@ -177,6 +194,9 @@ export default {
   computed: {
     ...mapGetters({
       localRendering: 'API_LOCAL_RENDERING',
+      isFilteringMagnitude: 'QUAKE_MAGNITUDE_FILTERING',
+      magnitudeFilterRangeValue: 'QUAKE_MAGNITUDE_FILTER',
+      localPipeline: 'LOCAL_PIPELINE_OBJECTS',
     }),
     hasChanges() {
       let changeDetected = false;
@@ -186,6 +206,22 @@ export default {
         }
       });
       return changeDetected;
+    },
+    magnitudeFilterRange: {
+      get() {
+        return this.magnitudeFilterRangeValue;
+      },
+      set(v) {
+        this.updateMagnitudeFilter(v);
+      },
+    },
+    filterEventsByMagnitude: {
+      get() {
+        return this.isFilteringMagnitude;
+      },
+      set(v) {
+        this.updateFilteringMagnitude(v);
+      },
     },
     darkMode: {
       get() {

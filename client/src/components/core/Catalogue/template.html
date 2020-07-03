@@ -26,7 +26,10 @@
             <v-spacer />
             <span v-if="item.max > -1000">{{ item.max.toFixed(1) }} Mw</span>
             <v-spacer />
-            {{ item.children.length }}
+            <span v-show="eventFiltering">
+              {{ item.children.filter(eventFilter).length }}
+            </span>
+            <span v-show="!eventFiltering">{{ item.children.length }}</span>
           </v-layout>
         </v-expansion-panel-header>
         <v-expansion-panel-content >
@@ -39,7 +42,7 @@
                 style="max-height: 0;"
                 :key="`event-${event.id}`"
                 @click="active = [event.id]"
-                :class="active[0] == event.id ? $style.activeEvent : $style.event"
+                :class="active[0] == event.id ? $style.activeEvent : (eventFilter(event) ? $style.event : $style.filteredEvent)"
               >
                 <v-list-item-content>
                   <v-layout align-center>

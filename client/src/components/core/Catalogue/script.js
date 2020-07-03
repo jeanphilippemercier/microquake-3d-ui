@@ -15,6 +15,8 @@ export default {
       labelTypeMapping: 'QUAKE_TYPE_MAPPING',
       activeEvent: 'API_ACTIVE_EVENT',
       selectedEvent: 'QUAKE_SELECTED_EVENT',
+      eventFilter: 'QUAKE_MAGNITUDE_FILTER_LAMBDA',
+      eventFiltering: 'QUAKE_MAGNITUDE_FILTERING',
     }),
     active: {
       get() {
