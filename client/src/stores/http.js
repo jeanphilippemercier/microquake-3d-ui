@@ -168,11 +168,20 @@ export default {
       let nextURL = `${baseUrl}/v1/inventory/sensors`;
       /* eslint-disable no-await-in-loop */
       while (nextURL) {
-        const { data } = await dispatch('HTTP_FETCH_URL', nextURL);
-        nextURL = data.next;
-        const list = data.results;
-        for (let i = 0; i < list.length; i++) {
-          fullList.push(list[i]);
+        try {
+          const { data } = await dispatch('HTTP_FETCH_URL', nextURL);
+          if (!data) {
+            nextURL = null;
+          } else {
+            nextURL = data.next;
+            const list = data.results;
+            for (let i = 0; i < list.length; i++) {
+              fullList.push(list[i]);
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          nextURL = null;
         }
       }
       /* eslint-enable no-await-in-loop */
