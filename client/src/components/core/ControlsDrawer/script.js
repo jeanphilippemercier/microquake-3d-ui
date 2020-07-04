@@ -1,4 +1,4 @@
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 import Catalogue from 'paraview-quake/src/components/core/Catalogue';
 import MineVisibility from 'paraview-quake/src/components/core/MineVisibility';
@@ -27,4 +27,9 @@ export default {
       return this.componentsVisibility.catalogue;
     },
   },
+  methods: {
+    ...mapActions({
+      downloadCSV: 'QUAKE_DOWNLOAD_CSV',
+    }),
+  }
 };

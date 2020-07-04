@@ -19,6 +19,15 @@ export default {
       type: String,
       default: 'px-2',
     },
+    action: {
+      type: Function,
+    },
+    actionIcon: {
+      type: String,
+    },
+    actionTooltip: {
+      type: String,
+    },
   },
   computed: {
     style() {

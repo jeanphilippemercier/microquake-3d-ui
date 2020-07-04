@@ -217,6 +217,20 @@ export default {
 
       return busy(dispatch, axios(request));
     },
+    async HTTP_FETCH({ getters, dispatch }, url) {
+      const baseUrl = getters.HTTP_BASE_URL;
+      const authToken = getters.HTTP_AUTH_TOKEN;
+
+      const request = {
+        method: 'get',
+        url: `${baseUrl}${url}`,
+        headers: {
+          Authorization: `Bearer: ${authToken}`,
+        },
+      };
+
+      return busy(dispatch, axios(request));
+    },
     HTTP_WS_CONNECT({ state, commit, dispatch }) {
       if (state.wsClient) {
         dispatch('HTTP_WS_DISCONNECT');

@@ -80,6 +80,7 @@ const vuetifyOptions = {
       waveform: 'mdi-open-in-new',
       scatterOn: 'mdi-scatter-plot',
       scatterOff: 'mdi-scatter-plot-outline',
+      exportCSV: 'mdi-table',
     },
   },
 };

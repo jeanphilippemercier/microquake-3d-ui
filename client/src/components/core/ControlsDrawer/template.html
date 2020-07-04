@@ -32,6 +32,9 @@
       title="Catalogue"
       :icon="`$catalogue`"
       contentClass="px-0"
+      :action="downloadCSV"
+      :actionIcon="`$exportCSV`"
+      actionTooltip="Download CSV"
     >
       <catalogue />
     </expension-section>

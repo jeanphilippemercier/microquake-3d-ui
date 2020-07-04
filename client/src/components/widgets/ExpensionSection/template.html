@@ -6,7 +6,18 @@
           <v-icon v-text="icon" />
         </v-flex>
         <v-flex xs10>
-          <div class="body-2">{{ title }}</div>
+          <v-layout align-center>
+            <div class="body-2">{{ title }}</div>
+            <v-spacer />
+            <v-tooltip bottom v-if="action" >
+              <span>{{ actionTooltip }}</span>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" icon small @click.stop="action" class="mr-2">
+                  <v-icon small v-text="actionIcon"/>
+                </v-btn>
+              </template>
+            </v-tooltip>
+          </v-layout>
         </v-flex>
       </v-layout>
     </v-container>

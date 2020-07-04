@@ -5,6 +5,12 @@ import DateHelper from 'paraview-quake/src/util/DateHelper';
 
 import * as moment from 'moment';
 
+function encodeQueryData(data) {
+  return Object.keys(data)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+    .join('&');
+}
+
 // function randomPick(list) {
 //   const idx = Math.round(Math.random() * (list.length - 1));
 //   return list[idx];
@@ -372,10 +378,14 @@ export default {
     QUAKE_UPDATE_SITES({ commit }, sitesJson) {
       const siteMapObj = {};
       sitesJson.forEach((siteJson) => {
-        const { name, code, networks, timezone } = siteJson;
-        const siteObj = { text: name, value: code, networks: [], timezone };
+        const { id, name, code, networks, timezone } = siteJson;
+        const siteObj = { id, text: name, value: code, networks: [], timezone };
         networks.forEach((network) => {
-          siteObj.networks.push({ text: network.name, value: network.code });
+          siteObj.networks.push({
+            id: network.id,
+            text: network.name,
+            value: network.code,
+          });
         });
         siteMapObj[code] = siteObj;
       });
@@ -485,6 +495,60 @@ export default {
           catalogue: true,
         });
       }
+    },
+    QUAKE_DOWNLOAD_CSV({ getters, dispatch }) {
+      const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
+      const offset = getters.QUAKE_FOCUS_PERIOD_OFFSET;
+      const now = DateHelper.getDateFromNow(offset - focusPeriod[1]);
+      const fTime = DateHelper.getDateFromNow(offset - focusPeriod[0]);
+
+      const siteMap = getters.QUAKE_SITE_MAP;
+      const selectedSite = getters.QUAKE_SELECTED_SITE;
+      const selectedNetwork = getters.QUAKE_SELECTED_NETWORK;
+      const site = siteMap[selectedSite];
+      const network = site.networks.find(
+        ({ value }) => value === selectedNetwork
+      );
+
+      const url = '/v1/events';
+      const params = {
+        format: 'csv',
+        site: site.id,
+        network: network.id,
+        status: 'accepted',
+        time_utc_after: fTime,
+        time_utc_before: now,
+      };
+
+      if (getters.QUAKE_MAGNITUDE_FILTERING) {
+        [
+          params.magnitude_min,
+          params.magnitude_max,
+        ] = getters.QUAKE_MAGNITUDE_FILTER;
+      }
+
+      dispatch('HTTP_FETCH', `${url}?${encodeQueryData(params)}`).then(
+        ({ data }) => {
+          // Create an invisible A element
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          document.body.appendChild(a);
+
+          // Set the HREF to a Blob representation of the data to be downloaded
+          a.href = window.URL.createObjectURL(
+            new Blob([data], { type: "text/plain" })
+          );
+
+          // Use download attribute to set set desired file name
+          a.setAttribute('download', 'quake-events.csv');
+
+          // Trigger the download by simulating click
+          a.click();
+
+          // Cleanup
+          window.URL.revokeObjectURL(a.href);
+          document.body.removeChild(a);
+      });
     },
   },
 };
