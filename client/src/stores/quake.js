@@ -518,6 +518,7 @@ export default {
         status: 'accepted',
         time_utc_after: fTime,
         time_utc_before: now,
+        page_size: 1000000,
       };
 
       if (getters.QUAKE_MAGNITUDE_FILTERING) {
