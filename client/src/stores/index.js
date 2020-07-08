@@ -1,6 +1,7 @@
 import Vuex from 'vuex';
 
 import busy from 'paraview-quake/src/stores/busy';
+import date from 'paraview-quake/src/stores/date';
 import http from 'paraview-quake/src/stores/http';
 import local from 'paraview-quake/src/stores/local';
 import processing from 'paraview-quake/src/stores/processing';
@@ -19,6 +20,7 @@ function createStore() {
     },
     modules: {
       busy,
+      date,
       http,
       local,
       processing,

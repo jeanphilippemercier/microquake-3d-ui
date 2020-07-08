@@ -255,11 +255,11 @@ export default {
       const eventStatusFilter = getters.QUAKE_FOCUS_EVENT_STATUS;
       const prefOriginMap = getters.QUAKE_PREFERRED_ORIGIN_MAP;
 
-      const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
+
+      const now = getters.DATE_FOCUS_END_TIME.toISOString();
+      const fTime = getters.DATE_FOCUS_START_TIME.toISOString();
+
       const historicalTime = getters.QUAKE_HISTORICAL_TIME;
-      const offset = getters.QUAKE_FOCUS_PERIOD_OFFSET;
-      const now = DateHelper.getDateFromNow(offset - focusPeriod[1]);
-      const fTime = DateHelper.getDateFromNow(offset - focusPeriod[0]);
       const hTime = DateHelper.getDateFromNow(historicalTime);
 
       if (!mineBounds) {
@@ -367,7 +367,7 @@ export default {
 
           dispatch('QUAKE_UPDATE_CATALOGUE', eventsWithIds);
 
-          if (getters.QUAKE_LIVE_MODE && focusPeriod[0] < 2100) {
+          if (getters.QUAKE_LIVE_MODE && getters.DATE_IS_LIVE) {
             dispatch('LOCAL_UPDATE_EVENTS');
           }
         })
@@ -696,7 +696,7 @@ export default {
       }
 
       // Fetch events only when listening till "now"
-      if (getters.QUAKE_FOCUS_PERIOD[1] > 2160) {
+      if (getters.DATE_IS_LIVE) {
         dispatch('LOCAL_UPDATE_EVENTS');
       }
 

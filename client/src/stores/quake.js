@@ -82,9 +82,8 @@ export default {
     uncertaintyScaleFactor: 1,
     preset: 'coolwarm',
     presets: PRESETS,
+    // In days
     historicalTime: 0,
-    focusPeriod: [0, 2190],
-    focusOffset: 2190,
     // tooltip
     pickingPosition: [0, 0],
     pickedData: null,
@@ -164,17 +163,11 @@ export default {
     QUAKE_HISTORICAL_TIME(state) {
       return state.historicalTime;
     },
-    QUAKE_FOCUS_PERIOD(state) {
-      return state.focusPeriod;
-    },
     QUAKE_PICKING_POSITION(state) {
       return state.pickingPosition;
     },
     QUAKE_PICKED_DATA(state) {
       return state.pickedData;
-    },
-    QUAKE_FOCUS_PERIOD_OFFSET(state) {
-      return state.focusOffset;
     },
     QUAKE_UNCERTAINTY_SCALE_FACTOR(state) {
       return state.uncertaintyScaleFactor;
@@ -271,17 +264,11 @@ export default {
     QUAKE_HISTORICAL_TIME_SET(state, value) {
       state.historicalTime = value;
     },
-    QUAKE_FOCUS_PERIOD_SET(state, value) {
-      state.focusPeriod = value;
-    },
     QUAKE_PICKING_POSITION_SET(state, value) {
       state.pickingPosition = value;
     },
     QUAKE_PICKED_DATA_SET(state, value) {
       state.pickedData = value;
-    },
-    QUAKE_FOCUS_PERIOD_OFFSET_SET(state, value) {
-      state.focusOffset = value;
     },
     QUAKE_UNCERTAINTY_SCALE_FACTOR_SET(state, value) {
       state.uncertaintyScaleFactor = value;
@@ -358,12 +345,13 @@ export default {
     async QUAKE_SELECTED_SITE_SET({ state, commit, dispatch }, value) {
       state.selectedSite = value;
       storeItem('selectedSite', value);
-      DateHelper.setTimeZone(
+      const offset =
         (state.siteMap &&
           state.siteMap[value] &&
           state.siteMap[value].timezone) ||
-          '+08:00'
-      );
+        '+08:00';
+      DateHelper.setTimeZone(offset);
+      commit('MINE_OFFSET_SET', offset);
       const { data } = await dispatch('HTTP_FETCH_EVENT_TYPES', value);
       const eventTypes = {};
       data.forEach(({ identifier, microquake_type, quakeml_type }) => {
@@ -486,7 +474,7 @@ export default {
     },
     QUAKE_UPDATE_LIVE_MODE({ getters, commit, dispatch }) {
       if (getters.QUAKE_LIVE_MODE) {
-        commit('QUAKE_FOCUS_PERIOD_SET', [2190 - 72, 2190]);
+        commit('DATE_FOCUS_END_DAY_SET', -1);
         dispatch('API_LIVE_UPDATE');
 
         // Force the catalogue to be visible
@@ -497,10 +485,8 @@ export default {
       }
     },
     QUAKE_DOWNLOAD_CSV({ getters, dispatch }) {
-      const focusPeriod = getters.QUAKE_FOCUS_PERIOD;
-      const offset = getters.QUAKE_FOCUS_PERIOD_OFFSET;
-      const now = DateHelper.getDateFromNow(offset - focusPeriod[1]);
-      const fTime = DateHelper.getDateFromNow(offset - focusPeriod[0]);
+      const now = getters.DATE_FOCUS_END_TIME.toISOString();
+      const fTime = getters.DATE_FOCUS_START_TIME.toISOString();
 
       const siteMap = getters.QUAKE_SITE_MAP;
       const selectedSite = getters.QUAKE_SELECTED_SITE;

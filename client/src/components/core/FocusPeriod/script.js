@@ -1,7 +1,6 @@
 import DateHelper from 'paraview-quake/src/util/DateHelper';
 import ColorPresets from 'paraview-quake/src/components/widgets/ColorPresets';
-
-const DEFAULT_MAX_RANGE = 2190;
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'FocusPeriod',
@@ -16,6 +15,15 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      sliderMax: 'DATE_FOCUS_PERIOD_MAX',
+      sliderLeft: 'DATE_FOCUS_START_DAY',
+      sliderRight: 'DATE_FOCUS_END_DAY',
+      leftDateLabel: 'DATE_FOCUS_MIN_LABEL',
+      rightDateLabel: 'DATE_FOCUS_MAX_LABEL',
+      leftDurationLabel: 'DATE_FOCUS_MIN_DURATION_LABEL',
+      rightDurationLabel: 'DATE_FOCUS_MAX_DURATION_LABEL',
+    }),
     darkMode() {
       return this.$store.getters.APP_DARK_THEME;
     },
@@ -25,20 +33,13 @@ export default {
     presets() {
       return this.$store.getters.QUAKE_COLOR_PRESETS;
     },
-    sliderMax: {
-      get() {
-        return this.$store.getters.QUAKE_FOCUS_PERIOD_OFFSET;
-      },
-      set(value) {
-        this.$store.commit('QUAKE_FOCUS_PERIOD_OFFSET_SET', value);
-      },
-    },
     focusPeriod: {
       get() {
-        return this.$store.getters.QUAKE_FOCUS_PERIOD;
+        return [this.sliderLeft, this.sliderRight];
       },
       set(value) {
-        this.$store.commit('QUAKE_FOCUS_PERIOD_SET', value.slice());
+        this.setSliderRight(value[1]);
+        this.setSliderLeft(value[0]);
       },
     },
     focusPeriodLabels() {
@@ -46,60 +47,35 @@ export default {
         DateHelper.getShortTimeLabel(this.sliderMax - v)
       );
     },
-    focusDateLabels() {
-      // need to dynamically update date label
-      // eslint-disable-next-line
-      this.$store.getters.QUAKE_REFRESH_COUNT;
-      return this.focusPeriod.map((v) =>
-        DateHelper.getDateFromNow(this.sliderMax - v)
-      );
-    },
     minDate: {
       get() {
-        return this.focusDateLabels[0].substr(0, 10);
+        return this.leftDateLabel;
       },
       set(v) {
-        const deltaH = DateHelper.getHoursFromNow(v);
-        const newPeriod = this.focusPeriod.map((t) => this.sliderMax - t);
-        this.sliderMax =
-          deltaH > DEFAULT_MAX_RANGE ? deltaH : DEFAULT_MAX_RANGE;
-        newPeriod[0] = deltaH;
-        if (newPeriod[0] < newPeriod[1]) {
-          newPeriod[1] = newPeriod[0] - 24;
-          if (newPeriod[1] < 0) {
-            newPeriod[1] = 0;
-          }
-        }
-        this.focusPeriod = newPeriod.map((t) => this.sliderMax - t);
+        this.setDateLeft(v);
         this.updateFocusPeriod();
       },
     },
     maxDate: {
       get() {
-        return this.focusDateLabels[1].substr(0, 10);
+        return this.rightDateLabel;
       },
       set(v) {
-        const deltaH = DateHelper.getHoursFromNow(v);
-        const newPeriod = this.focusPeriod.map((t) => this.sliderMax - t);
-        newPeriod[1] = deltaH;
-        if (deltaH > newPeriod[0]) {
-          newPeriod[0] = deltaH + 24;
-        }
-        if (deltaH + 24 > this.sliderMax) {
-          this.sliderMax = deltaH + 24;
-        }
-        this.focusPeriod = newPeriod.map((t) => this.sliderMax - t);
+        this.setDateRight(v);
         this.updateFocusPeriod();
       },
     },
   },
   methods: {
+    ...mapActions({
+      setSliderLeft: 'DATE_FOCUS_UPDATE_START_DAY',
+      setSliderRight: 'DATE_FOCUS_UPDATE_END_DAY',
+      setDateLeft: 'DATE_FOCUS_UPDATE_START_DATE',
+      setDateRight: 'DATE_FOCUS_UPDATE_END_DATE',
+      updateFocusPeriod: 'API_UPDATE_EVENTS',
+    }),
     updateActivePreset(value) {
       this.$store.dispatch('API_UPDATE_PRESET', `${value}`);
     },
-    updateFocusPeriod() {
-      this.$store.dispatch('API_UPDATE_EVENTS');
-    },
-    toMineTime: DateHelper.toMineTime,
   },
 };

@@ -10,7 +10,7 @@
       >
         <template v-slot:activator="{ on: onStart }">
           <div :class="$style.label" v-on="onStart">
-            {{ focusDateLabels[0] | toMineTime | toDay }}
+            {{ leftDateLabel }}
           </div>
         </template>
         <v-date-picker
@@ -18,6 +18,7 @@
           no-title
           scrollable
           @input="minDateMenu = false"
+          :show-current="false"
         />
       </v-menu>
     </v-flex>
@@ -37,7 +38,7 @@
       >
         <template v-slot:activator="{ on: onEnd }">
           <div v-on="onEnd" :class="$style.label">
-            {{ focusDateLabels[1] | toMineTime | toDay }}
+            {{ rightDateLabel }}
           </div>
         </template>
         <v-date-picker
@@ -45,6 +46,7 @@
           no-title
           scrollable
           @input="maxDateMenu = false"
+          :show-current="false"
         />
       </v-menu>
     </v-flex>

@@ -1,7 +1,7 @@
 <v-container fluid grid-list-md class="pt-0">
   <v-layout row align-center justify-space-between>
-    <div class="pt-1">{{ focusPeriodLabels[0] }}</div>
-    <div class="pt-1">{{ focusPeriodLabels[1] }}</div>
+    <div class="pt-1">{{ leftDurationLabel }}</div>
+    <div class="pt-1">{{ rightDurationLabel }}</div>
   </v-layout>
   <v-layout row wrap align-center>
     <v-flex xs12>
@@ -11,7 +11,7 @@
         v-model="focusPeriod"
         :min="0"
         :max="sliderMax"
-        :step="24"
+        :step="1"
         @end="updateFocusPeriod"
       />
     </v-flex>
@@ -34,7 +34,7 @@
     >
       <template v-slot:activator="{ on: onStart }">
         <div v-on="onStart" class="pt-1">
-          {{ toMineTime(focusDateLabels[0]) }}
+          {{ leftDateLabel }}
         </div>
       </template>
       <v-date-picker
@@ -42,6 +42,7 @@
         no-title
         scrollable
         @input="minDateMenu = false"
+        :show-current="false"
       />
     </v-menu>
     <v-menu
@@ -54,13 +55,14 @@
     >
       <template v-slot:activator="{ on: onEnd }">
         <div v-on="onEnd" class="pt-1">
-          {{ toMineTime(focusDateLabels[1]) }}
+          {{ rightDateLabel }}
         </div>
       </template>
       <v-date-picker
         v-model="maxDate"
         no-title
         scrollable
+        :show-current="false"
         @input="maxDateMenu = false"
       />
     </v-menu>
