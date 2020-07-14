@@ -80,6 +80,7 @@ export default {
     mineOffset: '',
     focusBoundTime: null,
     defaultFocusRangeInMonth: 3, // 3 months
+    defaultLiveModeFocusPeriod: 7, // 7 days
     focusStartDay: 0,
     focusEndDay: -1,
   },
@@ -208,6 +209,15 @@ export default {
       if (value < startValue) {
         commit('DATE_FOCUS_START_DAY_SET', Math.max(0, value - 1));
       }
+    },
+    DATE_FOCUS_LIVE_START_DATE({ state, getters, dispatch }) {
+      const liveStartDate = getUTCDate(
+        offsetTime(
+          new Date(Date.now() - DAY_MS * state.defaultLiveModeFocusPeriod),
+          getters.MINE_OFFSET_MS
+        )
+      );
+      dispatch('DATE_FOCUS_UPDATE_START_DATE', liveStartDate);
     },
     DATE_FOCUS_UPDATE_START_DATE({ state, getters, commit, dispatch }, value) {
       const now = Date.now();

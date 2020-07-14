@@ -136,7 +136,7 @@ export default {
 
         // Triger live update
         const timeout = getters.QUAKE_LIVE_REFRESH_RATE * 60 * 1000; // minutes => ms
-        setTimeout(() => {
+        LIVE_TIMEOUT = setTimeout(() => {
           dispatch('LOCAL_LIVE_UPDATE');
         }, timeout);
         dispatch('QUAKE_UPDATE_LIVE_MODE');
@@ -255,7 +255,6 @@ export default {
       const eventStatusFilter = getters.QUAKE_FOCUS_EVENT_STATUS;
       const prefOriginMap = getters.QUAKE_PREFERRED_ORIGIN_MAP;
 
-
       const now = getters.DATE_FOCUS_END_TIME.toISOString();
       const fTime = getters.DATE_FOCUS_START_TIME.toISOString();
 
@@ -367,8 +366,12 @@ export default {
 
           dispatch('QUAKE_UPDATE_CATALOGUE', eventsWithIds);
 
-          if (getters.QUAKE_LIVE_MODE && getters.DATE_IS_LIVE) {
-            dispatch('LOCAL_UPDATE_EVENTS');
+          if (
+            getters.QUAKE_LIVE_MODE &&
+            getters.DATE_IS_LIVE &&
+            !LIVE_TIMEOUT
+          ) {
+            dispatch('LOCAL_LIVE_UPDATE');
           }
         })
         .catch((error) => {
@@ -718,6 +721,7 @@ export default {
       const timeout = getters.QUAKE_LIVE_MODE
         ? 30000 // 30s
         : getters.QUAKE_LIVE_REFRESH_RATE * 60 * 1000;
+      console.log('LOCAL_LIVE_UPDATE timout', timeout);
       LIVE_TIMEOUT = setTimeout(() => {
         dispatch('LOCAL_LIVE_UPDATE');
       }, timeout);

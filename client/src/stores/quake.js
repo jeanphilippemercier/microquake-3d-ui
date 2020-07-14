@@ -475,6 +475,7 @@ export default {
     QUAKE_UPDATE_LIVE_MODE({ getters, commit, dispatch }) {
       if (getters.QUAKE_LIVE_MODE) {
         commit('DATE_FOCUS_END_DAY_SET', -1);
+        dispatch('DATE_FOCUS_LIVE_START_DATE');
         dispatch('API_LIVE_UPDATE');
 
         // Force the catalogue to be visible
@@ -523,7 +524,7 @@ export default {
 
           // Set the HREF to a Blob representation of the data to be downloaded
           a.href = window.URL.createObjectURL(
-            new Blob([data], { type: "text/plain" })
+            new Blob([data], { type: 'text/plain' })
           );
 
           // Use download attribute to set set desired file name
@@ -535,7 +536,8 @@ export default {
           // Cleanup
           window.URL.revokeObjectURL(a.href);
           document.body.removeChild(a);
-      });
+        }
+      );
     },
   },
 };
