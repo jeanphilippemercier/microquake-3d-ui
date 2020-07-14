@@ -320,14 +320,24 @@ export default {
     QUAKE_NOTIFICATIONS_ADD({ state, dispatch }, notification) {
       const ts = Date.now();
       const { type, operation } = notification;
+      let needFetchUpdate = false;
+      // console.log(JSON.stringify(notification, null, 2));
 
-      if (type === 'event' && operation === 'created') {
+      if (
+        type === 'event' &&
+        (operation === 'created' || operation === 'updated')
+      ) {
+        needFetchUpdate = true;
         state.notifications.unshift({
           type: 'success',
           ts,
           autoclean: true,
           notification,
         });
+      }
+
+      if (needFetchUpdate) {
+        dispatch('LOCAL_UPDATE_EVENTS');
       }
 
       dispatch('QUAKE_NOTIFICATIONS_GC');

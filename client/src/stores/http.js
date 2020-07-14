@@ -14,12 +14,16 @@ function busy(dispatch, promise) {
   );
 }
 
+let WS_MONITOR_TIMEOUT = 0;
+
 export default {
   state: {
     baseUrl: 'https://api.microquake.org/api',
     wsUrl: 'wss://api.microquake.org/eventstream/',
     authToken: null,
     wsClient: null,
+    lastWsMessage: Date.now(),
+    checkWsStale: 0,
   },
   getters: {
     HTTP_AUTH_TOKEN(state) {
@@ -27,6 +31,13 @@ export default {
     },
     HTTP_BASE_URL(state) {
       return state.baseUrl;
+    },
+    HTTP_WS_STALE(state) {
+      // We need to depend on checkWsStale
+      // eslint-disable-next-line no-unused-vars
+      const { checkWsStale, lastWsMessage } = state;
+      const now = Date.now();
+      return now - lastWsMessage > 30000; // stale if nothing was seen in 30s
     },
   },
   mutations: {
@@ -235,8 +246,10 @@ export default {
       if (state.wsClient) {
         dispatch('HTTP_WS_DISCONNECT');
       }
+      state.lastWsMessage = Date.now();
       state.wsClient = new WebSocket(state.wsUrl);
       state.wsClient.onmessage = (msg) => {
+        state.lastWsMessage = Date.now();
         const msgObj = JSON.parse(msg.data);
         dispatch('QUAKE_NOTIFICATIONS_ADD', msgObj);
         switch (msgObj.type) {
@@ -263,11 +276,26 @@ export default {
       state.wsClient.onclose = (e) => {
         console.log('closing event stream', e);
       };
+      dispatch('HTTP_MONITOR_WS_STALE');
     },
     HTTP_WS_DISCONNECT({ state }) {
       if (state.wsClient) {
         state.wsClient.close();
         state.wsClient = null;
+      }
+    },
+    HTTP_MONITOR_WS_STALE({ state, getters, dispatch }) {
+      if (WS_MONITOR_TIMEOUT) {
+        clearTimeout(WS_MONITOR_TIMEOUT);
+        WS_MONITOR_TIMEOUT = 0;
+      }
+      state.checkWsStale += 1;
+      WS_MONITOR_TIMEOUT = setTimeout(() => {
+        dispatch('HTTP_MONITOR_WS_STALE');
+      }, 5000); // 5s
+
+      if (getters.HTTP_WS_STALE) {
+        dispatch('HTTP_WS_CONNECT');
       }
     },
   },
