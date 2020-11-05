@@ -466,7 +466,7 @@ def handleInsert(entity, polydata=None):
 registerHandler('POLYLINE', handlePolyLine)
 registerHandler('LWPOLYLINE', handleLWPolyLine)
 registerHandler('LINE', handleLine)
-registerHandler('POINT', handlePoint)
+# registerHandler('POINT', handlePoint)
 
 registerHandler('MTEXT', handleMText)
 registerHandler('TEXT', handleText)
