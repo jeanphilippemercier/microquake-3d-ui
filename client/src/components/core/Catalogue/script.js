@@ -33,7 +33,7 @@ export default {
       }
       const height = `calc(100vh - ${baseHeight}px)`;
       return {
-        minHeight: height,
+        // minHeight: height,
         maxHeight: height,
         overflow: 'auto',
       };
