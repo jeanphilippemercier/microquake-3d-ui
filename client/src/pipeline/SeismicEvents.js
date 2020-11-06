@@ -19,6 +19,7 @@ const UNIT_CYLINDER_SOURCE = vtkCylinderSource.newInstance({
   height: 1.0,
   radius: 0.1,
   resolution: 60,
+  direction: [1, 0, 0],
 });
 
 const ACTIVE_CELLS = new Uint8Array([2, 0, 1, 2, 2, 3, 2, 4, 5]);
