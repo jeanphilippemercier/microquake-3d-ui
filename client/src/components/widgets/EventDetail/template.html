@@ -1,4 +1,4 @@
-<v-card v-show="event && event.time_utc" class="elevation-20">
+<v-card v-show="event && event.time_utc" class="elevation-20" style="z-index: 1;">
   <v-container fluid class="pa-0">
     <v-layout class="py-2 px-3 grey" :class="headerClass" align-center>
       <div class="font-weight-bold subtitle-2">Event detail</div>
@@ -47,17 +47,17 @@
         <v-layout column>
           <v-layout>
             <v-flex xs1 class="caption text-right">X</v-flex>
-            <v-flex xs5 class="text-right">{{event.x}}</v-flex>
+            <v-flex xs5 class="text-right">{{Math.round(event.x)}}</v-flex>
             <v-flex xs6 class="caption text-center">East</v-flex>
           </v-layout>
           <v-layout>
             <v-flex xs1 class="caption text-right">Y</v-flex>
-            <v-flex xs5 class="text-right">{{event.y}}</v-flex>
+            <v-flex xs5 class="text-right">{{Math.round(event.y)}}</v-flex>
             <v-flex xs6 class="caption text-center">North</v-flex>
           </v-layout>
           <v-layout>
             <v-flex xs1 class="caption text-right">Z</v-flex>
-            <v-flex xs5 class="text-right">{{event.z}}</v-flex>
+            <v-flex xs5 class="text-right">{{Math.round(event.z)}}</v-flex>
             <v-flex xs6 class="caption text-center"></v-flex>
           </v-layout>
         </v-layout>

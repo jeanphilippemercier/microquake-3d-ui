@@ -31,5 +31,5 @@ export default {
     ...mapActions({
       downloadCSV: 'QUAKE_DOWNLOAD_CSV',
     }),
-  }
+  },
 };
