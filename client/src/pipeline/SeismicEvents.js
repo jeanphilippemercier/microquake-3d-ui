@@ -262,10 +262,10 @@ function vtkSeismicEvents(publicAPI, model) {
 
       if (event.uncertainty) {
         const value = parseFloat(event.uncertainty);
-        if (value > UNCERTAINTY_CAP) {
+        if (value * 2 > UNCERTAINTY_CAP) {
           uncertaintyArray[i] = UNCERTAINTY_CAP;
         } else {
-          uncertaintyArray[i] = value;
+          uncertaintyArray[i] = value * 2;
         }
       } else {
         uncertaintyArray[i] = 0.0;
