@@ -24,13 +24,18 @@ function vtp({ url, piece, translate, renderer, getters }) {
 
     polydata.getPoints().modified();
 
-    const mapper = vtkMapper.newInstance();
+    const mapper = vtkMapper.newInstance({ scalarVisibility: false });
     const actor = vtkActor.newInstance();
     actor.getProperty().setInterpolationToFlat();
     actor.getProperty().set({
       ambient: 1.0,
       diffuse: 0.0,
     });
+
+    // Handle color is any
+    const color = (piece.extra_json_attributes &&
+      piece.extra_json_attributes.color) || [1.0, 1.0, 1.0];
+    actor.getProperty().setColor(...color);
 
     actor.setMapper(mapper);
     mapper.setInputData(polydata);
