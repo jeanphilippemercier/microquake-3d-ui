@@ -700,6 +700,7 @@ export default {
 
       // Fetch events only when listening till "now"
       if (getters.DATE_IS_LIVE) {
+        dispatch('DATE_LIVE_REFRESH');
         dispatch('LOCAL_UPDATE_EVENTS');
       }
 

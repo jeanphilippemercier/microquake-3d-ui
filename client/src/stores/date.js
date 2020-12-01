@@ -83,6 +83,7 @@ export default {
     defaultLiveModeFocusPeriod: 7, // 7 days
     focusStartDay: 0,
     focusEndDay: -1,
+    liveTimeStamp: 1,
   },
   getters: {
     MINE_OFFSET(state) {
@@ -103,7 +104,7 @@ export default {
     },
     DATE_FOCUS_BOUND_TIME(state, getters) {
       const str = state.focusBoundTime;
-      if (str) {
+      if (state.liveTimeStamp && str) {
         return getMidnightMineDate(str, getters.MINE_OFFSET);
       }
       const now = new Date();
@@ -134,7 +135,7 @@ export default {
       return t0;
     },
     DATE_FOCUS_END_TIME(state, getters) {
-      if (state.focusEndDay < 0) {
+      if (state.liveTimeStamp && state.focusEndDay < 0) {
         return new Date();
       }
       const t0 = getters.DATE_FOCUS_BOUND_TIME;
@@ -146,7 +147,7 @@ export default {
       return getUTCDate(offsetTime(mineTime, getters.MINE_OFFSET_MS));
     },
     DATE_FOCUS_MAX_LABEL(state, getters) {
-      if (state.focusEndDay < 0) {
+      if (state.liveTimeStamp && state.focusEndDay < 0) {
         // We follow the live time
         return getUTCDateWithHours(
           offsetTime(new Date(), getters.MINE_OFFSET_MS)
@@ -184,6 +185,9 @@ export default {
     },
   },
   actions: {
+    DATE_LIVE_REFRESH({ state }) {
+      state.liveTimeStamp += 1;
+    },
     DATE_FOCUS_UPDATE_START_DAY({ state, getters, commit }, value) {
       const maxValue = getters.DATE_FOCUS_PERIOD_MAX;
       const startValue = Math.max(0, Math.min(value, maxValue - 1));
