@@ -3,7 +3,7 @@
     <v-container v-if="pickedData" fluid grid-list-md class="pa-1">
       <v-layout row wrap align-center v-if="pickedData.name" style="width: 250px; text-align: center;">
         <v-flex xs12 class="px-3">
-          {{ pickedData.station_location_code }}.{{ pickedData.location_code}} ({{ pickedData.code}})
+          {{ pickedData.station_location_code }} ({{ pickedData.code}})
         </v-flex>
         <v-layout row wrap align-center v-if="sensorStatus">
           <v-flex xs4 class="px-3">
