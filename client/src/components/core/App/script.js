@@ -78,6 +78,8 @@ export default {
       raysInScene: 'QUAKE_RAYS_IN_SCENE',
 
       heartbeat: 'QUAKE_HEARTBEAT',
+
+      appURL: 'QUAKE_URL',
     }),
     connectorColor() {
       // eslint-disable-next-line

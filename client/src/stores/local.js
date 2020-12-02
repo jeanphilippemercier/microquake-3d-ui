@@ -79,6 +79,9 @@ export default {
         preferredOrigins,
       });
 
+      // Process url in case settings are done from it
+      dispatch('QUAKE_PROCESS_URL');
+
       dispatch('API_FETCH_MINE').then(() => {
         // Events need to be translated by an amount which is unknown until
         // we have successfully processed the mine plan.

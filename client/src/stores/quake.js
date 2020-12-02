@@ -50,6 +50,7 @@ let MOST_RECENT_EVENT = '';
 
 export default {
   state: {
+    urlInitialized: false,
     liveMode: false,
     refreshCount: 0,
     quakeMagnitudeFilter: [-100, 0],
@@ -99,6 +100,28 @@ export default {
     heartbeat: {},
   },
   getters: {
+    QUAKE_URL(state, getters) {
+      const url = window.location;
+      const params = new URLSearchParams(url.hash.substring(1));
+      params.set('start', getters.DATE_FOCUS_START_TIME.toISOString());
+      params.set('end', getters.DATE_FOCUS_END_TIME.toISOString());
+      params.set('live', getters.QUAKE_LIVE_MODE ? 1 : 0);
+      if (getters.QUAKE_MAGNITUDE_FILTERING) {
+        params.set('magnitude', getters.QUAKE_MAGNITUDE_FILTER.join(','));
+      } else {
+        params.delete('magnitude');
+      }
+      // params.set('eventTypes', XXXX);
+
+      if (state.urlInitialized) {
+        console.log('force URL', getters.QUAKE_LIVE_MODE);
+        url.hash = `#${params.toString()}`;
+      } else {
+        console.log('skip URL');
+      }
+
+      return url;
+    },
     QUAKE_MAGNITUDE_FILTERING(state) {
       return state.quakeMagnitudeFiltering;
     },
@@ -548,6 +571,51 @@ export default {
           document.body.removeChild(a);
         }
       );
+    },
+    QUAKE_PROCESS_URL({ state, commit, dispatch }) {
+      const url = window.location;
+      const params = new URLSearchParams(url.hash.substring(1));
+      const start = params.has('start') ? params.get('start') : null;
+      const end = params.has('end') ? params.get('end') : null;
+      const live = params.has('live') ? !!+params.get('live') : null;
+      const filterMagRange = params.has('magnitude')
+        ? params.get('magnitude').split(',').map(Number)
+        : null;
+      // eventTypes
+      console.log('start', start);
+      console.log('end', end);
+      console.log('live', live);
+      console.log('filterMagRange', filterMagRange);
+
+      let needToUpdateFlag = true;
+
+      // Live mode
+      if (live !== null) {
+        window.localStorage.removeItem('paraview.quake.config.livemode');
+        needToUpdateFlag = false;
+        const value = !!live;
+        const setLiveMode = () => {
+          commit('QUAKE_LIVE_MODE_SET', value);
+          dispatch('QUAKE_UPDATE_LIVE_MODE');
+          state.urlInitialized = true;
+        };
+        setTimeout(setLiveMode, 1000);
+      }
+
+      // Focus time
+      dispatch('DATE_FOCUS_UPDATE_FROM_UTC', { start, end });
+
+      // Magnitude filtering
+      if (filterMagRange !== null) {
+        window.localStorage.removeItem('paraview.quake.config.magnitude');
+        commit('QUAKE_MAGNITUDE_FILTER_SET', filterMagRange);
+        commit('QUAKE_MAGNITUDE_FILTERING_SET', true);
+        dispatch('API_UPDATE_SCALING');
+      }
+
+      if (needToUpdateFlag) {
+        state.urlInitialized = true;
+      }
     },
   },
 };

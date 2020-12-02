@@ -188,7 +188,32 @@ export default {
     DATE_LIVE_REFRESH({ state }) {
       state.liveTimeStamp += 1;
     },
+    DATE_FOCUS_UPDATE_FROM_UTC({ getters, dispatch }, { start, end }) {
+      const maxValue = getters.DATE_FOCUS_PERIOD_MAX - 1;
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const startDay = Math.round(
+        (Date.now() - startDate.getTime()) / 86400000
+      );
+      const endDay = Math.round((Date.now() - endDate.getTime()) / 86400000);
+
+      if (endDay <= 0) {
+        dispatch('DATE_FOCUS_UPDATE_END_DAY', -1);
+      } else {
+        dispatch('DATE_FOCUS_UPDATE_END_DAY', maxValue - endDay);
+      }
+
+      if (startDay > maxValue) {
+        dispatch('DATE_FOCUS_UPDATE_START_DAY', maxValue);
+      } else {
+        dispatch('DATE_FOCUS_UPDATE_START_DAY', maxValue - startDay);
+      }
+
+      console.log(getters.DATE_FOCUS_START_TIME.toISOString(), 'vs', start);
+      console.log(getters.DATE_FOCUS_END_TIME.toISOString(), 'vs', end);
+    },
     DATE_FOCUS_UPDATE_START_DAY({ state, getters, commit }, value) {
+      console.log('DATE_FOCUS_UPDATE_START_DAY', value);
       const maxValue = getters.DATE_FOCUS_PERIOD_MAX;
       const startValue = Math.max(0, Math.min(value, maxValue - 1));
       const endValue = state.focusEndDay;
@@ -202,6 +227,7 @@ export default {
       }
     },
     DATE_FOCUS_UPDATE_END_DAY({ state, getters, commit }, value) {
+      console.log('DATE_FOCUS_UPDATE_END_DAY', value);
       const maxValue = getters.DATE_FOCUS_PERIOD_MAX;
       const startValue = state.DATE_FOCUS_START_DAY;
       if (value >= maxValue) {

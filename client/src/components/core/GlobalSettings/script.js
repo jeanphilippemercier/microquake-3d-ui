@@ -140,7 +140,7 @@ export default {
     wrapGet(storeGetKey, storeSetKey, storageKey) {
       const originalValue = this.$store.getters[storeGetKey];
       const value = retreiveItem(KEYS[storageKey], originalValue);
-      if (value !== originalValue) {
+      if (value !== undefined && value !== originalValue) {
         this.$store.commit(storeSetKey, value);
       }
       return value;
